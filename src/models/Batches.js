@@ -1,22 +1,22 @@
 import mongoose, { Schema } from "mongoose";
 
 const batchSchema = new Schema({
-    batchName: {
-        type: String,
-        unique: true,
-    },
     subject: {
         type: String,
+        required: true
     },
     endTime: {
-        type: Date,
+        type: String,
+        required: [true, "Please enter time."]
     },
     startTime: {
-        type: Date,
+        type: String,
+        required: [true, "Please enter time."]
     },
     days: {
         type: Array,
-        default: []
+        default: [],
+        required: true
     }
 })
 

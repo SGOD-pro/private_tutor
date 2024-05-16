@@ -1,4 +1,3 @@
-import { timeStamp } from "console";
 import mongoose, { Schema } from "mongoose";
 const userSchema = Schema({
     name: {
@@ -20,7 +19,12 @@ const userSchema = Schema({
     presents: {
         type: Number,
         default: 0,
-    }
+    },
+    batches:[{
+        type: Schema.Types.ObjectId,
+        ref:"batches",
+        default:[]
+    }]
 }, { timestamps: true })
 
 const User = mongoose.models.users || mongoose.model("users", userSchema);

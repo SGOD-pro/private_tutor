@@ -37,6 +37,11 @@ function Navbar() {
 			route: "/result",
 			icon: "https://cdn.lordicon.com/abwrkdvl.json",
 		},
+		{
+			pathname: "Settings",
+			route: "/settings",
+			icon: "https://cdn.lordicon.com/gkgkfbzm.json",
+		},
 	];
 	return (
 		<div className="w-32 flex items-center justify-center md:w-56">

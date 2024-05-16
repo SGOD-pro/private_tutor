@@ -28,7 +28,8 @@ export const studentSlice = createSlice({
 			state.allStudents = action.payload;
 		},
 		pushStudent: (state, action: PayloadAction<StudentData>) => {
-			state.allStudents.push(action.payload);
+			state.allStudents=[action.payload,...state.allStudents];
+			
 		},
 		popStudent: (state, action: PayloadAction<string>) => {
 			state.allStudents = state.allStudents.filter(

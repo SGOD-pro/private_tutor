@@ -7,35 +7,19 @@ export async function GET(req: NextRequest) {
 	try {
 		const allBatches = await batchModel.aggregate([
 			{
-				$addFields: {
-					endTime: {
-						$add: ["$endTime", 19800000],
-					},
-					startTime: {
-						$add: ["$startTime", 19800000],
-					},
-				},
+				$sort:{subject:1}
 			},
-			{
-				$addFields: {
-					endTime: {
-						$dateToString: { format: "%H:%M", date: "$endTime" },
-					},
-					startTime: {
-						$dateToString: { format: "%H:%M", date: "$startTime" },
-					},
-				},
-			},
+			
 			{
 				$addFields: {
 					time: {
-						$concat: ["$startTime", " -- ", "$endTime"],
+						$concat: ["$startTime", " - ", "$endTime"],
 					},
 					days: {
 						$reduce: {
 							input: "$days",
 							initialValue: "",
-							in: { $concat: ["$$value", ",", "$$this"] },
+							in: { $concat: ["$$value", ", ", "$$this"] },
 						},
 					},
 				},
@@ -46,16 +30,14 @@ export async function GET(req: NextRequest) {
 				  _id: 1,
 				  time: 1,
 				  subject: 1,
-				  batchName: 1,
 				  days: {
 					$cond: { if: { $eq: ["$days", ""] }, then: "", else: {
-					  $substrCP: ["$days", 1, { $subtract: [{ $strLenCP: "$days" }, 2] }]
+					  $substrCP: ["$days", 1, { $subtract: [{ $strLenCP: "$days" }, 1] }]
 					} }
 				  },
 				},
 			  }
 		]);
-		console.log(allBatches);
 		return NextResponse.json({
 			message: "Fetched subjects successfully",
 			allBatches,

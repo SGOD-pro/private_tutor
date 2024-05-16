@@ -23,7 +23,7 @@ function AddDaysTime() {
 	const [update, setUpdate] = useState(false);
 	const [disable, setDisable] = useState(false);
 	const dispatch = useDispatch();
-	const days = ["sun", "mon", "tue", "wed", "thrus", "fri", "sat"];
+	const days = ["Sun", "Mon", "Tue", "Wed", "Thrus", "Fri", "Sat"];
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const subjects = AllSubjects.map((subject: any) => ({
 		name: subject.subject,

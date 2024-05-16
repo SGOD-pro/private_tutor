@@ -2,34 +2,56 @@ import React, { useState } from "react";
 import InputFields from "./InputFields";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import {pushSubject} from "@/store/slices/Subjects"
-
+import { pushSubject } from "@/store/slices/Subjects";
+import { AppDispatch } from "@/store/store";
+import { showToast } from "@/store/slices/Toast";
 
 function AddSubject() {
 	const [subject, setSubject] = useState({
 		subject: "",
 	});
-	const dispatch=useDispatch()
-	const [disable, setDisable] = useState(false)
-	
+	const dispatch = useDispatch();
+	const [disable, setDisable] = useState(false);
+	const addDispatch: AppDispatch = useDispatch();
+	interface toast {
+		summary: string;
+		detail: string;
+		type: string;
+	}
+	const show = ({ summary, detail, type }: toast) => {
+		addDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
+	};
 	const handelSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		if (subject.subject === "") {
-			return
+			return;
 		}
-		setDisable(true)
-		axios.post("/api/subjects/setsubjects", subject)
-		.then((response:any) => {
-			console.log(response.data);
-			setSubject({
-				subject: "",
+		setDisable(true);
+		axios
+			.post("/api/subjects/setsubjects", subject)
+			.then((response: any) => {
+				console.log(response.data);
+				setSubject({
+					subject: "",
+				});
+				show({ summary: "Added", detail: "Subjet added.", type: "success" });
+				dispatch(pushSubject(response.data.createdSub));
 			})
-			dispatch(pushSubject(response.data.createdSub))
-		})
-		.catch((err) =>{console.log(err);
-		})
-		.finally(() => {setDisable(false)});
+			.catch((error) => {
+				console.log(error);
+				show({ summary: "Error", detail: error.message, type: "error" });
+			})
+			.finally(() => {
+				setDisable(false);
+			});
 	};
 	return (
 		<form className="w-full h-full" onSubmit={handelSubmit}>
@@ -40,10 +62,14 @@ function AddSubject() {
 			/>
 
 			<div className=" text-right">
-				<button className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${disable&&"grayscale-[50%] cursor-not-allowed"}`} disabled={disable}>
+				<button
+					className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
+						disable && "grayscale-[50%] cursor-not-allowed"
+					}`}
+					disabled={disable}
+				>
 					Add
 					{disable && <i className="pi pi-spin pi-spinner"></i>}
-
 				</button>
 			</div>
 		</form>

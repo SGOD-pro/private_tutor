@@ -5,18 +5,38 @@ import ExamForm from "./components/ExamForm";
 import Table from "./components/Table";
 import SimpleCard from "./components/SimpleCard";
 import AddSubject from "./components/AddSubject";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setSubject } from "@/store/slices/Subjects";
 import { setAllStudents, popStudent } from "@/store/slices/Students";
+import { setAllBatches } from "@/store/slices/Batch";
+import { AppDispatch } from "@/store/store";
+import { showToast } from "@/store/slices/Toast";
+
 export default function Home() {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(true);
-	const [btnDisable, setBtnDisable] = useState(false);
 
-	const subjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const students = useSelector((state: any) => state.Students.allStudents);
+
+	const addDispatch: AppDispatch = useDispatch();
+	interface toast {
+		summary: string;
+		detail: string;
+		type: string;
+	}
+	const show = ({ summary, detail, type }: toast) => {
+		addDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
+	};
+
 	const columns = [
 		{ field: "admissionNo", header: "Admission No" },
 		{ field: "name", header: "Full name" },
@@ -25,32 +45,18 @@ export default function Home() {
 	useEffect(() => {
 		if (!students[0].admissionNo || students[0].admissionNo.trim() === "") {
 			axios
-				.get("/api/students/getStudents")
+				.get("/api/students/setStudent")
 				.then((response) => {
 					dispatch(setAllStudents(response.data.data));
+					show({
+						type: "success",
+						summary: "Fetched",
+						detail: "Successfully fetched students",
+					});
 				})
 				.catch((error) => {
 					console.log(error);
-				})
-				.finally(() => {});
-		} else {
-		}
-	}, []);
-
-	useEffect(() => {
-		console.log("kii");
-
-		if (
-			subjects?.length > 0 &&
-			(!subjects[0].subject || subjects[0].subject.trim() === "")
-		) {
-			axios
-				.get("/api/subjects/getsubjects")
-				.then((response) => {
-					dispatch(setSubject(response.data.allSubjects));
-				})
-				.catch((error) => {
-					console.log(error);
+					show({ type: "error", summary: "Error", detail: error.message });
 				})
 				.finally(() => {
 					setLoading(false);
@@ -59,6 +65,7 @@ export default function Home() {
 			setLoading(false);
 		}
 	}, []);
+
 	type DeleteFunction = (id: string) => Promise<boolean>;
 
 	const deleteFunction: DeleteFunction = async (id: string) => {
@@ -70,7 +77,6 @@ export default function Home() {
 			return false;
 		}
 	};
-
 
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full md:gap-3 gap-1 ">
@@ -123,10 +129,14 @@ export default function Home() {
 				</div>
 			</div>
 			<div className="bg  w-full hidden lg:block min-w-44">
-				<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 overflow-hidden relative">
-					<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 hidden"></div>
-					<div className={`w-full h-full p-2 opacity-1`}>
-						<SimpleCard batch={"Python"} time={"1:00:3:00"} />
+				<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 overflow-hidden relative ">
+					<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 hidden "></div>
+					<div className="w-full h-44">
+						{loading ? (
+							<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
+						) : (
+							<SimpleCard />
+						)}
 					</div>
 				</div>
 				<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 overflow-hidden relative md:my-3 my-2">

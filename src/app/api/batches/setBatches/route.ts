@@ -8,37 +8,25 @@ export async function POST(req: NextRequest) {
 	try {
 		const { subject, endTime, startTime, days } = await req.json();
 
-		const sub = subject.name;
-		const existsbatches = await batchesModel.aggregate([
-			{
-				$match: { subject: sub },
-			},
-			{
-				$count: "total_count",
-			},
-		]);
-		console.log(existsbatches);
-		console.log(sub, endTime, startTime, days);
-
-		const len = existsbatches[0]?.total_count ?? 0;
-		console.log(len);
-
-		const batchName = `${sub}-${len}`;
 		const data = await batchesModel.create({
-			subject: sub,
-			batchName,
-			startTime,
-			endTime,
+			subject:subject.name,
+			startTime:extractTime(startTime),
+			endTime:extractTime(endTime),
 			days,
 		});
-		const modifiedData={
-			_id:data._id,
-			subject:data.subject,
-			batchName:data.batchName,
-			time:extractTime(data.startTime)+"-"+extractTime(data.endTime),
-			days:data.days?.join(","),
-		}
-		return NextResponse.json({ message: "success", data:modifiedData, status: true });
+		const modifiedData = {
+			_id: data._id,
+			subject: data.subject,
+			time: data.startTime + " - " + data.endTime,
+			days: data.days?.join(","),
+		};
+		console.log(modifiedData);
+		
+		return NextResponse.json({
+			message: "success",
+			data: modifiedData,
+			status: true,
+		});
 	} catch (error: any) {
 		return NextResponse.json({ message: error.message });
 	}

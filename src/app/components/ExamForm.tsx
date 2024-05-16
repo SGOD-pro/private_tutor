@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import InputFields from "./InputFields";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
+import Select from "./Select";
 interface ExamProps {
 	title: string;
 	caption: string;
@@ -16,13 +17,7 @@ function ExamForm() {
 		batch: "",
 		date: null,
 	});
-	const cities = [
-		{ name: "New York" },
-		{ name: "Rome" },
-		{ name: "London" },
-		{ name: "Istanbul" },
-		{ name: "Paris" },
-	];
+
 	const [disable, setDisable] = useState(false);
 	const handelSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -39,6 +34,9 @@ function ExamForm() {
 					name="caption"
 					id="caption"
 					className="flex-grow flex-shrink basis-44 rounded-md p-1 h-20 focus:outline outline-[3px] outline-teal-500/30 transition-all resize-none bg-[#393E46]"
+					onChange={(e) => {
+						setValues((prev) => ({ ...prev, caption: e.target.value }));
+					}}
 				></textarea>
 			</div>
 			<div className="flex flex-wrap w-full my-3">
@@ -46,14 +44,7 @@ function ExamForm() {
 					Batch
 				</label>
 				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
-					<Dropdown
-						value={values.batch}
-						onChange={(e) => setValues((prev) => ({ ...prev, batch: e.value }))}
-						options={cities}
-						optionLabel="name"
-						placeholder="Select a City"
-						className="w-full md:w-14rem text-xs bg-[#393E46]"
-					/>
+					<Select values={values} setValues={setValues} />
 				</div>
 			</div>
 			<div className="flex flex-wrap w-full my-3">

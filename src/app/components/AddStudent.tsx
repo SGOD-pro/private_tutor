@@ -5,6 +5,9 @@ import { Dropdown } from "primereact/dropdown";
 import InputFields from "./InputFields";
 import { useSelector, useDispatch } from "react-redux";
 import { pushStudent } from "@/store/slices/Students";
+import { AppDispatch } from "@/store/store";
+import { showToast } from "@/store/slices/Toast";
+
 import axios from "axios";
 function AddStudent() {
 	const [selectedSubjects, setSelectedSubjects] = useState([]);
@@ -15,6 +18,22 @@ function AddStudent() {
 		subject: null,
 		name: "",
 	});
+	const addDispatch: AppDispatch = useDispatch();
+	interface toast {
+		summary: string;
+		detail: string;
+		type: string;
+	}
+	const show = ({ summary, detail, type }: toast) => {
+		addDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
+	};
 	const [loading, setLoading] = useState(false);
 	const lastAdmission = useSelector((state: any) => state.Students.allStudents);
 	function updateAddNo() {
@@ -60,9 +79,11 @@ function AddStudent() {
 				})
 				setSelectedSubjects([])
 				setKey(prevKey => prevKey + 1);
+				show({summary:"Added",type:"success",detail:"Student added successfully"})
 			})
 			.catch((error) => {
 				console.log(error);
+				show({summary:"Error",type:"success",detail:error.message});
 			})
 			.finally(() => {
 				setLoading(false);

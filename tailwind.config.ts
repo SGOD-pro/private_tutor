@@ -13,7 +13,7 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
-      boxShadow:{"left-side":"-8px 0px 15px -4px #0e1116eb"},
+      boxShadow:{"left-side":"-1rem 0px 2.2rem -12px #000"},
       darkMode: 'class',
     },
   },

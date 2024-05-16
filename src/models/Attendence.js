@@ -2,11 +2,11 @@ import mongoose, { Schema } from "mongoose";
 
 const attendenceSchema = new Schema({
     batchName: {
-        type: 'string',
+        type: String,
         require: true,
     },
     subject: {
-        type: 'string',
+        type: String,
         require: true,
     },
     studentsId: [{

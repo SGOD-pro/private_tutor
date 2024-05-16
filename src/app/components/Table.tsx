@@ -35,64 +35,43 @@ export default function BasicDemo({
 	columns,
 	values,
 }: TableProps) {
-	const [products, setProducts] = useState<Product[]>([
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-	]);
-
-	// useEffect(() => {
-	//     ProductService.getProductsMini().then(data => setProducts(data));
-	// }, []);
-	const ButtonTemplate = (id: string) => {
+	const [loading, setLoading] = useState(false);
+	const ButtonTemplate = ({ id, deleteFunction, editFunction }: { id: string, deleteFunction?: (id: string) => Promise<boolean>, editFunction?: (id: string) => void }) => {
+		const [loading, setLoading] = useState(false);
+	  
+		const handleDelete = async () => {
+		  if (!deleteFunction) return;
+		  setLoading(true);
+		  await deleteFunction(id);
+		  setLoading(false);
+		};
+	  
 		return (
-			<div className=" flex gap-2">
-				{deleteFunction && (
-					<button
-						className="bg-red-600 rounded-lg p-3 grid place-items-center"
-						onClick={async (event: React.MouseEvent<HTMLButtonElement>) => {
-							(event.target as HTMLButtonElement).setAttribute(
-								"disabled",
-								"true"
-							);
-							event.currentTarget.innerHTML =
-								"<i className='pi pi-spin pi-spinner'></i>";
-							const deleteResult = await deleteFunction(id);
-
-							if (deleteResult === false) {
-								(event.target as HTMLButtonElement).removeAttribute("disabled");
-
-								event.currentTarget.innerHTML =
-									"<i className='pi pi-trash'></i>";
-							}
-						}}
-					>
-						<i className="pi pi-trash"></i>
-					</button>
+		  <div className=" flex gap-2">
+			{deleteFunction && (
+			  <button
+				className="bg-red-600 rounded-lg p-3 grid place-items-center"
+				onClick={handleDelete}
+				disabled={loading}
+			  >
+				{loading ? (
+				  <i className="pi pi-spin pi-spinner"></i>
+				) : (
+				  <i className="pi pi-trash"></i>
 				)}
-				{editFunction && (
-					<button
-						className="bg-emerald-600 rounded-lg p-3 grid place-items-center"
-						onClick={() => editFunction(id)}
-					>
-						<i
-							className="pi 
-pi-pen-to-square"
-						></i>
-					</button>
-				)}
-			</div>
+			  </button>
+			)}
+			{editFunction && (
+			  <button
+				className="bg-emerald-600 rounded-lg p-3 grid place-items-center"
+				onClick={() => editFunction(id)}
+			  >
+				<i className="pi pi-pen-to-square"></i>
+			  </button>
+			)}
+		  </div>
 		);
-	};
+	  };
 
 	return (
 		<div className="card">
@@ -105,7 +84,13 @@ pi-pen-to-square"
 				))}
 				<Column
 					key="delete"
-					body={(rowData) => ButtonTemplate(rowData._id)}
+					body={(rowData) => (
+						<ButtonTemplate
+							id={rowData._id}
+							deleteFunction={deleteFunction}
+							editFunction={editFunction}
+						/>
+					)}
 					header="Actions"
 				/>
 			</DataTable>

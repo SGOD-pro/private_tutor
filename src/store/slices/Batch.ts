@@ -2,9 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface BatchInterface {
 	_id: string;
-	batchName: string;
-	startTime: string;
-	endTime: string;
+	time: string;
 	days: string;
 	subject: string;
 }
@@ -13,9 +11,7 @@ const initialState: { allBatches: BatchInterface[] } = {
 	allBatches: [
 		{
 			_id: "",
-			batchName: "",
-			startTime: "",
-			endTime: "",
+			time:"",
 			days: '',
 			subject: "",
 		},
@@ -33,8 +29,10 @@ export const batchSlice = createSlice({
 			state.allBatches.push(action.payload);
 		},
 		popBatches: (state, action: PayloadAction<string>) => {
+			console.log(action.payload);
+			
 			state.allBatches = state.allBatches.filter(
-				(student) => student._id !== action.payload
+				(batch) => batch._id !== action.payload
 			);
 		},
 		updateBatches: (state, action) => {

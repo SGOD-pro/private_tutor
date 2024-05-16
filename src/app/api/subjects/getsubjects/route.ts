@@ -6,7 +6,6 @@ ConnectDB();
 export async function GET(req: NextRequest) {
 	try {
 		const allSubjects = await subjectModel.find();
-        console.log(allSubjects);
 		return NextResponse.json({
 			message: "Fetched subjects successfully",
 			allSubjects,

@@ -1,221 +1,78 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { FilterMatchMode } from "primereact/api";
+import Image from "next/image";
 
-interface TableProps{
-	columns:string[];
-	values:any;
+
+interface ColumnProps {
+	field: string;
+	header: string;
 }
+interface TableProps {
+	columns: ColumnProps[];
+	values: any;
+	Components?: React.FC<ComponentProps> | any;
+}
+interface ComponentProps {
+	id: string;
+	subjectWiseBatches?: any;
+	subjects?: string;
+}
+export default function RemovableSortDemo({
+	columns,
+	values,
+	Components,
+}: TableProps) {
+	const representativeBodyTemplate = (rowData: any) => {
+		if (!rowData.picture) {
+			
 
+			return <span>{rowData.name}</span>;
+		}
 
-function QueryTable({columns,values}:TableProps) {
-	const [products, setProducts] = useState([
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "souvik karmakar",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-		{
-			id: "1000",
-			code: "f230fh0g3",
-			name: "Bamboo Watch",
-			description: "Product Description",
-			image: "bamboo-watch.jpg",
-			price: 65,
-			category: "Accessories",
-			quantity: 24,
-			inventoryStatus: "INSTOCK",
-			rating: 5,
-		},
-	]);
-	const [nameFilterValue, setNameFilterValue] = useState("");
-	const [filters, setFilters] = useState({
-		name: { value: null as string | null, matchMode: FilterMatchMode.STARTS_WITH },
-	});
-	const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		let _filters = { ...filters };
-        _filters["name"].value = value !== '' ? value : null; 
-		setFilters(_filters);
-		setNameFilterValue(value);
-	};
-	const renderHeader = () => {
 		return (
-			<div className="flex justify-between sticky top-0 p-5">
-				<h2 className="text-white font-mono text-4xl">Attendence</h2>
-				<span className="p-input-icon-right bg-[#232D3F] rounded-md">
-					<i className="pi pi-search" />
-					<input type="text" onChange={onGlobalFilterChange} />
-				</span>
+			<div className="flex items-center gap-2">
+				<div className=" w-11 h-11 rounded-full overflow-hidden">
+					<Image src={rowData.picture} alt={rowData.name[0]} className="w-full h-full object-cover object-top" width={56} height={56}/>
+				</div>
+				<span>{rowData.name}</span>
 			</div>
 		);
 	};
-	const header = renderHeader();
+
 	return (
-		<div className="card rounded-lg rounded-l-[2rem] table-div h-full overflow-auto relative">
+		<div className="card">
 			<DataTable
-				value={products}
-				removableSort
+				value={values}
+				sortMode="multiple"
+				className=""
 				tableStyle={{ minWidth: "50rem" }}
-				header={header}
-				style={{ height: "100%" }}
 			>
+				{columns.map((col) => (
+					<Column
+						key={col.field}
+						sortable
+						field={col.field}
+						header={col.header}
+						body={col.field === "name" ? representativeBodyTemplate : undefined}
+
+					/>
+				))}
 				<Column
-					field="code"
-					header="Code"
-					sortable
-					style={{ width: "25%" }}
-				></Column>
-				<Column
-					field="name"
-					header="Name"
-					sortable
-					style={{ width: "25%" }}
-				></Column>
-				<Column
-					field="category"
-					header="Category"
-					sortable
-					style={{ width: "25%" }}
-				></Column>
-				<Column
-					field="quantity"
-					header="Quantity"
-					sortable
-					style={{ width: "25%" }}
-				></Column>
+					key={"actions"}
+					className="flex justify-start gap-2"
+					header="Actions"
+					body={(rowData) =>
+						Components && (
+							<Components
+								id={rowData._id}
+								subjectWiseBatches={rowData.subjectWiseBatches || ""}
+								subjects={rowData.subjects || ""}
+							/>
+						)
+					}
+				/>
 			</DataTable>
 		</div>
 	);
 }
-
-export default QueryTable;

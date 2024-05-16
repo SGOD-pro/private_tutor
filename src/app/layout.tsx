@@ -4,6 +4,7 @@ import "./globals.css";
 import App from "./App";
 import Navbar from "./components/Navbar";
 
+import ToastComponent from "./components/ToastComponent";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({
 				<body className={inter.className}>
 					<main className=" flex bg-[#00ADB5] w-screen h-screen overflow-hidden">
 						<Navbar />
+						<ToastComponent />
 						<div className="w-full h-full shadow-left-side rounded-l-3xl md:rounded-l-[4rem] ml-2 p-3 md:p-5 bg-gradient-radial relative">
 							{children}
 						</div>

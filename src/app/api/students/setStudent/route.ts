@@ -5,7 +5,6 @@ import { cloudinaryUTIL } from "@/utils/Cloudinary";
 import fs from "fs";
 import { promisify } from "util";
 import ConnectDB from "@/db";
-ConnectDB();
 const writeFileAsync = promisify(fs.writeFile);
 const unlinkAsync = promisify(fs.unlink);
 
@@ -26,10 +25,11 @@ function formDataToJson(formData: FormData) {
 	return json;
 }
 export async function POST(req: NextRequest) {
+	await ConnectDB();
 	try {
 		const data = await req.formData();
 		const file = data.get("picture");
-		
+
 		let photoUrl;
 		if (file instanceof File) {
 			const buffer = await file.arrayBuffer();
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 			const filePath = "./public/" + file.name;
 			await writeFileAsync(filePath, Buffer.from(buffer));
 
-			console.log("file path",filePath);
+			console.log("file path", filePath);
 
 			const uploadedFile: any = await cloudinaryUTIL(filePath);
 			console.log(uploadedFile);
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 			if (filePath) {
 				await unlinkAsync(filePath);
 			}
-			photoUrl = uploadedFile.url;
+			photoUrl = uploadedFile?.url;
 		}
 		const jsonData = formDataToJson(data);
 		const name = capitalizeWords(jsonData.name);
@@ -53,15 +53,58 @@ export async function POST(req: NextRequest) {
 			admissionNo: data.get("admissionNo"),
 			picture: photoUrl || "",
 			subject: jsonData["subject[]"],
-			//batch: data.get("batch[name]"),
 			name,
 		});
 		console.log(student);
 
-		return NextResponse.json({ message: "done", data:student});
+		return NextResponse.json({ message: "done", data: student });
 	} catch (error) {
 		console.log(error);
 
-		return NextResponse.json({ message: "not done" });
+		return NextResponse.json({ message: "not done" }, { status: 500 });
+	}
+}
+export async function GET() {
+	await ConnectDB();
+	try {
+		const users = await userModel.aggregate([
+			{
+				$sort: { createdAt: -1 },
+			},
+			{
+				$limit: 4,
+			},
+			{
+				$addFields: {
+					subject: {
+						$reduce: {
+							input: "$subject",
+							initialValue: "",
+							in: { $concat: ["$$value", ",", "$$this"] },
+						},
+					},
+				},
+			},
+			{
+				$project: {
+					name: 1,
+					admissionNo: 1,
+					subject: {
+						$substrCP: [
+							"$subject",
+							1,
+							{ $subtract: [{ $strLenCP: "$subject" }, 1] },
+						],
+					},
+				},
+			},
+		]);
+		return NextResponse.json({
+			message: "Fetched students...",
+			data: users,
+			status: 200,
+		});
+	} catch (error: any) {
+		return NextResponse.json({ message: error.message, status: 500 });
 	}
 }
