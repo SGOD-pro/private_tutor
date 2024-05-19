@@ -40,7 +40,8 @@ function Navbar() {
 		{
 			pathname: "Settings",
 			route: "/settings",
-			icon: "https://cdn.lordicon.com/gkgkfbzm.json",
+			icon: "https://cdn.lordicon.com/dmgxtuzn.json",
+			secondaryColor:"#00ADB5"
 		},
 	];
 	return (
@@ -57,7 +58,7 @@ function Navbar() {
 							href={link.route}
 							className={`flex items-center flex-col md:flex-row md:gap-4 py-2 p-1`}
 						>
-							<Icon src={link.icon} />
+							<Icon src={link.icon} secondaryColor={link.secondaryColor||null}/>
 							<h2 className=" leading-none text-basic md:text-lg text-center capitalize">
 								{link.pathname}
 							</h2>

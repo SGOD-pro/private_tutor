@@ -1,30 +1,61 @@
 "use client";
 import React, { useState } from "react";
 import InputFields from "./InputFields";
-import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import Select from "./Select";
+import { useSelector } from "react-redux";
+
 interface ExamProps {
 	title: string;
 	caption: string;
-	batch: string;
+	batch: { name: string; code: string } | null;
 	date: Date | null;
 }
 function ExamForm() {
 	const [values, setValues] = useState<ExamProps>({
 		title: "",
 		caption: "",
-		batch: "",
+		batch: null,
 		date: null,
 	});
+	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
+	console.log(AllSubjects);
+
+	const subjects = AllSubjects.map((subject: any) => ({
+		name: subject.subject,
+		code: subject._id,
+	}));
+
+	const batches = useSelector((state: any) => state.Batches.allBatches);
+
+	const [batchValues, setBatchValues] = useState([]);
 
 	const [disable, setDisable] = useState(false);
+
+	const [selectedSubject, setSelectedSubject] = useState(null);
+	const setSubject = (e: any) => {
+		const selectedSubject = e.value;
+		setSelectedSubject(selectedSubject);
+		const filteredBatches = batches
+			.filter((batch: any) => batch.subject === selectedSubject.name)
+			.map((batch: any) => ({
+				name: `${batch.days} (${batch.time})`,
+				code: batch._id,
+			}));
+		setBatchValues(filteredBatches);
+	};
+	const setBatch = (e: any) => {
+		console.log(e.value);
+		setValues((prev) => ({ ...prev, batch: e.value }));
+	};
 	const handelSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		console.log(values);
+		const data = { ...values, batch: values.batch?.code };
+		console.log(data);
+
 	};
 	return (
-		<form className="w-full h-full" onSubmit={handelSubmit}>
+		<form className="w-full h-full overflow-auto" onSubmit={handelSubmit}>
 			<InputFields name={"title"} value={values.title} setValue={setValues} />
 			<div className="flex flex-wrap w-full my-3">
 				<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
@@ -41,10 +72,26 @@ function ExamForm() {
 			</div>
 			<div className="flex flex-wrap w-full my-3">
 				<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
-					Batch
+					Subject
 				</label>
 				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
-					<Select values={values} setValues={setValues} />
+					<Select
+						options={subjects}
+						handleChange={setSubject}
+						value={selectedSubject}
+					/>
+				</div>
+			</div>
+			<div className="flex flex-wrap w-full my-3">
+				<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
+					Date & Time
+				</label>
+				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
+					<Select
+						options={batchValues}
+						handleChange={setBatch}
+						value={values.batch}
+					/>
 				</div>
 			</div>
 			<div className="flex flex-wrap w-full my-3">

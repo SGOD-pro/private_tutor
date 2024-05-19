@@ -3,9 +3,9 @@ import ConnectDB from "@/db";
 import batchModel from "@/models/Batches";
 import { URL } from "url";
 
-ConnectDB();
 
 export async function GET(req: NextRequest) {
+	await ConnectDB();
 	try {
 		const url = new URL(req.url);
 		const _id = url.searchParams.get("id");

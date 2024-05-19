@@ -71,7 +71,7 @@ export default function Home() {
 	const deleteFunction: DeleteFunction = async (id: string) => {
 		try {
 			const response = await axios.get(`/api/class-time/delete?_id=${id}`);
-			return response.data.status;
+			return response.data.success;
 		} catch (error) {
 			console.error("Error occurred while deleting:", error);
 			return false;
@@ -79,7 +79,7 @@ export default function Home() {
 	};
 
 	return (
-		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full md:gap-3 gap-1 ">
+		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full md:gap-3 gap-1 overflow-auto">
 			<div className=" w-full overflow-auto h-full flex flex-col">
 				<div className="md:min-h-[360px] md:max-h-[450px] grid md:grid-cols-[1.3fr,1fr] gap-2 grid-cols-1 h-fit">
 					<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 md:rounded-tl-[2.5rem] rounded-tl-2xl  overflow-hidden relative h-full">
@@ -97,7 +97,7 @@ export default function Home() {
 						)}
 					</div>
 
-					<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 overflow-y-auto relative h-full pb-2">
+					<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 custom-scrollbar overflow-y-auto relative h-full pb-2">
 						{loading ? (
 							<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
 						) : (

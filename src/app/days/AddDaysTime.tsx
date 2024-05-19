@@ -54,21 +54,20 @@ function AddDaysTime() {
 	const submit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		let url = "/api/batches/setBatches";
-		console.log(values);
 		setDisable(true);
 		axios
 			.post(url, values)
-			.then((responce) => {
-				console.log(responce.data);
-				dispatch(pushBatches(responce.data.data));
+			.then((response) => {
+				console.log(response.data);
 				setValue({
 					subject: null,
 					startTime: null,
 					endTime: null,
 					days: [],
 				});
+				dispatch(pushBatches(response.data.data));
 			})
-			.catch((error) => {console.log(error);
+			.catch((error) => {console.log(error.response.request.status);
 			})
 			.finally(() => {
 				setDisable(false);

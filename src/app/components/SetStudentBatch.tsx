@@ -103,6 +103,8 @@ function MyForm({
     axios
       .get(`/api/batches/batch-student?id=${id}`)
       .then((response) => {
+        console.log(response);
+        
         if (response.data.success) {
           show({
             type: "info",

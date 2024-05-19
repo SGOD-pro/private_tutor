@@ -25,24 +25,23 @@ function Main({ children }: { children: React.ReactNode }) {
 				})
 				.finally(() => {
 				});
-		} else {
-		}
+		} 
 	}, []);
 	useEffect(() => {
 		if (
 			batches?.length > 0 &&
 			(!batches[0].subject || batches[0].subject.trim() === "")
 		) {
-			console.log("exceeded");
 			axios
 				.get("/api/batches/getBatches")
 				.then((response) => {
+					console.log(response.data.allBatches)
 					dispatch(setAllBatches(response.data.allBatches));
 				})
 				.catch((error) => {
 					console.log(error);
 				})
-				.finally(() => {});
+				
 		}
 	}, []);
 	return <>{children}</>;

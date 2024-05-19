@@ -4,6 +4,20 @@ import userModel from "@/models/UserModel";
 export async function GET(req: Request) {
 	await ConnectDB();
 	try {
+		const url = new URL(req.url);
+		let skip: string | null = url.searchParams.get("skip");
+		let limit: string | null = url.searchParams.get("limit");
+
+		let skipNumber: number = 0;
+		let limitNumber: number = 20;
+
+		if (skip !== null) {
+			skipNumber = parseInt(skip, 10);
+		}
+
+		if (limit !== null) {
+			limitNumber = parseInt(limit, 10);
+		}
 		const allUsers = await userModel.aggregate([
 			{
 				$unwind: "$subject",
@@ -42,6 +56,8 @@ export async function GET(req: Request) {
 				},
 			},
 			{ $sort: { admissionNo: -1 } },
+			{ $skip: skipNumber },
+			{ $limit: limitNumber },
 			{
 				$project: {
 					_id: 1,

@@ -1,9 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
 import ConnectDB from "@/db";
 import batchModel from "@/models/Batches";
-ConnectDB();
 
 export async function GET(req: NextRequest) {
+	await ConnectDB();
 	try {
 		const allBatches = await batchModel.aggregate([
 			{
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 				  subject: 1,
 				  days: {
 					$cond: { if: { $eq: ["$days", ""] }, then: "", else: {
-					  $substrCP: ["$days", 1, { $subtract: [{ $strLenCP: "$days" }, 1] }]
+					  $substrCP: ["$days", 2, { $subtract: [{ $strLenCP: "$days" }, 1] }]
 					} }
 				  },
 				},

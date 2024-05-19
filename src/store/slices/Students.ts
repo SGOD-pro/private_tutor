@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface StudentData {
 	admissionNo: string | null;
-	fullname: string;
+	name: string;
 	subjects: string;
 	_id: string;
 	profilePicture: string;
@@ -12,7 +12,7 @@ const initialState: { allStudents: StudentData[] } = {
 	allStudents: [
 		{
 			admissionNo: null,
-			fullname: "",
+			name: "",
 			subjects: "",
 			_id: "",
 			profilePicture: "",

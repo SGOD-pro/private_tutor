@@ -2,10 +2,9 @@ import ConnectDB from "@/db";
 import { NextRequest, NextResponse } from "next/server";
 import batcheModel from "@/models/Batches";
 import {extractTime} from "@/utils/DateTime"
-import { log } from "console";
-ConnectDB();
 
 export async function GET(req: NextRequest) {
+	await ConnectDB();
 	try {
 		const url = new URL(req.url);
 		const day: string | null = url.searchParams.get("day");
@@ -22,7 +21,7 @@ export async function GET(req: NextRequest) {
 				},
 			},
 			{
-				$sort: { startTime: -1 },
+				$sort: { startTime: 1 },
 			},
 			{
 				$limit: 1,

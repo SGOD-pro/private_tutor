@@ -69,7 +69,7 @@ export async function GET() {
 	try {
 		const users = await userModel.aggregate([
 			{
-				$sort: { createdAt: -1 },
+				$sort: { admissionNo: -1 },
 			},
 			{
 				$limit: 4,

@@ -7,7 +7,8 @@ import { AppDispatch } from "@/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "@/store/slices/Toast";
 import axios from "axios";
-
+import InfiniteScroll from "react-infinite-scroll-component";
+import Loader from "../components/Loader";
 interface StudentDetails {
 	addmissionNo: string;
 	name: string;
@@ -80,37 +81,62 @@ function page() {
 		setSubjects(s);
 		setShowForm(true);
 	};
-
-	useEffect(() => {
-		localStorage.clear();
+	const [skip, setSkip] = useState(0);
+	const [limit, setLimit] = useState(20);
+	const [hasMore, setHasMore] = useState(true);
+	const fetchData = async () => {
 		axios
-			.get("/api/students/get-all-students")
+			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}`)
 			.then((response) => {
-				setValues(response.data.data);
-				show({
-					type: "success",
-					summary: "Fetched",
-					detail: response.data.message,
-				});
+				console.log(response.data.data);
+
+				if (response.data.data.length === 0) {
+					setHasMore(false);
+				}
+				if (skip === 0) {
+					setValues(response.data.data);
+				} else {
+					setValues((prev) => [...prev, ...response.data.data]);
+				}
+				if (skip === 0) {
+					show({
+						type: "success",
+						summary: "Fetched",
+						detail: response.data.message,
+					});
+				}
 			})
 			.catch((errror) => {
 				console.log(errror);
 
-				show({
-					type: "error",
-					summary: "Error",
-					detail: errror.response.data.message,
-				});
+				if (skip === 0) {
+					show({
+						type: "error",
+						summary: "Error",
+						detail: errror.response.data.message,
+					});
+				}
 			})
 			.finally(() => {
-				setLoading(false);
+				if (skip === 0) {
+					setLoading(false);
+				}
 			});
+	};
+	const fetchMoreData = () => {
+		setSkip(limit);
+		setLimit((prev) => prev + 20);
+		fetchData();
+	};
+	useEffect(() => {
+		localStorage.clear();
+		fetchData();
 	}, []);
 	const [key1, setKey1] = useState(0);
 	useEffect(() => {
 		setKey1((prev) => prev + 1);
 	}, [batchDetails]);
-
+	
 	const ButtonComponent: React.FC<ComponentProps> = ({
 		id,
 		subjectWiseBatches,
@@ -131,10 +157,10 @@ function page() {
 	return (
 		<>
 			<div
-				className={`absolute z-50 backdrop-blur-md w-[90%] md:w-1/2 top-1/2 left-1/2 -translate-x-1/2 transition-all duration-300  ${
+				className={`absolute z-50 backdrop-blur-md w-[90%] md:w-1/2 top-1/2 left-1/2 -translate-x-1/2 transition-all -translate-y-1/2 duration-300  ${
 					showForm
-						? "-translate-y-1/2 opacity-1 visible"
-						: "invisible opacity-0 -translate-y-2/3"
+						? " scale-100 opacity-1 visible"
+						: "invisible opacity-0 scale-90"
 				}`}
 			>
 				<SetStudentBatch
@@ -145,24 +171,38 @@ function page() {
 				/>
 			</div>
 			<div className="h-full rounded-l-[3.2rem] overflow-hidden bg-[#1F2937]">
-				<div className="h-full overflow-auto custom-scrollbar relative">
+				<div className="h-full overflow-auto custom-scrollbar relative scrollableDiv">
 					<h2 className="text-3xl p-3 pl-8 font-semibold sticky top-0 z-30 bg-[#1F2937]/10 backdrop-blur border-b border-b-[#131921]/60">
 						BatchStudents
+						
 					</h2>
 					{loading ? (
 						<div
 							className={`absolute w-full h-[92%] animate-pulse z-10 bg-[#393E46]/70 `}
 						></div>
 					) : (
-						<QueryTable
-							columns={[
-								{ field: "admissionNo", header: "Addmission id" },
-								{ field: "name", header: "Name" },
-								{ field: "subjects", header: "Subjects" },
-							]}
-							values={values}
-							Components={ButtonComponent}
-						></QueryTable>
+						<InfiniteScroll
+							dataLength={values.length}
+							next={fetchMoreData}
+							hasMore={hasMore}
+							loader={<Loader />}
+							endMessage={
+								<p style={{ textAlign: "center" }}>
+									<b>You have seen it all</b>
+								</p>
+							}
+							scrollableTarget="scrollableDiv"
+						>
+							<QueryTable
+								columns={[
+									{ field: "admissionNo", header: "Admission ID" },
+									{ field: "name", header: "Name" },
+									{ field: "subjects", header: "Subjects" },
+								]}
+								values={values}
+								Components={ButtonComponent}
+							/>
+						</InfiniteScroll>
 					)}
 				</div>
 			</div>

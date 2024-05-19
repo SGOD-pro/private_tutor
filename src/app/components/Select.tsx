@@ -1,22 +1,18 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown } from "primereact/dropdown";
-import { useDispatch, useSelector } from "react-redux";
 interface SelectProps {
-	values: any;
-	setValues: React.Dispatch<React.SetStateAction<any>>;
+	value: any;
+	options: any;
+	handleChange: (e: any) => void;
 }
 
-function Select({ values, setValues }: SelectProps) {
-	let batches = useSelector((state: any) => state.Batches.allBatches);
-	batches = batches.map((item: any) => ({
-		name: item.batchName,
-	}));
+function Select({ value, handleChange, options }: SelectProps) {
 	return (
 		<Dropdown
-			value={values.batch}
-			onChange={(e) => setValues((prev: any) => ({ ...prev, batch: e.value }))}
-			options={batches}
+			value={value}
+			onChange={handleChange}
+			options={options}
 			optionLabel="name"
 			placeholder="Select a Batch"
 			className="w-full md:w-14rem text-xs bg-[#393E46]"

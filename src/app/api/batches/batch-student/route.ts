@@ -46,6 +46,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+	await ConnectDB();
+
 	const url = new URL(req.url);
 	const id = url.searchParams.get("id");
 	console.log("id",id);
@@ -54,7 +56,8 @@ export async function GET(req: Request) {
 	}
 	try {
 		await ConnectDB();
-		const response = await userModel.aggregate([
+		const response = await userModel.aggregate(
+			[
 			{
 				$match: { _id: new mongoose.Types.ObjectId(id) },
 			},
@@ -118,6 +121,8 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
+		console.log(response[0].batch);
+		
 		if (response.length===0) {
 			return Response.json({success:false,},{status:201})
 		}
