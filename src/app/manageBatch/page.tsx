@@ -181,6 +181,7 @@ function page() {
 							className={`absolute w-full h-[92%] animate-pulse z-10 bg-[#393E46]/70 `}
 						></div>
 					) : (
+						<div className="">
 						<InfiniteScroll
 							dataLength={values.length}
 							next={fetchMoreData}
@@ -203,6 +204,7 @@ function page() {
 								Components={ButtonComponent}
 							/>
 						</InfiniteScroll>
+						</div>
 					)}
 				</div>
 			</div>

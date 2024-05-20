@@ -15,7 +15,7 @@ function Navbar() {
 		{
 			pathname: "Batches",
 			route: "/manageBatch",
-			icon: "https://cdn.lordicon.com/wzwygmng.json",
+			icon: "https://cdn.lordicon.com/zrkkrrpl.json",
 		},
 		{
 			pathname: "Days & Time",

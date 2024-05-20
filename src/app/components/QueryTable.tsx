@@ -46,7 +46,7 @@ export default function RemovableSortDemo({
 				value={values}
 				sortMode="multiple"
 				className=""
-				tableStyle={{ minWidth: "50rem" }}
+				tableStyle={{ minWidth: "150px" }}
 			>
 				{columns.map((col) => (
 					<Column

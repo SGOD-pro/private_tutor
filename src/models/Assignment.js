@@ -9,7 +9,8 @@ const asignmentSchema = Schema({
         type: String,
     },
     batch: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref:"batches",
         require: true,
     },
     subbmissionDate: {

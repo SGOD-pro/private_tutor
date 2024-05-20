@@ -4,23 +4,26 @@ import { Calendar } from "primereact/calendar";
 import "./checkbox.css";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { pushBatches } from "@/store/slices/Batch";
+import { pushBatches, updateBatches } from "@/store/slices/Batch";
 
 interface Batch {
-	subject: string | null;
+	subject: { name: string } | null;
 	startTime: Date | null;
 	endTime: Date | null;
 	days: string[];
 }
 
-function AddDaysTime() {
-	const [values, setValue] = useState<Batch>({
-		subject: null,
-		startTime: null,
-		endTime: null,
-		days: [],
-	});
-	const [update, setUpdate] = useState(false);
+function AddDaysTime({
+	values,
+	setValue,
+	setUpdate,
+	update,
+}: {
+	values: Batch;
+	setValue: React.Dispatch<React.SetStateAction<Batch>>;
+	setUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+	update: boolean;
+}) {
 	const [disable, setDisable] = useState(false);
 	const dispatch = useDispatch();
 	const days = ["Sun", "Mon", "Tue", "Wed", "Thrus", "Fri", "Sat"];
@@ -51,23 +54,42 @@ function AddDaysTime() {
 		}
 		setValue((prev) => ({ ...prev, days: newVal }));
 	};
+	const batches = useSelector((state: any) => state.Batches.allBatches);
+
 	const submit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		let url = "/api/batches/setBatches";
+
+		const _id = localStorage.getItem("batch_id");
+		if (update && _id) {
+			url = `/api/batches/update-batch?_id=${_id}`;
+		}
 		setDisable(true);
+
 		axios
 			.post(url, values)
 			.then((response) => {
-				console.log(response.data);
 				setValue({
 					subject: null,
 					startTime: null,
 					endTime: null,
 					days: [],
 				});
-				dispatch(pushBatches(response.data.data));
+				console.log(response.data.data);
+				
+				if (update) {
+					dispatch(updateBatches(response.data.data));
+				} else {
+					dispatch(pushBatches(response.data.data));
+				}
+
+				console.log(batches);
+				
+				localStorage.clear();
+				setUpdate(false);
 			})
-			.catch((error) => {console.log(error.response.request.status);
+			.catch((error) => {
+				console.log(error);
 			})
 			.finally(() => {
 				setDisable(false);
@@ -135,11 +157,11 @@ function AddDaysTime() {
 						<div className="content" key={index}>
 							<label className="checkBox relative">
 								<input
-									name={item}
-									id={item}
+									name={item.trim()}
+									id={item.trim()}
 									type="checkbox"
-									value={item}
-									checked={values.days.includes(item)}
+									value={item.trim()}
+									checked={values.days.includes(item.trim())}
 									onChange={handleCheckboxChange}
 								/>
 								<label
@@ -155,9 +177,36 @@ function AddDaysTime() {
 				</div>
 			</div>
 			<div className=" text-right mt-5">
-				<button className="px-3 py-1 text-lg rounded-md bg-[#393E46]">
-					Add
-					{disable && <i className="pi pi-spin pi-spinner"></i>}
+				{update && (
+					<button
+						className={`px-3 py-1 text-lg rounded-md bg-red-600 mr-3`}
+						disabled={disable}
+						onClick={() => {
+							setValue({
+								subject: null,
+								startTime: null,
+								endTime: null,
+								days: [],
+							});
+							localStorage.clear();
+							setUpdate(false);
+						}}
+					>
+						{disable ? (
+							<i className="pi pi-spin pi-spinner ml-1"></i>
+						) : (
+							<i className="pi pi-times"></i>
+						)}
+					</button>
+				)}
+				<button
+					className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
+						update && " bg-emerald-600"
+					}`}
+					disabled={disable}
+				>
+					{!update ? "Add" : "Update"}
+					{disable && <i className="pi pi-spin pi-spinner ml-1"></i>}
 				</button>
 			</div>
 		</form>

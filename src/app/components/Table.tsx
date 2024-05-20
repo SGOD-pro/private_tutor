@@ -36,13 +36,16 @@ export default function BasicDemo({
 	values,
 }: TableProps) {
 	const [loading, setLoading] = useState(false);
-	const ButtonTemplate = ({ id, deleteFunction, editFunction }: { id: string, deleteFunction?: (id: string) => Promise<boolean>, editFunction?: (id: string) => void }) => {
+
+
+
+	const ButtonTemplate = ({ data, deleteFunction, editFunction }: { data: any, deleteFunction?: (id: string) => Promise<boolean>, editFunction?: (id: string) => void }) => {
 		const [loading, setLoading] = useState(false);
 	  
 		const handleDelete = async () => {
 		  if (!deleteFunction) return;
 		  setLoading(true);
-		  await deleteFunction(id);
+		  await deleteFunction(data._id);
 		  setLoading(false);
 		};
 	  
@@ -64,7 +67,7 @@ export default function BasicDemo({
 			{editFunction && (
 			  <button
 				className="bg-emerald-600 rounded-lg p-3 grid place-items-center"
-				onClick={() => editFunction(id)}
+				onClick={() => editFunction(data)}
 			  >
 				<i className="pi pi-pen-to-square"></i>
 			  </button>
@@ -83,10 +86,10 @@ export default function BasicDemo({
 					<Column field={data.field} header={data.header} key={index}></Column>
 				))}
 				<Column
-					key="delete"
+					key="action"
 					body={(rowData) => (
 						<ButtonTemplate
-							id={rowData._id}
+							data={rowData}
 							deleteFunction={deleteFunction}
 							editFunction={editFunction}
 						/>

@@ -9,7 +9,7 @@ function Icon({ src,secondaryColor }) {
                 src={src}
                 trigger="hover"
                 stroke="bold"
-                state="hover-nodding"
+                state="hover-swirl"
                 colors={`primary:#EEEEEE,secondary:${secondaryColor||"#EEEEEE"}`}
                 style={{ width: "45px", height: "45px" }}>
             </lord-icon>

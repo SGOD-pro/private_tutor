@@ -4,15 +4,19 @@ import AddSubject from "../components/AddSubject";
 import AddDaysTime from "./AddDaysTime";
 import Table from "../components/Table";
 import { useDispatch, useSelector } from "react-redux";
-import { setSubject,popSubject } from "@/store/slices/Subjects";
 import { popBatches, setAllBatches } from "@/store/slices/Batch";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
 import axios from "axios";
-
+interface Batch {
+	subject: { name: string } | null;
+	startTime: Date | null;
+	endTime: Date | null;
+	days: string[];
+}
 function page() {
 	const dispatch = useDispatch();
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const columns = [
 		{ field: "subject", header: "Subject" },
 		{ field: "time", header: "Time" },
@@ -42,9 +46,12 @@ function page() {
 
 			const response = await axios.get(`/api/batches/deleteBatch?id=${id}`);
 			if (response.data.status) {
-				
-				dispatch(popBatches(id))
-				show({summary:"Deleted",detail:"Successfully deleted","type":"info"})
+				dispatch(popBatches(id));
+				show({
+					summary: "Deleted",
+					detail: "Successfully deleted",
+					type: "info",
+				});
 			}
 			return response.data.status;
 		} catch (error) {
@@ -52,47 +59,38 @@ function page() {
 			return false;
 		}
 	};
-	const editFunction = (id: string) => {
-		console.log(id);
+	const [values, setValue] = useState<Batch>({
+		subject: null,
+		startTime: null,
+		endTime: null,
+		days: [],
+	});
+	function convertTimeStringToDate(timeString: string) {
+		const currentDate = new Date();
+
+		const [hours, minutes] = timeString.split(":").map(Number);
+
+		currentDate.setHours(hours, minutes);
+
+		return currentDate;
+	}
+	const [key, setKey] = useState(0);
+	const [update, setUpdate] = useState(false);
+	const editFunction = (data: any) => {
+		localStorage.setItem("batch_id", data._id);
+		setUpdate(true);
+		setValue({
+			subject: { name: data.subject },
+			startTime: convertTimeStringToDate(data.time.split("-")[0].trim()),
+			endTime: convertTimeStringToDate(data.time.split("-")[1].trim()),
+			days: data.days.split(",").map((item: string) => item.trim()),
+		});
+		setKey((prev) => prev + 1);
 	};
 	const batches = useSelector((state: any) => state.Batches.allBatches);
-	const subjects = useSelector((state: any) => state.Subjects.allSubjects);
-	useEffect(() => {
-		if (!batches[0].subject || batches[0].subject.trim() === "") {
-			console.log("exceeded");
-			axios
-				.get("/api/batches/getBatches")
-				.then((response) => {
-					console.log(response.data);
-					dispatch(setAllBatches(response.data.allBatches));
-				})
-				.catch((error) => {
-					console.log(error);
-				})
-				.finally(() => {});
-		}
-	}, []);
-	useEffect(() => {
-		if (!subjects[0].subject || subjects[0].subject.trim() === "") {
-			console.log("exceeded");
 
-			axios
-				.get("/api/subjects/getsubjects")
-				.then((response) => {
-					dispatch(setSubject(response.data.allSubjects));
-				})
-				.catch((error) => {
-					console.log(error);
-				})
-				.finally(() => {
-					setLoading(false);
-				});
-		} else {
-			setLoading(false);
-		}
-	}, []);
 	return (
-		<div className="w-full h-full flex flex-wrap gap-3">
+		<div className="w-full h-full flex flex-wrap gap-3 overflow-auto">
 			<div className="w-1/2 flex-grow flex-shrink basis-96 lg:max-w-[480px] ">
 				<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 hidden"></div>
 				<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 md:rounded-tl-[2.5rem] rounded-tl-2xl  overflow-hidden relative p-3">
@@ -129,7 +127,13 @@ function page() {
 						<h2 className="text-2xl my-1 capitalize font-semibold">
 							Set Days & Time
 						</h2>
-						<AddDaysTime />
+						<AddDaysTime
+							values={values}
+							setValue={setValue}
+							key={key}
+							update={update}
+							setUpdate={setUpdate}
+						/>
 					</div>
 				</div>
 			</div>
