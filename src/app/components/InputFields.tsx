@@ -1,11 +1,12 @@
 import React, { ChangeEvent } from "react";
 
 interface InputFieldsProps {
-	name: string;
+	name?: string;
 	type?: string;
 	value: any;
 	setValue: React.Dispatch<React.SetStateAction<any>>;
 	readOnly?: boolean;
+	placeholder?: string;
 }
 
 function InputFields({
@@ -14,6 +15,7 @@ function InputFields({
 	value,
 	setValue,
 	readOnly = false,
+	placeholder,
 }: InputFieldsProps) {
 	const handleChange = (
 		event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -40,8 +42,11 @@ function InputFields({
 
 	return (
 		<div className="flex flex-wrap w-full mb-2 md:mb-3">
-			<label htmlFor={name} className="flex-grow flex-shrink basis-24 capitalize">
-			{name}
+			<label
+				htmlFor={name}
+				className="flex-grow flex-shrink basis-24 capitalize"
+			>
+				{name}
 			</label>
 			<input
 				type={type}
@@ -50,6 +55,7 @@ function InputFields({
 				onChange={handleChange}
 				className="flex-grow flex-shrink basis-44 rounded-md px-2 py-2 bg-[#393E46] focus:outline outline-[3px] outline-teal-500/30 transition-all"
 				readOnly={readOnly}
+				placeholder={placeholder || ""}
 			/>
 		</div>
 	);

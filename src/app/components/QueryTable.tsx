@@ -3,7 +3,9 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import Image from "next/image";
 
-
+import InputFields from "./InputFields";
+import { useState } from "react";
+import { set } from "mongoose";
 interface ColumnProps {
 	field: string;
 	header: string;
@@ -25,15 +27,19 @@ export default function RemovableSortDemo({
 }: TableProps) {
 	const representativeBodyTemplate = (rowData: any) => {
 		if (!rowData.picture) {
-			
-
 			return <span>{rowData.name}</span>;
 		}
 
 		return (
 			<div className="flex items-center gap-2">
 				<div className=" w-11 h-11 rounded-full overflow-hidden">
-					<Image src={rowData.picture} alt={rowData.name[0]} className="w-full h-full object-cover object-top" width={56} height={56}/>
+					<Image
+						src={rowData.picture}
+						alt={rowData.name[0]}
+						className="w-full h-full object-cover object-top"
+						width={56}
+						height={56}
+					/>
 				</div>
 				<span>{rowData.name}</span>
 			</div>
@@ -46,7 +52,7 @@ export default function RemovableSortDemo({
 				value={values}
 				sortMode="multiple"
 				className=""
-				tableStyle={{ minWidth: "150px" }}
+				tableStyle={{ minWidth: "500px" }}
 			>
 				{columns.map((col) => (
 					<Column
@@ -55,7 +61,6 @@ export default function RemovableSortDemo({
 						field={col.field}
 						header={col.header}
 						body={col.field === "name" ? representativeBodyTemplate : undefined}
-
 					/>
 				))}
 				<Column

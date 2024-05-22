@@ -2,17 +2,9 @@ import { NextResponse, NextRequest } from "next/server";
 import ConnectDB from "@/db";
 import batchModel from "@/models/Batches";
 import userModel from "@/models/UserModel";
+import { getNextHour } from "@/utils/DateTime";
 
-function getNextHour(timeStr: string) {
-	let [hours, minutes] = timeStr.split(":").map(Number);
-	hours += 1;
-	if (hours === 24) {
-		hours = 0;
-	}
-	let nextHourStr = hours.toString().padStart(2, "0") + `:${minutes}`;
 
-	return nextHourStr;
-}
 
 export async function GET(req: Request) {
 	await ConnectDB();
