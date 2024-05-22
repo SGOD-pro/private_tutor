@@ -53,7 +53,7 @@ export default function BasicDemo({
 		  <div className=" flex gap-2">
 			{deleteFunction && (
 			  <button
-				className="bg-red-600 rounded-lg p-3 grid place-items-center"
+				className="bg-gradient-to-tl to-red-400 from-red-600 rounded-lg p-3 grid place-items-center"
 				onClick={handleDelete}
 				disabled={loading}
 			  >
@@ -66,7 +66,7 @@ export default function BasicDemo({
 			)}
 			{editFunction && (
 			  <button
-				className="bg-emerald-600 rounded-lg p-3 grid place-items-center"
+				className="bg-gradient-to-tl to-emerald-400 from-emerald-600 rounded-lg p-3 grid place-items-center"
 				onClick={() => editFunction(data)}
 			  >
 				<i className="pi pi-pen-to-square"></i>

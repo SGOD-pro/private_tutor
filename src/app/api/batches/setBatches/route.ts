@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
 			time: data.startTime + " - " + data.endTime,
 			days: data.days?.join(","),
 		};
-		console.log(modifiedData);
 
 		return NextResponse.json({
 			message: "success",

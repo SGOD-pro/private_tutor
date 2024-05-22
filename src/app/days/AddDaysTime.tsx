@@ -76,7 +76,7 @@ function AddDaysTime({
 					days: [],
 				});
 				console.log(response.data.data);
-				
+
 				if (update) {
 					dispatch(updateBatches(response.data.data));
 				} else {
@@ -84,7 +84,7 @@ function AddDaysTime({
 				}
 
 				console.log(batches);
-				
+
 				localStorage.clear();
 				setUpdate(false);
 			})
@@ -96,6 +96,9 @@ function AddDaysTime({
 			});
 	};
 	useEffect(() => {
+		if (update) {
+			return;
+		}
 		const val = calcEndTime();
 		setValue((prev: any) => ({ ...prev, endTime: val }));
 	}, [values.startTime]);
@@ -179,7 +182,7 @@ function AddDaysTime({
 			<div className=" text-right mt-5">
 				{update && (
 					<button
-						className={`px-3 py-1 text-lg rounded-md bg-red-600 mr-3`}
+						className={`px-3 py-1 text-lg rounded-md bg-gradient-to-l to-red-400 from-red-700 mr-3`}
 						disabled={disable}
 						onClick={() => {
 							setValue({
@@ -201,11 +204,11 @@ function AddDaysTime({
 				)}
 				<button
 					className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
-						update && " bg-emerald-600"
+						update && " bg-gradient-to-l to-emerald-400 from-emerald-700"
 					}`}
 					disabled={disable}
 				>
-					{!update ? "Add" : "Update"}
+					{!update ? "Add" : <i className="pi pi-check"></i>}
 					{disable && <i className="pi pi-spin pi-spinner ml-1"></i>}
 				</button>
 			</div>

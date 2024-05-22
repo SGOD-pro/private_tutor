@@ -17,7 +17,6 @@ export async function POST(req: NextRequest) {
 		console.log(subject);
 
 		const createdSub = await subjectModel.create({ subject });
-        console.log(createdSub);
         
 		return NextResponse.json({
 			message: "Added successfully",

@@ -67,13 +67,11 @@ function page() {
 	});
 	function convertTimeStringToDate(timeString: string) {
 		const currentDate = new Date();
-
 		const [hours, minutes] = timeString.split(":").map(Number);
-
 		currentDate.setHours(hours, minutes);
-
 		return currentDate;
 	}
+	
 	const [key, setKey] = useState(0);
 	const [update, setUpdate] = useState(false);
 	const editFunction = (data: any) => {
@@ -86,6 +84,9 @@ function page() {
 			days: data.days.split(",").map((item: string) => item.trim()),
 		});
 		setKey((prev) => prev + 1);
+		console.log(data)
+		console.log(convertTimeStringToDate(data.time.split("-")[1].trim()));
+		
 	};
 	const batches = useSelector((state: any) => state.Batches.allBatches);
 
@@ -130,9 +131,9 @@ function page() {
 						<AddDaysTime
 							values={values}
 							setValue={setValue}
-							key={key}
 							update={update}
 							setUpdate={setUpdate}
+							key={key}
 						/>
 					</div>
 				</div>

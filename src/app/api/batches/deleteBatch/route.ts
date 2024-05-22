@@ -9,7 +9,6 @@ export async function GET(req: NextRequest) {
 	try {
 		const url = new URL(req.url);
 		const _id = url.searchParams.get("id");
-		console.log(_id);
 		
 		const deleted = await batchModel.findByIdAndDelete(_id);
 		if (!deleted) {

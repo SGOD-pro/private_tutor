@@ -5,17 +5,18 @@ interface SelectProps {
 	value: any;
 	options: any;
 	handleChange: (e: any) => void;
+	placeholder:string
 }
 
-function Select({ value, handleChange, options }: SelectProps) {
+function Select({ value, handleChange, options,placeholder }: SelectProps) {
 	return (
 		<Dropdown
 			value={value}
 			onChange={handleChange}
-			options={options}
+			options={options.map((option:any) => ({ ...option, style: { fontSize: '14px' } }))}
 			optionLabel="name"
-			placeholder="Select a Batch"
-			className="w-full md:w-14rem text-xs bg-[#393E46]"
+			placeholder={`Select a ${placeholder}`}
+			className="w-full bg-[#393E46]"
 		/>
 	);
 }

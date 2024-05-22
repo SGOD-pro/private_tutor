@@ -50,7 +50,6 @@ export async function GET(req: Request) {
 
 	const url = new URL(req.url);
 	const id = url.searchParams.get("id");
-	console.log("id",id);
 	if (!id) {
 		return Response.json({success:false,message:"Student not found.",data},{status:404})
 	}
@@ -121,8 +120,6 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
-		console.log(response[0].batch);
-		
 		if (response.length===0) {
 			return Response.json({success:false,},{status:201})
 		}

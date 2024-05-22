@@ -52,7 +52,6 @@ function ExamForm() {
 		event.preventDefault();
 		const data = { ...values, batch: values.batch?.code };
 		console.log(data);
-
 	};
 	return (
 		<form className="w-full h-full overflow-auto" onSubmit={handelSubmit}>
@@ -79,6 +78,7 @@ function ExamForm() {
 						options={subjects}
 						handleChange={setSubject}
 						value={selectedSubject}
+						placeholder={"Subject"}
 					/>
 				</div>
 			</div>
@@ -91,6 +91,7 @@ function ExamForm() {
 						options={batchValues}
 						handleChange={setBatch}
 						value={values.batch}
+						placeholder={"Batch"}
 					/>
 				</div>
 			</div>

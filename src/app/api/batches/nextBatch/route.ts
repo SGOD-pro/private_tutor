@@ -11,7 +11,6 @@ export async function GET(req: NextRequest) {
 		const currentTime = new Date();
 		
 		const newTime=extractTime(currentTime.toISOString())
-		console.log(newTime);
 		
 		const nextBatch = await batcheModel.aggregate([
 			{
@@ -30,8 +29,6 @@ export async function GET(req: NextRequest) {
 				$project:{days:0}
 			}
 		]);
-		console.log(nextBatch);
-		
 		return NextResponse.json({
 			message: "geting",
 			data: nextBatch[0],

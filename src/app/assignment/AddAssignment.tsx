@@ -3,23 +3,25 @@ import InputFields from "../components/InputFields";
 import Select from "../components/Select";
 import { Calendar } from "primereact/calendar";
 import axios from "axios";
-import { useSelector } from "react-redux";
-useSelector;
+import { useSelector,useDispatch } from "react-redux";
+import { pushAssignment } from "@/store/slices/Assignments";
+export interface AddAssignmentInterface {
+	title: string;
+	explanation: string;
+	batch: { name: string; code: string } | null;
+	subbmissionDate: Date | null;
+	_id?: string;
+}
+
 function AddAssignment() {
-	interface AddAssignment {
-		title: string;
-		explanation: string;
-		batch: { name: string; code: string } | null;
-		subbmissionDate: Date | null;
-	}
-	const [details, setdetails] = useState<AddAssignment>({
+	const [details, setdetails] = useState<AddAssignmentInterface>({
 		title: "",
 		explanation: "",
 		batch: null,
 		subbmissionDate: null,
 	});
+	const dispatch=useDispatch()
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
-	console.log(AllSubjects);
 
 	const subjects = AllSubjects.map((subject: any) => ({
 		name: subject.subject,
@@ -45,14 +47,9 @@ function AddAssignment() {
 		setBatchValues(filteredBatches);
 	};
 	const setBatch = (e: any) => {
-		console.log(e.value);
 		setdetails((prev) => ({ ...prev, batch: e.value }));
 	};
-	const handelSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		const data = { ...details, batch: details.batch?.code };
-		console.log(data);
-	};
+
 	const submit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (
@@ -62,16 +59,19 @@ function AddAssignment() {
 		) {
 			return;
 		}
+		console.log(details);
 		setDisable(true);
 		axios
-			.post("/api/assignment/addAssignment", details)
-			.then(() => {
+			.post("/api/assignment", details)
+			.then((response) => {
 				setdetails({
 					title: "",
 					explanation: "",
 					batch: null,
 					subbmissionDate: null,
 				});
+				setSelectedSubject(null)
+				dispatch(pushAssignment(response.data.data))
 			})
 			.catch((error) => {
 				console.log(error);
@@ -92,35 +92,38 @@ function AddAssignment() {
 						name="explanation"
 						id="explanation"
 						className="flex-grow flex-shrink basis-44 rounded-md p-1 h-20 focus:outline outline-[3px] outline-teal-500/30 transition-all resize-none bg-[#393E46]"
+						value={details.explanation}
 						onChange={(e) => {
 							setdetails((prev) => ({ ...prev, explanation: e.target.value }));
 						}}
 					></textarea>
 				</div>
 				<div className="flex flex-wrap w-full my-3">
-				<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
-					Subject
-				</label>
-				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
-					<Select
-						options={subjects}
-						handleChange={setSubject}
-						value={selectedSubject}
-					/>
+					<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
+						Subject
+					</label>
+					<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
+						<Select
+							options={subjects}
+							handleChange={setSubject}
+							value={selectedSubject}
+							placeholder="Subject"
+						/>
+					</div>
 				</div>
-			</div>
-			<div className="flex flex-wrap w-full my-3">
-				<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
-					Date & Time
-				</label>
-				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
-					<Select
-						options={batchValues}
-						handleChange={setBatch}
-						value={details.batch}
-					/>
+				<div className="flex flex-wrap w-full my-3">
+					<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
+						Date & Time
+					</label>
+					<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
+						<Select
+							options={batchValues}
+							handleChange={setBatch}
+							value={details.batch}
+							placeholder="Batch"
+						/>
+					</div>
 				</div>
-			</div>
 
 				<div className="flex flex-wrap w-full my-3">
 					<label htmlFor="caption" className="flex-grow flex-shrink basis-24">

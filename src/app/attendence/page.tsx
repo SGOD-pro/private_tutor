@@ -47,8 +47,12 @@ function page() {
 		);
 	};
 	useEffect(() => {
+		const now = new Date();
+		const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
+		const hour = now.getHours().toString().padStart(2, "0");
+		const day = daysOfWeek[now.getDay()];
 		axios
-			.get("/api/attendence")
+			.get(`/api/attendence?day=${day}&time=${hour}:15`)
 			.then((response) => {
 				setValues(response.data.users);
 			})
@@ -73,7 +77,26 @@ function page() {
 								disabled={disable}
 								onClick={submit}
 							>
-								Add
+								<i className="pi pi-chevron-left"></i>
+							</button>
+							<button
+								className={`px-3 py-1 text-lg rounded-md bg-[#393E46] mx-2 ${
+									disable && "grayscale-[50%] cursor-not-allowed"
+								}`}
+								disabled={disable}
+								onClick={submit}
+							>
+								<i className="pi pi-chevron-right"></i>
+							</button>
+
+							<button
+								className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
+									disable || values.length===0 && "grayscale-[50%] cursor-not-allowed"
+								}`}
+								disabled={disable}
+								onClick={submit}
+							>
+								Save
 								{disable && <i className="pi pi-spin pi-spinner ml-2"></i>}
 							</button>
 						</div>

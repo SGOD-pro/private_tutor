@@ -81,7 +81,6 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
-		console.log(allUsers);
 		return Response.json({
 			success: true,
 			data: allUsers,

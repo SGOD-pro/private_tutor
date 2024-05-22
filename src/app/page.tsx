@@ -77,7 +77,9 @@ export default function Home() {
 			return false;
 		}
 	};
-
+	const editFunction = (data: any) => {
+		
+	};
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full md:gap-3 gap-1 overflow-auto">
 			<div className=" w-full overflow-auto h-full flex flex-col">
@@ -123,6 +125,7 @@ export default function Home() {
 								columns={columns}
 								values={students}
 								deleteFunction={deleteFunction}
+								editFunction={editFunction}
 							/>
 						</div>
 					)}

@@ -3,43 +3,77 @@ import ConnectDB from "@/db";
 import batchModel from "@/models/Batches";
 import userModel from "@/models/UserModel";
 
-function getAdjustedHourAndDay() {
-	let now = new Date();
-
-	let daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
-	let currentDay = daysOfWeek[now.getDay()];
-	let currentHour = now.getHours();
-	let currentMinute = now.getMinutes();
-
-	let adjustedHour;
-	if (currentMinute > 30) {
-		adjustedHour = (currentHour + 1) % 24;
-	} else {
-		adjustedHour = currentHour;
+function getNextHour(timeStr: string) {
+	let [hours, minutes] = timeStr.split(":").map(Number);
+	hours += 1;
+	if (hours === 24) {
+		hours = 0;
 	}
-	let adjustedTime = currentHour.toString().padStart(2, "0") + ":00";
+	let nextHourStr = hours.toString().padStart(2, "0") + `:${minutes}`;
 
-	// Combine the day and adjusted time
-
-	return { currentDay, adjustedTime };
+	return nextHourStr;
 }
 
-export async function GET() {
+export async function GET(req: Request) {
 	await ConnectDB();
 	try {
-		const { currentDay, adjustedTime } = getAdjustedHourAndDay();
+		const url = new URL(req.url);
+		const currentDay = url.searchParams.get("day");
+		const time = url.searchParams.get("time");
+		console.log(currentDay, time);
+		if (!currentDay || !time) {
+			return Response.json(
+				{ success: false, message: "cannot find day and time" },
+				{ status: 404 }
+			);
+		}
+		const nextHour = getNextHour(time);
 		const batch = await batchModel.aggregate([
-			{ $match: { endTime: {$lt:adjustedTime}, days: currentDay  } },
+			{ $match: { endTime: { $lte: nextHour, $gte: time }, days: currentDay } },
 		]);
-		console.log(currentDay, adjustedTime);
 
-		console.log(batch[0]);
-if (batch.length===0) {
-		return Response.json({ success: false, message: "Cann't get any batch!" },{status:202});
-    
-}
-		const users = await userModel.find({batches :batch[0]._id});
+		if (batch.length === 0) {
+			return Response.json(
+				{ success: false, message: "Cann't get any batch!" },
+				{ status: 400 }
+			);
+		}
+		const users = await userModel.aggregate([
+			{ $match: { batches: batch[0]._id } },
+			{
+				$addFields: {
+					subject: {
+						$reduce: {
+							input: "$subject",
+							initialValue: "",
+							in: {
+								$concat: [
+									"$$value",
+									{
+										$cond: [
+											{
+												$eq: ["$$value", ""],
+											},
+											"",
+											", ",
+										],
+									},
+									"$$this",
+								],
+							},
+						},
+					},
+				},
+			},
+		]);
 
-		return Response.json({ success: true, users, message: "Done!" });
-	} catch (error) {}
+		return Response.json({
+			success: true,
+			users,
+			batch: batch[0]._id,
+			message: "Done!",
+		});
+	} catch (error) {
+		return Response.json({success:false,message:"Cann't get batch details! Internal server error"},{status:500});
+	}
 }

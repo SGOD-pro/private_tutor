@@ -85,6 +85,7 @@ function page() {
 	const [limit, setLimit] = useState(20);
 	const [hasMore, setHasMore] = useState(true);
 	const fetchData = async () => {
+		
 		axios
 			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}`)
 			.then((response) => {
@@ -136,7 +137,7 @@ function page() {
 	useEffect(() => {
 		setKey1((prev) => prev + 1);
 	}, [batchDetails]);
-	
+
 	const ButtonComponent: React.FC<ComponentProps> = ({
 		id,
 		subjectWiseBatches,
@@ -145,7 +146,7 @@ function page() {
 		return (
 			<div className="card flex flex-wrap justify-content-center gap-3">
 				<button
-					className="rounded-lg bg-emerald-600 p-3 flex items-center justify-center"
+					className="rounded-lg bg-gradient-to-tl to-emerald-400 from-emerald-600 p-3 flex items-center justify-center"
 					onClick={() => onClickBtn(id, subjectWiseBatches, subjects)}
 				>
 					<i className="pi pi-plus"></i>
@@ -174,7 +175,6 @@ function page() {
 				<div className="h-full overflow-auto custom-scrollbar relative scrollableDiv">
 					<h2 className="text-3xl p-3 pl-8 font-semibold sticky top-0 z-30 bg-[#1F2937]/10 backdrop-blur border-b border-b-[#131921]/60">
 						BatchStudents
-						
 					</h2>
 					{loading ? (
 						<div
@@ -182,28 +182,28 @@ function page() {
 						></div>
 					) : (
 						<div className="">
-						<InfiniteScroll
-							dataLength={values.length}
-							next={fetchMoreData}
-							hasMore={hasMore}
-							loader={<Loader />}
-							endMessage={
-								<p style={{ textAlign: "center" }}>
-									<b>You have seen it all</b>
-								</p>
-							}
-							scrollableTarget="scrollableDiv"
-						>
-							<QueryTable
-								columns={[
-									{ field: "admissionNo", header: "Admission ID" },
-									{ field: "name", header: "Name" },
-									{ field: "subjects", header: "Subjects" },
-								]}
-								values={values}
-								Components={ButtonComponent}
-							/>
-						</InfiniteScroll>
+							<InfiniteScroll
+								dataLength={values.length}
+								next={fetchMoreData}
+								hasMore={hasMore}
+								loader={<Loader />}
+								endMessage={
+									<p style={{ textAlign: "center" }}>
+										<b>You have seen it all</b>
+									</p>
+								}
+								scrollableTarget="scrollableDiv"
+							>
+								<QueryTable
+									columns={[
+										{ field: "admissionNo", header: "Admission ID" },
+										{ field: "name", header: "Name" },
+										{ field: "subjects", header: "Subjects" },
+									]}
+									values={values}
+									Components={ButtonComponent}
+								/>
+							</InfiniteScroll>
 						</div>
 					)}
 				</div>
