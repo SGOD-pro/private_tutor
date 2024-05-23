@@ -7,7 +7,11 @@ interface ToastState {
   detail: string;
   visible: boolean;
 }
-
+export interface ToastInterface {
+  summary: string;
+  detail: string;
+  type: string;
+}
 const initialState: ToastState = {
   severity: '',
   summary: '',

@@ -3,6 +3,7 @@ import Students from "./slices/Students";
 import Subjects from "./slices/Subjects";
 import Batches from "./slices/Batch";
 import Assignments from "./slices/Assignments";
+import BatchStudents from "./slices/BatchStudents";
 import Toast from "./slices/Toast";
 
 const store = configureStore({
@@ -11,6 +12,7 @@ const store = configureStore({
 		Subjects,
 		Batches,
 		Assignments,
+		BatchStudents,
 		toast: Toast,
 	},
 });

@@ -2,14 +2,20 @@
 
 import React, { useEffect, useState } from "react";
 import "./checkbox.css";
-import Button from "../components/Button";
+
+import { showToast } from "@/store/slices/Toast";
+import { ToastInterface } from "@/store/slices/Toast";
+import { AppDispatch } from "@/store/store";
+
 import QueryTable from "../components/QueryTable";
 import axios from "axios";
-import { getNextHour, getPreviousHour } from "@/utils/DateTime";
+import { useDispatch } from "react-redux";
+import Select from "../components/Select";
 
 interface ComponentProps {
 	id: string;
 }
+
 function page() {
 	const [disable, setDisable] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -19,6 +25,7 @@ function page() {
 	const [time, setTime] = useState<string | undefined>();
 	const [day, setDay] = useState<string>();
 	const [search, setSearch] = useState<string>("");
+	const appDispatch: AppDispatch = useDispatch();
 	const handleCheckboxChange = (event: any) => {
 		const { value, checked } = event.target;
 		let newVal = [];
@@ -28,6 +35,17 @@ function page() {
 			newVal = ids.filter((designation) => designation !== value);
 		}
 		setIds(newVal);
+	};
+
+	const show = ({ summary, detail, type }: ToastInterface) => {
+		appDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
 	};
 
 	const ChekcboxComponent: React.FC<ComponentProps> = ({ id }) => {
@@ -68,9 +86,11 @@ function page() {
 			.then((response) => {
 				setValues(response.data.users);
 				setSearchData(response.data.users);
+				show({"summary":'Attendence',"detail":response.data.message,"type":"success"})
 			})
 			.catch((error) => {
 				console.log(error);
+				show({"summary":'Attendence',"detail":error.response.data.message,"type":"error"})
 			});
 	}, [time]);
 	const submit = () => {
@@ -107,32 +127,8 @@ function page() {
 									/>
 								</div>
 							</div>
-							<button
-								className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
-									disable && "grayscale-[50%] cursor-not-allowed"
-								}`}
-								disabled={disable}
-								onClick={() => {
-									if (time) {
-										setTime(getPreviousHour(time));
-									}
-								}}
-							>
-								<i className="pi pi-chevron-left"></i>
-							</button>
-							<button
-								className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
-									disable && "grayscale-[50%] cursor-not-allowed"
-								}`}
-								disabled={disable}
-								onClick={() => {
-									if (time) {
-										setTime(getNextHour(time));
-									}
-								}}
-							>
-								<i className="pi pi-chevron-right"></i>
-							</button>
+							
+							<Select value={} handleChange={} options={}/>
 
 							<button
 								className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${

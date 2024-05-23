@@ -71,7 +71,7 @@ function page() {
 		currentDate.setHours(hours, minutes);
 		return currentDate;
 	}
-	
+
 	const [key, setKey] = useState(0);
 	const [update, setUpdate] = useState(false);
 	const editFunction = (data: any) => {
@@ -84,9 +84,8 @@ function page() {
 			days: data.days.split(",").map((item: string) => item.trim()),
 		});
 		setKey((prev) => prev + 1);
-		console.log(data)
+		console.log(data);
 		console.log(convertTimeStringToDate(data.time.split("-")[1].trim()));
-		
 	};
 	const batches = useSelector((state: any) => state.Batches.allBatches);
 
@@ -149,7 +148,11 @@ function page() {
 						</h2>
 						<Table
 							columns={columns}
-							values={batches}
+							values={
+								Array.isArray(batches) && batches[0]._id.trim() !== ""
+									? batches
+									: []
+							}
 							deleteFunction={deleteFunction}
 							editFunction={editFunction}
 						/>

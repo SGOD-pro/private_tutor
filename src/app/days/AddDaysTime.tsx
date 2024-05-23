@@ -95,8 +95,9 @@ function AddDaysTime({
 				setDisable(false);
 			});
 	};
+	const [dummy, setDummy] = useState<boolean>(update);
 	useEffect(() => {
-		if (update) {
+		if (dummy) {
 			return;
 		}
 		const val = calcEndTime();
@@ -112,9 +113,9 @@ function AddDaysTime({
 				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
 					<Dropdown
 						value={values.subject}
-						onChange={(e) =>
-							setValue((prev) => ({ ...prev, subject: e.value }))
-						}
+						onChange={(e) => {
+							setValue((prev) => ({ ...prev, subject: e.value }));
+						}}
 						options={subjects}
 						optionLabel="name"
 						placeholder="Select a Subject"
@@ -129,9 +130,11 @@ function AddDaysTime({
 				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs w-full">
 					<Calendar
 						value={values.startTime}
-						onChange={(e) =>
-							setValue((prev: any) => ({ ...prev, startTime: e.value }))
-						}
+						onChange={(e) => {
+							setValue((prev: any) => ({ ...prev, startTime: e.value }));
+
+							setDummy(false);
+						}}
 						timeOnly
 						placeholder="<22:30"
 						style={{ width: "100%" }}

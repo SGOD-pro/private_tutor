@@ -2,7 +2,7 @@ import React from 'react'
 
 function Loader() {
     return (
-        <>
+        <div className='w-full flex justify-center items-center'>
             <script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/infinity.js"></script>
 
             <l-infinity
@@ -13,7 +13,7 @@ function Loader() {
                 speed="1.3"
                 color="#00ADB5"
             ></l-infinity>
-        </>
+        </div>
     )
 }
 

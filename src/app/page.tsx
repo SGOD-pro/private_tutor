@@ -5,12 +5,10 @@ import ExamForm from "./components/ExamForm";
 import Table from "./components/Table";
 import SimpleCard from "./components/SimpleCard";
 import AddSubject from "./components/AddSubject";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setSubject } from "@/store/slices/Subjects";
 import { setAllStudents, popStudent } from "@/store/slices/Students";
-import { setAllBatches } from "@/store/slices/Batch";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
 
@@ -71,6 +69,7 @@ export default function Home() {
 	const deleteFunction: DeleteFunction = async (id: string) => {
 		try {
 			const response = await axios.get(`/api/class-time/delete?_id=${id}`);
+			dispatch(popStudent(id))
 			return response.data.success;
 		} catch (error) {
 			console.error("Error occurred while deleting:", error);

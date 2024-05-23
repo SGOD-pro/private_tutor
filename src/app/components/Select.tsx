@@ -13,7 +13,7 @@ function Select({ value, handleChange, options,placeholder }: SelectProps) {
 		<Dropdown
 			value={value}
 			onChange={handleChange}
-			options={options.map((option:any) => ({ ...option, style: { fontSize: '14px' } }))}
+			options={options.map((option:any) => ({ ...option, style: { fontSize: '13px' } }))}
 			optionLabel="name"
 			placeholder={`Select a ${placeholder}`}
 			className="w-full bg-[#393E46]"

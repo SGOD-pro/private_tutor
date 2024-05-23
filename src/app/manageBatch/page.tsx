@@ -9,6 +9,8 @@ import { showToast } from "@/store/slices/Toast";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loader from "../components/Loader";
+import { setAllStudentsByBatch,addStudentsToBatch } from "@/store/slices/BatchStudents";
+import { RootState } from "@/store/store";
 interface StudentDetails {
 	addmissionNo: string;
 	name: string;
@@ -19,6 +21,11 @@ interface toast {
 	detail: string;
 	type: string;
 }
+interface Batch {
+	_id: string;
+	subject: string;
+	days: string[];
+}
 export interface ComponentProps {
 	id: string;
 	subjectWiseBatches: Batch[][] | any;
@@ -26,10 +33,9 @@ export interface ComponentProps {
 }
 
 function page() {
-	const [values, setValues] = useState<StudentDetails[]>([]);
 	const [loading, setLoading] = useState(true);
 	const addDispatch: AppDispatch = useDispatch();
-
+	const dispatch = useDispatch();
 	const show = ({ summary, detail, type }: toast) => {
 		addDispatch(
 			showToast({
@@ -40,12 +46,6 @@ function page() {
 			})
 		);
 	};
-
-	interface Batch {
-		_id: string;
-		subject: string;
-		days: string[];
-	}
 
 	interface SubjectObject {
 		[key: string]: { code: string; name: string }[];
@@ -84,8 +84,13 @@ function page() {
 	const [skip, setSkip] = useState(0);
 	const [limit, setLimit] = useState(20);
 	const [hasMore, setHasMore] = useState(true);
+	const data = useSelector(
+		(state: RootState) => state.BatchStudents.allStudentsByBatch
+	);
 	const fetchData = async () => {
-		
+		if (data.length !== 0) {
+			return;
+		}
 		axios
 			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}`)
 			.then((response) => {
@@ -95,9 +100,9 @@ function page() {
 					setHasMore(false);
 				}
 				if (skip === 0) {
-					setValues(response.data.data);
+					dispatch(setAllStudentsByBatch(response.data.data));
 				} else {
-					setValues((prev) => [...prev, ...response.data.data]);
+					dispatch(addStudentsToBatch(response.data.data));
 				}
 				if (skip === 0) {
 					show({
@@ -108,13 +113,11 @@ function page() {
 				}
 			})
 			.catch((errror) => {
-				console.log(errror);
-
 				if (skip === 0) {
 					show({
 						type: "error",
 						summary: "Error",
-						detail: errror.response.data.message,
+						detail: errror.response?.data?.message||"An error occurred.",
 					});
 				}
 			})
@@ -183,7 +186,7 @@ function page() {
 					) : (
 						<div className="">
 							<InfiniteScroll
-								dataLength={values.length}
+								dataLength={data.length}
 								next={fetchMoreData}
 								hasMore={hasMore}
 								loader={<Loader />}
@@ -200,7 +203,7 @@ function page() {
 										{ field: "name", header: "Name" },
 										{ field: "subjects", header: "Subjects" },
 									]}
-									values={values}
+									values={data}
 									Components={ButtonComponent}
 								/>
 							</InfiniteScroll>
