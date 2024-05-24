@@ -53,6 +53,7 @@ export async function GET(req: Request) {
 					subjectWiseBatches: {
 						$push: "$subjectWiseBatches",
 					},
+					picture:{$first:"$picture"},
 				},
 			},
 			{ $sort: { admissionNo: -1 } },
@@ -76,7 +77,7 @@ export async function GET(req: Request) {
 							},
 						},
 					},
-
+					picture: 1,
 					subjectWiseBatches: 1,
 				},
 			},

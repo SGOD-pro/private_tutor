@@ -8,7 +8,7 @@ import ConnectDB from "@/db";
 const writeFileAsync = promisify(fs.writeFile);
 const unlinkAsync = promisify(fs.unlink);
 
-function formDataToJson(formData: FormData) {
+export function formDataToJson(formData: FormData) {
 	const json: { [key: string]: any } = {};
 
 	for (const [key, value] of formData.entries()) {
@@ -29,7 +29,16 @@ export async function POST(req: NextRequest) {
 	try {
 		const data = await req.formData();
 		const file = data.get("picture");
-
+		const jsonData = formDataToJson(data);
+		const exists = await userModel.findOne({
+			admissionNo: data.get("admissionNo"),
+		});
+		if (exists) {
+			return NextResponse.json(
+				{ message: "Already student exists.", success: false },
+				{ status: 400 }
+			);
+		}
 		let photoUrl;
 		if (file instanceof File) {
 			const buffer = await file.arrayBuffer();
@@ -47,7 +56,6 @@ export async function POST(req: NextRequest) {
 			}
 			photoUrl = uploadedFile?.url;
 		}
-		const jsonData = formDataToJson(data);
 		const name = capitalizeWords(jsonData.name);
 		const student = await userModel.create({
 			admissionNo: data.get("admissionNo"),
@@ -56,12 +64,15 @@ export async function POST(req: NextRequest) {
 			name,
 		});
 		console.log(student);
-
-		return NextResponse.json({ message: "done", data: student });
+		const response = {
+			...student.toJSON(),
+			subjects: student?.subjects?.join(","),
+		};
+		return NextResponse.json({ message: photoUrl?"Student added successfuly":"Student add but image not uploaded." , data: response,success:photoUrl?true:false },{status: 200});
 	} catch (error) {
 		console.log(error);
 
-		return NextResponse.json({ message: "not done" }, { status: 500 });
+		return NextResponse.json({ message: "not done",success:false }, { status: 500 });
 	}
 }
 export async function GET() {

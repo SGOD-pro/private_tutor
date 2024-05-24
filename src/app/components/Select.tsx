@@ -5,7 +5,7 @@ interface SelectProps {
 	value: any;
 	options: any;
 	handleChange: (e: any) => void;
-	placeholder:string
+	placeholder?:string
 }
 
 function Select({ value, handleChange, options,placeholder }: SelectProps) {
@@ -13,10 +13,10 @@ function Select({ value, handleChange, options,placeholder }: SelectProps) {
 		<Dropdown
 			value={value}
 			onChange={handleChange}
-			options={options.map((option:any) => ({ ...option, style: { fontSize: '13px' } }))}
+			options={options}
 			optionLabel="name"
 			placeholder={`Select a ${placeholder}`}
-			className="w-full bg-[#393E46]"
+			className="w-full bg-[#393E46] p-0"
 		/>
 	);
 }

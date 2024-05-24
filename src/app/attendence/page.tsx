@@ -18,11 +18,11 @@ interface ComponentProps {
 
 function page() {
 	const [disable, setDisable] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [values, setValues] = useState<any[]>([]);
 	const [searchData, setSearchData] = useState<any[]>([]);
 	const [ids, setIds] = useState<string[]>([]);
-	const [time, setTime] = useState<string | undefined>();
+	const [batch, setBatch] = useState<string | undefined>();
 	const [day, setDay] = useState<string>();
 	const [search, setSearch] = useState<string>("");
 	const appDispatch: AppDispatch = useDispatch();
@@ -71,37 +71,39 @@ function page() {
 		);
 	};
 	useEffect(() => {
+		
+	}, []);
+	const [allBatches, setAllBatches] = useState([])
+	useEffect(() => {
+		
 		const now = new Date();
 		const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
-		const hour = now.getHours().toString().padStart(2, "0");
-		setDay(daysOfWeek[now.getDay()]);
-		setTime(hour + ":15");
-	}, []);
-	useEffect(() => {
-		if (!time) {
-			return;
-		}
+		let day=daysOfWeek[now.getDay()];
 		axios
-			.get(`/api/attendence?day=${day}&time=${time}`)
+			.get(`/api/batches/today-batches?day=${day}`)
 			.then((response) => {
-				setValues(response.data.users);
-				setSearchData(response.data.users);
+				console.log(response.data.data)
+				setAllBatches(response.data.data)
 				show({"summary":'Attendence',"detail":response.data.message,"type":"success"})
 			})
 			.catch((error) => {
 				console.log(error);
 				show({"summary":'Attendence',"detail":error.response.data.message,"type":"error"})
+			}).finally(() => {
+				setLoading(false)
 			});
-	}, [time]);
+	}, []);
+
 	const submit = () => {
 		console.log(ids);
 	};
+
 	const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearch(e.target.value);
 		if (e.target.value.trim() === "") {
 			setSearchData(values);
 			return;
 		}
-		setSearch(e.target.value);
 		const filteredValues = values.filter((item) => {
 			const nameField = item.name || ""; // Ensure the field exists
 			const regex = new RegExp(e.target.value, "i"); // 'i' for case-insensitive search
@@ -109,26 +111,30 @@ function page() {
 		});
 		setSearchData(filteredValues);
 	};
+	const chageBatch=(e:any)=>{
+		setBatch(e.target.value)
+	}
 	return (
 		<>
 			<div className="h-full rounded-l-[3.2rem] overflow-hidden bg-[#1F2937]">
 				<div className="h-full overflow-auto custom-scrollbar relative">
 					<header className="flex items-center justify-between w-full px-5 py-1">
 						<h2 className="text-3xl font-semibold">Attendence</h2>
-						<div className=" text-right mt-3 flex gap-2">
+						<div className=" text-right mt-3 flex gap-2 items-center">
 							<div className="font-normal flex justify-end">
-								<div className="">
+								<div className="flex items-center gap-2 relative">
 									<input
 										type="text"
 										value={search}
 										onChange={onSearchChange}
-										className="w-80 px-3 py-2 rounded-lg focus:outline outline-[3px] outline-teal-700/70"
+										className="w-80 px-3 py-2 pr-8 rounded-lg focus:outline outline-[3px] outline-teal-700/70"
 										placeholder="Search by name.."
 									/>
+									<i className="pi pi-search absolute right-2"></i>
 								</div>
 							</div>
 							
-							<Select value={} handleChange={} options={}/>
+							<Select value={batch} handleChange={chageBatch} options={allBatches} placeholder="Batch"/>
 
 							<button
 								className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${

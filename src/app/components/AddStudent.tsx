@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { MultiSelect } from "primereact/multiselect";
 import { FileUpload } from "primereact/fileupload";
-import { Dropdown } from "primereact/dropdown";
 import InputFields from "./InputFields";
 import { useSelector, useDispatch } from "react-redux";
 import { pushStudent } from "@/store/slices/Students";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
-
 import axios from "axios";
-function AddStudent() {
+import { pushStudentByBatch } from "@/store/slices/BatchStudents";
+import { StudentDetailsInterface } from "../page";
+function AddStudent({
+	values,
+	setValues,
+	update,
+	setUpdate,
+}: {
+	values: StudentDetailsInterface;
+	setValues: React.Dispatch<React.SetStateAction<StudentDetailsInterface>>;
+	setUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+	update: boolean;
+}) {
 	const [selectedSubjects, setSelectedSubjects] = useState([]);
 	const dispatch = useDispatch();
-	const [values, setValues] = useState({
-		admissionNo: "",
-		picture: null,
-		subject: null,
-		name: "",
-	});
+
 	const addDispatch: AppDispatch = useDispatch();
 	interface toast {
 		summary: string;
@@ -57,7 +62,7 @@ function AddStudent() {
 			}));
 		}
 	}, [selectedSubjects]);
-	const [key, setKey] = useState(0); 
+	const [key, setKey] = useState(0);
 	const handelSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		console.log(values);
 		event.preventDefault();
@@ -71,19 +76,31 @@ function AddStudent() {
 			.then((response) => {
 				console.log(response.data);
 				dispatch(pushStudent(response.data.data));
+				dispatch(pushStudentByBatch(response.data.data));
 				setValues({
 					admissionNo: "",
 					picture: null,
 					subject: null,
 					name: "",
-				})
-				setSelectedSubjects([])
-				setKey(prevKey => prevKey + 1);
-				show({summary:"Added",type:"success",detail:"Student added successfully"})
+				});
+				if (!response.data.success) {
+					show({
+						summary: "Added",
+						type: "warning",
+						detail: response.data.message,
+					});
+				}
+				setSelectedSubjects([]);
+				setKey((prevKey) => prevKey + 1);
+				show({
+					summary: "Added",
+					type: "success",
+					detail: response.data.message,
+				});
 			})
 			.catch((error) => {
 				console.log(error);
-				show({summary:"Error",type:"success",detail:error.message});
+				show({ summary: "Error", type: "error", detail: error.message });
 			})
 			.finally(() => {
 				setLoading(false);
@@ -94,10 +111,10 @@ function AddStudent() {
 		name: subject.subject,
 	}));
 	useEffect(() => {
-        if (Array.isArray(lastAdmission)) {
-            updateAddNo()
-        }
-    }, [lastAdmission]);
+		if (Array.isArray(lastAdmission)) {
+			updateAddNo();
+		}
+	}, [lastAdmission]);
 
 	return (
 		<form className="w-full h-full" onSubmit={handelSubmit}>
@@ -105,7 +122,6 @@ function AddStudent() {
 				name={"admissionNo"}
 				value={values.admissionNo}
 				setValue={setValues}
-				readOnly={true}
 			/>
 			<InputFields name={"name"} value={values.name} setValue={setValues} />
 			<div className="flex flex-wrap">
@@ -142,7 +158,7 @@ function AddStudent() {
 					className="flex-grow flex-shrink basis-44 rounded-md text-sm bg-[#393E46]"
 				/>
 			</div>
-		
+
 			<div className=" text-right">
 				<button
 					className="px-3 py-1 text-lg rounded-md bg-[#393E46]"

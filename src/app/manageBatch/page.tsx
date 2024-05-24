@@ -9,7 +9,10 @@ import { showToast } from "@/store/slices/Toast";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loader from "../components/Loader";
-import { setAllStudentsByBatch,addStudentsToBatch } from "@/store/slices/BatchStudents";
+import {
+	setAllStudentsByBatch,
+	addStudentsToBatch,
+} from "@/store/slices/BatchStudents";
 import { RootState } from "@/store/store";
 interface StudentDetails {
 	addmissionNo: string;
@@ -88,9 +91,7 @@ function page() {
 		(state: RootState) => state.BatchStudents.allStudentsByBatch
 	);
 	const fetchData = async () => {
-		if (data.length !== 0) {
-			return;
-		}
+		
 		axios
 			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}`)
 			.then((response) => {
@@ -117,7 +118,7 @@ function page() {
 					show({
 						type: "error",
 						summary: "Error",
-						detail: errror.response?.data?.message||"An error occurred.",
+						detail: errror.response?.data?.message || "An error occurred.",
 					});
 				}
 			})
@@ -133,6 +134,10 @@ function page() {
 		fetchData();
 	};
 	useEffect(() => {
+		if (data.length !== 0) {
+			setLoading(false);
+			return;
+		}
 		localStorage.clear();
 		fetchData();
 	}, []);
@@ -176,9 +181,14 @@ function page() {
 			</div>
 			<div className="h-full rounded-l-[3.2rem] overflow-hidden bg-[#1F2937]">
 				<div className="h-full overflow-auto custom-scrollbar relative scrollableDiv">
-					<h2 className="text-3xl p-3 pl-8 font-semibold sticky top-0 z-30 bg-[#1F2937]/10 backdrop-blur border-b border-b-[#131921]/60">
-						BatchStudents
-					</h2>
+					<div className="flex items-center sticky top-0 z-30 bg-[#1F2937]/10 backdrop-blur justify-between w-full p-3 px-8 border-b border-b-[#131921]/60">
+						<h2 className="text-3xl  font-semibold  ">
+							BatchStudents
+						</h2>
+						<button className="hover:saturate-150 transition-all bg-gradient-to-tl to-blue-500 from-blue-700  rounded-lg shadow">
+							<i className="pi pi-sync p-3"></i>
+						</button>
+					</div>
 					{loading ? (
 						<div
 							className={`absolute w-full h-[92%] animate-pulse z-10 bg-[#393E46]/70 `}

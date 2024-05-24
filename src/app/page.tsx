@@ -12,6 +12,13 @@ import { setAllStudents, popStudent } from "@/store/slices/Students";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
 
+export interface StudentDetailsInterface {
+	admissionNo: string;
+	picture: string | null;
+	subject: string | null;
+	name: string;
+}
+
 export default function Home() {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(true);
@@ -38,7 +45,7 @@ export default function Home() {
 	const columns = [
 		{ field: "admissionNo", header: "Admission No" },
 		{ field: "name", header: "Full name" },
-		{ field: "subject", header: "Subjects" },
+		{ field: "subjects", header: "Subjects" },
 	];
 	useEffect(() => {
 		if (!students[0].admissionNo || students[0].admissionNo.trim() === "") {
@@ -69,15 +76,23 @@ export default function Home() {
 	const deleteFunction: DeleteFunction = async (id: string) => {
 		try {
 			const response = await axios.get(`/api/class-time/delete?_id=${id}`);
-			dispatch(popStudent(id))
+			dispatch(popStudent(id));
 			return response.data.success;
 		} catch (error) {
 			console.error("Error occurred while deleting:", error);
 			return false;
 		}
 	};
+	const [values, setValues] = useState<StudentDetailsInterface>({
+		admissionNo: "",
+		picture: null,
+		subject: null,
+		name: "",
+	});
+	const [update, setUpdate] = useState(false);
+	const [key, setKey] = useState(0);
 	const editFunction = (data: any) => {
-		
+		setUpdate(true);
 	};
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full md:gap-3 gap-1 overflow-auto">
@@ -93,7 +108,13 @@ export default function Home() {
 								<h2 className="text-2xl my-1 capitalize font-semibold">
 									add student
 								</h2>
-								<AddStudent />
+								<AddStudent
+									values={values}
+									setValues={setValues}
+									update={update}
+									setUpdate={setUpdate}
+									key={key}
+								/>
 							</div>
 						)}
 					</div>
