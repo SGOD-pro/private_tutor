@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import QueryTable from "../../components/QueryTable";
-function page({ params }: { params: { slug: string } }) {
+function page({ params }) {
 	
 	
 	const show = useRef<HTMLDivElement>(null);
