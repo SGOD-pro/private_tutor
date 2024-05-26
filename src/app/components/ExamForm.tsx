@@ -3,7 +3,10 @@ import React, { useState } from "react";
 import InputFields from "./InputFields";
 import { Calendar } from "primereact/calendar";
 import Select from "./Select";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import { ToastInterface, showToast } from "@/store/slices/Toast";
+import { AppDispatch } from "@/store/store";
 
 interface ExamProps {
 	title: string;
@@ -19,8 +22,17 @@ function ExamForm() {
 		date: null,
 	});
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
-	console.log(AllSubjects);
-
+	const addDispatch: AppDispatch = useDispatch();
+	const show = ({ summary, detail, type }: ToastInterface) => {
+		addDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
+	};
 	const subjects = AllSubjects.map((subject: any) => ({
 		name: subject.subject,
 		code: subject._id,
@@ -45,13 +57,31 @@ function ExamForm() {
 		setBatchValues(filteredBatches);
 	};
 	const setBatch = (e: any) => {
-		console.log(e.value);
 		setValues((prev) => ({ ...prev, batch: e.value }));
 	};
 	const handelSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const data = { ...values, batch: values.batch?.code };
-		console.log(data);
+		setDisable(true);
+		axios
+			.post(`/api/exam/set-exam`, data)
+			.then((response) => {
+				show({
+					summary: "Added",
+					type: "success",
+					detail: response.data.message,
+				});
+			})
+			.catch((err) => {
+				show({
+					summary: "Added",
+					type: "error",
+					detail: err.response.data.message || "Internal Error",
+				});
+			})
+			.finally(() => {
+				setDisable(false);
+			});
 	};
 	return (
 		<form className="w-full h-full overflow-auto" onSubmit={handelSubmit}>

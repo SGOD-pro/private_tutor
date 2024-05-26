@@ -9,7 +9,7 @@ export async function GET(req: Request) {
 		let limit: string | null = url.searchParams.get("limit");
 
 		let skipNumber: number = 0;
-		let limitNumber: number = 20;
+		let limitNumber: number = 0;
 
 		if (skip !== null) {
 			skipNumber = parseInt(skip, 10);
@@ -18,6 +18,8 @@ export async function GET(req: Request) {
 		if (limit !== null) {
 			limitNumber = parseInt(limit, 10);
 		}
+		console.log(limitNumber, skipNumber);
+		
 		const allUsers = await userModel.aggregate([
 			{
 				$unwind: "$subject",
@@ -56,7 +58,7 @@ export async function GET(req: Request) {
 					picture:{$first:"$picture"},
 				},
 			},
-			{ $sort: { admissionNo: -1 } },
+			{ $sort: { _id: -1 } },
 			{ $skip: skipNumber },
 			{ $limit: limitNumber },
 			{

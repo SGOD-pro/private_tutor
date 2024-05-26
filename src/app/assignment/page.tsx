@@ -4,34 +4,72 @@ import Table from "../components/Table";
 import AddAssignment from "./AddAssignment";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { setAllAssignment } from "@/store/slices/Assignments";
-axios;
+import { popAssignment, setAllAssignment } from "@/store/slices/Assignments";
+import { AppDispatch } from "@/store/store";
+import { showToast } from "@/store/slices/Toast";
+import {ToastInterface} from "@/store/slices/Toast"
 function page() {
-	const [loading, setLoading] = useState(false);
+	const addDispatch: AppDispatch = useDispatch();
+	const [loading, setLoading] = useState(true);
 	const dispatch = useDispatch();
 	type DeleteFunction = (id: string) => Promise<boolean>;
-
+	const show = ({ summary, detail, type }: ToastInterface) => {
+		addDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
+	};
 	const deleteFunction: DeleteFunction = async (id: string) => {
 		try {
-			const response = await axios.get(`/api/assignments/delete?_id=${id}`);
-			return response.data.success;
-		} catch (error) {
-			console.error("Error occurred while deleting:", error);
+			const response = await axios.get(`/api/assignment/delete-assignment?id=${id}`);
+			if (response.data.status) {
+				dispatch(popAssignment(id));
+				show({
+					summary: "Deleted",
+					detail: "Successfully deleted",
+					type: "info",
+				});
+			}
+			return response.data.status;
+		} catch (error:any) {
+			show({
+				summary: "Error",
+				detail: error.response.data.message||error.message,
+				type: "error",
+			})
 			return false;
 		}
 	};
-	const editFunction = (id: string) => {};
+	const editFunction = (id: string) => {
+
+	};
 	const assignments = useSelector(
 		(state: any) => state.Assignments.allAssignments
 	);
 	useEffect(() => {
+		if (assignments.length!==0) {
+			setLoading(false)
+			return;
+		}
 		axios
 			.get(`/api/assignment`)
 			.then((response) => {
 				dispatch(setAllAssignment(response.data.data));
 			})
-			.catch((error) => {})
-			.finally(() => {});
+			.catch((error) => {
+				show({
+					summary: "Error",
+					detail: error.response.data.message||error.message,
+					type: "error",
+				})
+			})
+			.finally(() => {
+				setLoading(false)
+			});
 	}, []);
 
 	return (
@@ -58,7 +96,7 @@ function page() {
 				</div>
 			</div>
 
-			<div className="w-1/2 flex-grow flex-shrink basis-96 overflow-hidden rounded-md border border-[#EEEEEE]/60 backdrop-blur h-full">
+			<div className="w-1/2 flex-grow flex-shrink basis-96 overflow-hidden rounded-md border border-[#EEEEEE]/60 backdrop-blur h-full min-h-36">
 				{loading ? (
 					<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
 				) : (

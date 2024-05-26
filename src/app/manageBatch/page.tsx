@@ -85,19 +85,18 @@ function page() {
 		setShowForm(true);
 	};
 	const [skip, setSkip] = useState(0);
-	const [limit, setLimit] = useState(20);
+	const [limit, setLimit] = useState(10);
 	const [hasMore, setHasMore] = useState(true);
 	const data = useSelector(
 		(state: RootState) => state.BatchStudents.allStudentsByBatch
 	);
 	const fetchData = async () => {
-		
 		axios
 			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}`)
 			.then((response) => {
 				console.log(response.data.data);
 
-				if (response.data.data.length === 0) {
+				if (response.data?.data?.length !== 10) {
 					setHasMore(false);
 				}
 				if (skip === 0) {
@@ -105,7 +104,7 @@ function page() {
 				} else {
 					dispatch(addStudentsToBatch(response.data.data));
 				}
-				if (skip === 0) {
+				if (skip === 0&&data.length===0) {
 					show({
 						type: "success",
 						summary: "Fetched",
@@ -129,18 +128,18 @@ function page() {
 			});
 	};
 	const fetchMoreData = () => {
-		setSkip(limit);
-		setLimit((prev) => prev + 20);
-		fetchData();
+		setSkip((prev) => prev + limit);
+		setLimit((prev) => prev + 10);
 	};
 	useEffect(() => {
 		if (data.length !== 0) {
 			setLoading(false);
-			return;
 		}
 		localStorage.clear();
 		fetchData();
-	}, []);
+		console.log("btn");
+	}, [limit, skip]);
+
 	const [key1, setKey1] = useState(0);
 	useEffect(() => {
 		setKey1((prev) => prev + 1);
@@ -180,13 +179,32 @@ function page() {
 				/>
 			</div>
 			<div className="h-full rounded-l-[3.2rem] overflow-hidden bg-[#1F2937]">
-				<div className="h-full overflow-auto custom-scrollbar relative scrollableDiv">
+				<div
+					className="h-full overflow-auto custom-scrollbar relative scrollableDiv"
+					id="scrollableDiv"
+				>
 					<div className="flex items-center sticky top-0 z-30 bg-[#1F2937]/10 backdrop-blur justify-between w-full p-3 px-8 border-b border-b-[#131921]/60">
-						<h2 className="text-3xl  font-semibold  ">
-							BatchStudents
-						</h2>
-						<button className="hover:saturate-150 transition-all bg-gradient-to-tl to-blue-500 from-blue-700  rounded-lg shadow">
-							<i className="pi pi-sync p-3"></i>
+						<h2 className="text-3xl  font-semibold  ">BatchStudents</h2>
+						<button
+							className="hover:saturate-150 transition-all bg-gradient-to-tl to-blue-500 from-blue-700  rounded-lg shadow"
+							onClick={() => {
+								axios
+									.get(
+										`/api/students/get-all-students?skip=0&limit=${limit}`
+									)
+									.then((response) => {
+										console.log(response.data.data);
+										dispatch(setAllStudentsByBatch(response.data.data));
+									}).catch((error) => {
+										show({
+											type: "error",
+											summary: "Error",
+											detail: error.response?.data?.message || "An error occurred.",
+										});
+									});
+							}}
+						>
+							<i className="pi pi-sync p-3 pointer-events-none"></i>
 						</button>
 					</div>
 					{loading ? (
@@ -200,11 +218,6 @@ function page() {
 								next={fetchMoreData}
 								hasMore={hasMore}
 								loader={<Loader />}
-								endMessage={
-									<p style={{ textAlign: "center" }}>
-										<b>You have seen it all</b>
-									</p>
-								}
 								scrollableTarget="scrollableDiv"
 							>
 								<QueryTable

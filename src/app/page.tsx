@@ -17,6 +17,7 @@ export interface StudentDetailsInterface {
 	picture: string | null;
 	subject: string | null;
 	name: string;
+	_id?: string;
 }
 
 export default function Home() {
@@ -45,7 +46,7 @@ export default function Home() {
 	const columns = [
 		{ field: "admissionNo", header: "Admission No" },
 		{ field: "name", header: "Full name" },
-		{ field: "subjects", header: "Subjects" },
+		{ field: "subject", header: "Subjects" },
 	];
 	useEffect(() => {
 		if (!students[0].admissionNo || students[0].admissionNo.trim() === "") {
@@ -53,6 +54,7 @@ export default function Home() {
 				.get("/api/students/setStudent")
 				.then((response) => {
 					dispatch(setAllStudents(response.data.data));
+					console.log(response.data.data);
 					show({
 						type: "success",
 						summary: "Fetched",
@@ -61,7 +63,11 @@ export default function Home() {
 				})
 				.catch((error) => {
 					console.log(error);
-					show({ type: "error", summary: "Error", detail: error.message });
+					show({
+						type: "error",
+						summary: "Error",
+						detail: error.response.data.message,
+					});
 				})
 				.finally(() => {
 					setLoading(false);
@@ -90,21 +96,40 @@ export default function Home() {
 		name: "",
 	});
 	const [update, setUpdate] = useState(false);
+	const [subject, setSubject] = useState<any[]>([]);
 	const [key, setKey] = useState(0);
 	const editFunction = (data: any) => {
+		
+		const subject = data.subject
+			? data.subject.includes(",")
+				? data.subject
+						.split(",")
+						.map((item: any): { name: string } => ({ name: item.trim() }))
+				: [{ name: data.subject.trim() }]
+			: [];
+		setSubject(subject);
+		setValues({
+			admissionNo: data.admissionNo,
+			picture: data.picture,
+			subject,
+			name: data.name,
+		});
+
+		localStorage.setItem("id", data._id);
 		setUpdate(true);
+		setKey((prev) => prev + 1);
 	};
 	return (
 		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full md:gap-3 gap-1 overflow-auto">
 			<div className=" w-full overflow-auto h-full flex flex-col">
 				<div className="md:min-h-[360px] md:max-h-[450px] grid md:grid-cols-[1.3fr,1fr] gap-2 grid-cols-1 h-fit">
-					<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 md:rounded-tl-[2.5rem] rounded-tl-2xl  overflow-hidden relative h-full">
+					<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 md:rounded-tl-[2.5rem] rounded-tl-2xl overflow-auto  custom-scrollbar relative h-full">
 						{loading ? (
 							<div
 								className={`absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 `}
 							></div>
 						) : (
-							<div className={`w-full h-full pl-3 p-1`}>
+							<div className={`w-full pl-3 p-1 `}>
 								<h2 className="text-2xl my-1 capitalize font-semibold">
 									add student
 								</h2>
@@ -113,6 +138,7 @@ export default function Home() {
 									setValues={setValues}
 									update={update}
 									setUpdate={setUpdate}
+									subject={subject}
 									key={key}
 								/>
 							</div>

@@ -18,7 +18,6 @@ const SimpleCard = () => {
     useEffect(() => {
         const currentDate = new Date();
         const currentDayIndex = currentDate.getDay();
-        console.log("day", currentDayIndex);
         axios.get(`/api/batches/nextBatch?day=${days[currentDayIndex]}`)
             .then((response) => {
                 setBatchCard({

@@ -3,12 +3,14 @@ import InputFields from "../components/InputFields";
 import Select from "../components/Select";
 import { Calendar } from "primereact/calendar";
 import axios from "axios";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { pushAssignment } from "@/store/slices/Assignments";
+import { extractDate } from "@/utils/DateTime";
+
 export interface AddAssignmentInterface {
 	title: string;
 	explanation: string;
-	batch: { name: string; code: string } | null;
+	batch: { name: string; code: string } | null ;
 	subbmissionDate: Date | null;
 	_id?: string;
 }
@@ -20,7 +22,7 @@ function AddAssignment() {
 		batch: null,
 		subbmissionDate: null,
 	});
-	const dispatch=useDispatch()
+	const dispatch = useDispatch();
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 
 	const subjects = AllSubjects.map((subject: any) => ({
@@ -34,7 +36,7 @@ function AddAssignment() {
 
 	const [disable, setDisable] = useState(false);
 
-	const [selectedSubject, setSelectedSubject] = useState(null);
+	const [selectedSubject, setSelectedSubject] = useState<any>(null);
 	const setSubject = (e: any) => {
 		const selectedSubject = e.value;
 		setSelectedSubject(selectedSubject);
@@ -59,19 +61,26 @@ function AddAssignment() {
 		) {
 			return;
 		}
-		console.log(details);
 		setDisable(true);
 		axios
 			.post("/api/assignment", details)
 			.then((response) => {
+				const data:any = {
+					title: details.title,
+					subject:selectedSubject.name,
+					batch: details.batch?.name||"",
+					subbmissionDate: extractDate(`${details.subbmissionDate}`),
+					_id:response.data.data._id
+				};
 				setdetails({
 					title: "",
 					explanation: "",
 					batch: null,
 					subbmissionDate: null,
 				});
-				setSelectedSubject(null)
-				dispatch(pushAssignment(response.data.data))
+				setSelectedSubject(null);
+				console.log(response.data);
+				dispatch(pushAssignment(data));
 			})
 			.catch((error) => {
 				console.log(error);

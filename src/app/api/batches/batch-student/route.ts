@@ -51,7 +51,7 @@ export async function GET(req: Request) {
 	const url = new URL(req.url);
 	const id = url.searchParams.get("id");
 	if (!id) {
-		return Response.json({success:false,message:"Student not found.",data},{status:404})
+		return Response.json({success:false,message:"Student not found."},{status:404})
 	}
 	try {
 		await ConnectDB();

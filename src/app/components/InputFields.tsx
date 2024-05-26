@@ -53,7 +53,7 @@ function InputFields({
 				name={name}
 				value={value}
 				onChange={handleChange}
-				className="flex-grow flex-shrink basis-44 rounded-md px-2 py-2 bg-[#393E46] focus:outline outline-[3px] outline-teal-500/30 transition-all"
+				className="flex-grow flex-shrink basis-40 rounded-md px-2 py-2 bg-[#393E46] focus:outline outline-[3px] outline-teal-500/30 transition-all"
 				readOnly={readOnly}
 				placeholder={placeholder || ""}
 			/>

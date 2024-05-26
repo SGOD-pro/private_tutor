@@ -12,8 +12,7 @@ export async function POST(req: NextRequest) {
 				explanation,
 				batch: batch.code,
 				subbmissionDate,
-			},
-			{ new: true }
+			}
 		);
 		console.log(created);
 		if (!created) {

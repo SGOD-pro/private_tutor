@@ -21,9 +21,27 @@ export function formDataToJson(formData: FormData) {
 			json[key] = value;
 		}
 	}
-
 	return json;
 }
+export const  uploadImage=async(file:any)=>{
+	if (file instanceof File) {
+		const buffer = await file.arrayBuffer();
+
+		const filePath = "./public/" + file.name;
+		await writeFileAsync(filePath, Buffer.from(buffer));
+
+		console.log("file path", filePath);
+
+		const uploadedFile: any = await cloudinaryUTIL(filePath);
+		console.log(uploadedFile);
+
+		if (filePath) {
+			await unlinkAsync(filePath);
+		}
+		return uploadedFile?.url;
+	}
+}
+
 export async function POST(req: NextRequest) {
 	await ConnectDB();
 	try {
@@ -39,23 +57,8 @@ export async function POST(req: NextRequest) {
 				{ status: 400 }
 			);
 		}
-		let photoUrl;
-		if (file instanceof File) {
-			const buffer = await file.arrayBuffer();
-
-			const filePath = "./public/" + file.name;
-			await writeFileAsync(filePath, Buffer.from(buffer));
-
-			console.log("file path", filePath);
-
-			const uploadedFile: any = await cloudinaryUTIL(filePath);
-			console.log(uploadedFile);
-
-			if (filePath) {
-				await unlinkAsync(filePath);
-			}
-			photoUrl = uploadedFile?.url;
-		}
+		let photoUrl= await uploadImage(file);
+		
 		const name = capitalizeWords(jsonData.name);
 		const student = await userModel.create({
 			admissionNo: data.get("admissionNo"),
@@ -63,11 +66,11 @@ export async function POST(req: NextRequest) {
 			subject: jsonData["subject[]"],
 			name,
 		});
-		console.log(student);
 		const response = {
 			...student.toJSON(),
-			subjects: student?.subjects?.join(","),
+			subject: student?.subject?.join(","),
 		};
+		console.log(response);
 		return NextResponse.json({ message: photoUrl?"Student added successfuly":"Student add but image not uploaded." , data: response,success:photoUrl?true:false },{status: 200});
 	} catch (error) {
 		console.log(error);
@@ -80,7 +83,7 @@ export async function GET() {
 	try {
 		const users = await userModel.aggregate([
 			{
-				$sort: { admissionNo: -1 },
+				$sort: { _id: -1 },
 			},
 			{
 				$limit: 4,
@@ -116,6 +119,8 @@ export async function GET() {
 			status: 200,
 		});
 	} catch (error: any) {
+		console.log(error);
+		
 		return NextResponse.json({ message: error.message, status: 500 });
 	}
 }

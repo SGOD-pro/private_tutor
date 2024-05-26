@@ -81,7 +81,11 @@ function page() {
 			subject: { name: data.subject },
 			startTime: convertTimeStringToDate(data.time.split("-")[0].trim()),
 			endTime: convertTimeStringToDate(data.time.split("-")[1].trim()),
-			days: data.days.split(",").map((item: string) => item.trim()),
+			days: data.days
+				? data.days.includes(",")
+					? data.days.split(",").map((item: string) => item.trim())
+					: [data.days.trim()]
+				: [],
 		});
 		setKey((prev) => prev + 1);
 		console.log(data);

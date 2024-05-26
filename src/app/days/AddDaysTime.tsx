@@ -81,18 +81,15 @@ function AddDaysTime({
 					dispatch(updateBatches(response.data.data));
 				} else {
 					dispatch(pushBatches(response.data.data));
-				}
-
-				console.log(batches);
-
-				localStorage.clear();
-				setUpdate(false);
+				}	
 			})
 			.catch((error) => {
 				console.log(error);
 			})
 			.finally(() => {
 				setDisable(false);
+				localStorage.clear();
+				setUpdate(false);
 			});
 	};
 	const [dummy, setDummy] = useState<boolean>(update);

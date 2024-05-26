@@ -2,15 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AddAssignmentInterface } from "@/app/assignment/AddAssignment";
 
 const initialState: { allAssignments: AddAssignmentInterface[] } = {
-	allAssignments: [
-		{
-			title: "",
-			explanation: "",
-			batch: null,
-			subbmissionDate: null,
-			_id: "",
-		},
-	],
+	allAssignments: [],
 };
 
 export const assignmentSlice = createSlice({

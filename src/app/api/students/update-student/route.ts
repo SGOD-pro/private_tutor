@@ -1,12 +1,7 @@
 import { capitalizeWords } from "@/utils/Capitalize";
-import { cloudinaryUTIL } from "@/utils/Cloudinary";
-import fs from "fs";
-import { promisify } from "util";
 import ConnectDB from "@/db";
-const writeFileAsync = promisify(fs.writeFile);
-const unlinkAsync = promisify(fs.unlink);
 import userModel from "@/models/UserModel";
-import { formDataToJson } from "../setStudent/route";
+import { formDataToJson, uploadImage } from "../setStudent/route";
 
 export async function POST(req: Request) {
 	await ConnectDB();
@@ -19,40 +14,47 @@ export async function POST(req: Request) {
 				{ status: 404 }
 			);
 		}
-        const data = await req.formData();
+		console.log(_id);
+		
+		const data = await req.formData();
 		const file = data.get("picture");
 		const jsonData = formDataToJson(data);
-		const exists = await userModel.findOne({
-			admissionNo: data.get("admissionNo"),
-		});
-		if (exists) {
-			return Response.json(
-				{ message: "Already student exists.", success: false },
-				{ status: 400 }
-			);
-		}
-		let photoUrl;
-		if (file instanceof File) {
-			const buffer = await file.arrayBuffer();
 
-			const filePath = "./public/" + file.name;
-			await writeFileAsync(filePath, Buffer.from(buffer));
+		let photoUrl = await uploadImage(file);
 
-			console.log("file path", filePath);
-
-			const uploadedFile: any = await cloudinaryUTIL(filePath);
-			console.log(uploadedFile);
-
-			if (filePath) {
-				await unlinkAsync(filePath);
-			}
-			photoUrl = uploadedFile?.url;
-		}
 		const name = capitalizeWords(jsonData.name);
-		const user = await userModel.findByIdAndUpdate(_id, {
-			$set: {
-
-            },
-		});
-	} catch (error) {}
+		const user = await userModel.findByIdAndUpdate(
+			_id,
+			{
+				$set: {
+					name,
+					subject: jsonData["subject[]"],
+				},
+			},
+			{ new: true }
+		);
+		const response = {
+			...user.toJSON(),
+			subject: user?.subject?.join(","),
+		};
+		console.log(response);
+		
+		return Response.json(
+			{
+				message: "Student updated successfully.",
+				success: true,
+				data:response
+			},
+			{ status: 200 }
+		);
+	} catch (error) {
+		console.log(error)
+		return Response.json(
+			{
+				message: "Cann't update student, Internal server error ",
+				success: false,
+			},
+			{ status: 500 }
+		);
+	}
 }
