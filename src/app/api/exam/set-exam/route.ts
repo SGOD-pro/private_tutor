@@ -6,11 +6,12 @@ export async function POST(req: NextRequest) {
 	await ConnectDB();
 	try {
 		const { title, caption, batch, date } = await req.json();
+		console.log( title, caption, batch, date )
 		const created = await examModel.create(
 			{
 				title,
 				caption,
-				batch: batch.code,
+				batch,
 				date,
 			}
 		);
@@ -26,6 +27,8 @@ export async function POST(req: NextRequest) {
 			success: true,
 		});
 	} catch (error: any) {
-		return NextResponse.json({ message: error.message });
+		console.log(error);
+		
+		return NextResponse.json({ message: error.message },{status:500});
 	}
 }

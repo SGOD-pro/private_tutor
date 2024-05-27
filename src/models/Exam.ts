@@ -29,5 +29,5 @@ const examSchema: Schema<ExamInterface> = new Schema({
 	},
 });
 
-const examModel=(mongoose.models.users as mongoose.Model<ExamInterface>)||mongoose.model<ExamInterface>("exams", examSchema);
+const examModel=(mongoose.models.exams as mongoose.Model<ExamInterface>)||mongoose.model<ExamInterface>("exams", examSchema);
 export default examModel;

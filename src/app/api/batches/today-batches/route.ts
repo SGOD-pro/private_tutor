@@ -13,8 +13,8 @@ export async function GET(req: Request) {
 				{ status: 404 }
 			);
 		}
-        console.log(day);
-        
+		console.log(day);
+
 		const batch = await batchesModel.aggregate([
 			{ $match: { days: day } },
 			{ $sort: { startTime: 1 } },
@@ -34,7 +34,7 @@ export async function GET(req: Request) {
 					},
 				},
 			},
-			
+
 			{
 				$addFields: {
 					code: "$_id",
@@ -46,8 +46,8 @@ export async function GET(req: Request) {
 			{
 				$project: {
 					name: 1,
-                    code:1,
-                    _id:0
+					code: 1,
+					_id: 0,
 				},
 			},
 		]);
@@ -62,3 +62,4 @@ export async function GET(req: Request) {
 		);
 	}
 }
+

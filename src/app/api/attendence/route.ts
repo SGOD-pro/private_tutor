@@ -1,37 +1,25 @@
 import { NextResponse, NextRequest } from "next/server";
 import ConnectDB from "@/db";
-import batchModel from "@/models/Batches";
 import userModel from "@/models/UserModel";
-import { getNextHour } from "@/utils/DateTime";
-
+import mongoose from "mongoose";
 
 
 export async function GET(req: Request) {
 	await ConnectDB();
 	try {
 		const url = new URL(req.url);
-		const currentDay = url.searchParams.get("day");
-		const time = url.searchParams.get("time");
-		console.log(currentDay, time);
-		if (!currentDay || !time) {
+		const id = url.searchParams.get("id");
+		console.log(id);
+		
+		if (!id) {
 			return Response.json(
-				{ success: false, message: "cannot find day and time" },
+				{ success: false, message: "cannot get batch" },
 				{ status: 404 }
 			);
 		}
-		const nextHour = getNextHour(time);
-		const batch = await batchModel.aggregate([
-			{ $match: { endTime: { $lte: nextHour, $gte: time }, days: currentDay } },
-		]);
 
-		if (batch.length === 0) {
-			return Response.json(
-				{ success: false, message: "Cann't get any batch!" },
-				{ status: 400 }
-			);
-		}
 		const users = await userModel.aggregate([
-			{ $match: { batches: batch[0]._id } },
+			{ $match: { batches: new mongoose.Types.ObjectId(id)} },
 			{
 				$addFields: {
 					subject: {
@@ -61,8 +49,7 @@ export async function GET(req: Request) {
 
 		return Response.json({
 			success: true,
-			users,
-			batch: batch[0]._id,
+			data:users,
 			message: "Done!",
 		});
 	} catch (error) {

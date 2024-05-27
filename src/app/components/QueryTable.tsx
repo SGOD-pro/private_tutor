@@ -2,7 +2,6 @@
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import Image from "next/image";
-import { useState } from "react";
 interface ColumnProps {
 	field: string;
 	header: string;
@@ -26,21 +25,17 @@ export default function RemovableSortDemo({
 		if (!rowData.picture) {
 			return <span>{rowData.name}</span>;
 		}
-		const [imgSrc, setImgSrc] = useState(rowData.picture);
-  
-		const handleImageError = () => {
-		  setImgSrc("/default_user.png"); // Set the path to your default user image
-		};
+
 		return (
 			<div className="flex items-center gap-2">
 				<div className=" w-11 h-11 rounded-full overflow-hidden">
 					<Image
-						src={imgSrc}
+						src={rowData.picture}
 						alt={rowData.name[0]}
 						className="w-full h-full object-cover object-top"
 						width={56}
 						height={56}
-						onError={handleImageError}
+						
 					/>
 				</div>
 				<span>{rowData.name}</span>

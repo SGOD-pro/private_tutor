@@ -66,11 +66,20 @@ function ExamForm() {
 		axios
 			.post(`/api/exam/set-exam`, data)
 			.then((response) => {
+				console.log(response);
+				
 				show({
 					summary: "Added",
 					type: "success",
 					detail: response.data.message,
 				});
+				setSelectedSubject(null)
+				setValues({
+					title: "",
+					caption: "",
+					batch: null,
+					date: null,
+				})
 			})
 			.catch((err) => {
 				show({
@@ -93,6 +102,7 @@ function ExamForm() {
 				<textarea
 					name="caption"
 					id="caption"
+					value={values.caption}
 					className="flex-grow flex-shrink basis-44 rounded-md p-1 h-20 focus:outline outline-[3px] outline-teal-500/30 transition-all resize-none bg-[#393E46]"
 					onChange={(e) => {
 						setValues((prev) => ({ ...prev, caption: e.target.value }));

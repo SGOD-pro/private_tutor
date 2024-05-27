@@ -2,11 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import "./checkbox.css";
-
 import { showToast } from "@/store/slices/Toast";
 import { ToastInterface } from "@/store/slices/Toast";
 import { AppDispatch } from "@/store/store";
-
 import QueryTable from "../components/QueryTable";
 import axios from "axios";
 import { useDispatch } from "react-redux";
@@ -16,16 +14,19 @@ interface ComponentProps {
 	id: string;
 }
 
-function page() {
+function Page() {
 	const [disable, setDisable] = useState(false);
 	const [loading, setLoading] = useState(true);
+	const [ids, setIds] = useState<string[]>([]);
+	const [day, setDay] = useState<string>("");
+	const [search, setSearch] = useState<string>("");
+	const [allBatches, setAllBatches] = useState<any[]>([]);
 	const [values, setValues] = useState<any[]>([]);
 	const [searchData, setSearchData] = useState<any[]>([]);
-	const [ids, setIds] = useState<string[]>([]);
-	const [batch, setBatch] = useState<string | undefined>();
-	const [day, setDay] = useState<string>();
-	const [search, setSearch] = useState<string>("");
+	const [batch, setBatch] = useState<any>(null);
+
 	const appDispatch: AppDispatch = useDispatch();
+
 	const handleCheckboxChange = (event: any) => {
 		const { value, checked } = event.target;
 		let newVal = [];
@@ -48,7 +49,7 @@ function page() {
 		);
 	};
 
-	const ChekcboxComponent: React.FC<ComponentProps> = ({ id }) => {
+	const CheckboxComponent: React.FC<ComponentProps> = ({ id }) => {
 		return (
 			<div>
 				<label className="container" htmlFor={id}>
@@ -70,29 +71,82 @@ function page() {
 			</div>
 		);
 	};
+
 	useEffect(() => {
-		
-	}, []);
-	const [allBatches, setAllBatches] = useState([])
-	useEffect(() => {
-		
 		const now = new Date();
-		const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
-		let day=daysOfWeek[now.getDay()];
+		const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+		let currentDay = daysOfWeek[now.getDay()];
+		setDay(currentDay);
+
 		axios
-			.get(`/api/batches/today-batches?day=${day}`)
+			.get(`/api/batches/today-batches?day=${currentDay}`)
 			.then((response) => {
-				console.log(response.data.data)
-				setAllBatches(response.data.data)
-				show({"summary":'Attendence',"detail":response.data.message,"type":"success"})
+				console.log(response.data.data);
+				setAllBatches(response.data.data);
+				show({
+					summary: "Attendance",
+					detail: response.data.message,
+					type: "success",
+				});
 			})
 			.catch((error) => {
 				console.log(error);
-				show({"summary":'Attendence',"detail":error.response.data.message,"type":"error"})
-			}).finally(() => {
-				setLoading(false)
+				show({
+					summary: "Attendance",
+					detail: error.response?.data?.message || "Error fetching batches",
+					type: "error",
+				});
+			})
+			.finally(() => {
+				setLoading(false);
 			});
 	}, []);
+
+	useEffect(() => {
+		if (!day) return;
+
+		axios
+			.get(`/api/attendence/get-batch?day=${day}`)
+			.then((response) => {
+				const cbatch = allBatches.find(
+					(batch) => batch.code === response.data.data?._id
+				);
+				console.log(cbatch);
+				setBatch(cbatch);
+			})
+			.catch((error) => {
+				console.log(error);
+				show({
+					summary: "Attendance",
+					detail: error.response?.data?.message || "Error fetching batch",
+					type: "error",
+				});
+			});
+	}, [allBatches]);
+
+	useEffect(() => {
+		if (batch) {
+			
+		console.log(batch.code);
+
+		axios
+			.get(`/api/attendence?id=${batch.code}`)
+			.then((response) => {
+				console.log(response.data.data);
+				setValues(response.data.data);
+				setSearchData(response.data.data);
+			})
+			.catch((error) => {
+				console.log(error);
+				show({
+					summary: "Attendance",
+					detail: error.response?.data?.message || "Error fetching attendance!",
+					type: "error",
+				});
+			});
+		}
+
+	}, [batch]);
 
 	const submit = () => {
 		console.log(ids);
@@ -111,16 +165,19 @@ function page() {
 		});
 		setSearchData(filteredValues);
 	};
-	const chageBatch=(e:any)=>{
-		setBatch(e.target.value)
-	}
+
+	const changeBatch = (e: any) => {
+		console.log(e.target.value);
+		setBatch(e.target.value);
+	};
+
 	return (
 		<>
 			<div className="h-full rounded-l-[3.2rem] overflow-hidden bg-[#1F2937]">
 				<div className="h-full overflow-auto custom-scrollbar relative">
 					<header className="flex items-center justify-between w-full px-5 py-1">
-						<h2 className="text-3xl font-semibold">Attendence</h2>
-						<div className=" text-right mt-3 flex gap-2 items-center">
+						<h2 className="text-3xl font-semibold">Attendance</h2>
+						<div className="text-right mt-3 flex gap-2 items-center">
 							<div className="font-normal flex justify-end">
 								<div className="flex items-center gap-2 relative">
 									<input
@@ -133,8 +190,13 @@ function page() {
 									<i className="pi pi-search absolute right-2"></i>
 								</div>
 							</div>
-							
-							<Select value={batch} handleChange={chageBatch} options={allBatches} placeholder="Batch"/>
+
+							<Select
+								value={batch}
+								handleChange={changeBatch}
+								options={allBatches}
+								placeholder="Batch"
+							/>
 
 							<button
 								className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
@@ -160,8 +222,8 @@ function page() {
 								{ field: "subject", header: "Subjects" },
 							]}
 							values={searchData}
-							Components={ChekcboxComponent}
-						></QueryTable>
+							Components={CheckboxComponent}
+						/>
 					)}
 				</div>
 			</div>
@@ -169,4 +231,4 @@ function page() {
 	);
 }
 
-export default page;
+export default Page;
