@@ -49,7 +49,7 @@ export default function Home() {
 		{ field: "subject", header: "Subjects" },
 	];
 	useEffect(() => {
-		if (!students[0].admissionNo || students[0].admissionNo.trim() === "") {
+		if (students?.length===0) {
 			axios
 				.get("/api/students/setStudent")
 				.then((response) => {

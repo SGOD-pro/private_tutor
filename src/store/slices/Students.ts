@@ -9,15 +9,7 @@ interface StudentData {
 }
 
 const initialState: { allStudents: StudentData[] } = {
-	allStudents: [
-		{
-			admissionNo: null,
-			name: "",
-			subjects: "",
-			_id: "",
-			profilePicture: "",
-		},
-	],
+	allStudents: [],
 };
 
 export const studentSlice = createSlice({

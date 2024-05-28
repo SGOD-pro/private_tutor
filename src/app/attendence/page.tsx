@@ -18,7 +18,7 @@ function Page() {
 	const [disable, setDisable] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [ids, setIds] = useState<string[]>([]);
-	const [day, setDay] = useState<string>("");
+	const [day, setDay] = useState<string | null>(null);
 	const [search, setSearch] = useState<string>("");
 	const [allBatches, setAllBatches] = useState<any[]>([]);
 	const [values, setValues] = useState<any[]>([]);
@@ -83,11 +83,9 @@ function Page() {
 			.then((response) => {
 				console.log(response.data.data);
 				setAllBatches(response.data.data);
-				show({
-					summary: "Attendance",
-					detail: response.data.message,
-					type: "success",
-				});
+				if (response.data.data.length === 0) {
+					setDisable(true);
+				}
 			})
 			.catch((error) => {
 				console.log(error);
@@ -96,14 +94,13 @@ function Page() {
 					detail: error.response?.data?.message || "Error fetching batches",
 					type: "error",
 				});
-			})
-			.finally(() => {
-				setLoading(false);
 			});
 	}, []);
 
 	useEffect(() => {
-		if (!day) return;
+		if (!day) {
+			return;
+		}
 
 		axios
 			.get(`/api/attendence/get-batch?day=${day}`)
@@ -122,13 +119,14 @@ function Page() {
 					type: "error",
 				});
 			});
-	}, [allBatches]);
+	}, [allBatches, day]);
 
 	useEffect(() => {
-		if (batch) {
-			
+		if (!batch) {
+			return;
+		}
 		console.log(batch.code);
-
+		setLoading(true);
 		axios
 			.get(`/api/attendence?id=${batch.code}`)
 			.then((response) => {
@@ -143,13 +141,61 @@ function Page() {
 					detail: error.response?.data?.message || "Error fetching attendance!",
 					type: "error",
 				});
+			})
+			.finally(() => {
+				setLoading(false);
 			});
-		}
+		axios
+			.get(`/api/attendence/assign-attendence?id=${batch.code}`)
+			.then((response) => {
+				console.log(response.data.data);
 
+				setIds(response.data.data?.studentsId || []);
+				show({
+					summary: "Attendance",
+					detail: response.data.message,
+					type: "success",
+				});
+			})
+			.catch((error) => {
+				console.log(error);
+				show({
+					summary: "Attendance",
+					detail: error.response?.data?.message || "Error fetching record!",
+					type: "error",
+				});
+			});
 	}, [batch]);
 
 	const submit = () => {
 		console.log(ids);
+		if (ids.length === 0) {
+			return;
+		}
+		const data = { batchId: batch.code, studentsId: ids };
+		setDisable(true);
+		axios
+			.post(`/api/attendence/assign-attendence`, data)
+			.then((response) => {
+				if (response.data.success) {
+					show({
+						summary: "Attendance",
+						detail: response.data.message,
+						type: "success",
+					});
+				}
+			})
+			.catch((error) => {
+				show({
+					summary: "Attendance",
+					detail:
+						error.response.data.message || "Cann't save attendence record",
+					type: "error",
+				});
+			})
+			.finally(() => {
+				setDisable(false);
+			});
 	};
 
 	const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,6 +215,7 @@ function Page() {
 	const changeBatch = (e: any) => {
 		console.log(e.target.value);
 		setBatch(e.target.value);
+		setSearch("");
 	};
 
 	return (
@@ -206,8 +253,11 @@ function Page() {
 								disabled={disable}
 								onClick={submit}
 							>
-								Save
-								{disable && <i className="pi pi-spin pi-spinner ml-2"></i>}
+								{disable ? (
+									<i className="pi pi-spin pi-spinner ml-2"></i>
+								) : (
+									"Save"
+								)}
 							</button>
 						</div>
 					</header>

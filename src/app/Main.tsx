@@ -28,10 +28,7 @@ function Main({ children }: { children: React.ReactNode }) {
 	}, [subjects, dispatch]);
 
 	useEffect(() => {
-		if (
-			batches?.length > 0 &&
-			(!batches[0].subject || batches[0].subject.trim() === "")
-		) {
+		if (batches?.length === 0) {
 			axios
 				.get("/api/batches/getBatches")
 				.then((response) => {

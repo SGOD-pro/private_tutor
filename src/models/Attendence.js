@@ -1,12 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 
 const attendenceSchema = new Schema({
-    batchName: {
-        type: String,
-        require: true,
-    },
-    subject: {
-        type: String,
+    batchId: {
+        type: Schema.Types.ObjectId,
+        ref: 'batches',
         require: true,
     },
     studentsId: [{

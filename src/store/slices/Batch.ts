@@ -9,12 +9,7 @@ interface BatchInterface {
 
 const initialState: { allBatches: BatchInterface[] } = {
 	allBatches: [
-		{
-			_id: "",
-			time:"",
-			days: '',
-			subject: "",
-		},
+		
 	],
 };
 
