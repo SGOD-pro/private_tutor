@@ -7,7 +7,9 @@ import axios from "axios";
 import { popAssignment, setAllAssignment } from "@/store/slices/Assignments";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
-import {ToastInterface} from "@/store/slices/Toast"
+import { ToastInterface } from "@/store/slices/Toast";
+import Link from "next/link";
+
 function page() {
 	const addDispatch: AppDispatch = useDispatch();
 	const [loading, setLoading] = useState(true);
@@ -25,7 +27,9 @@ function page() {
 	};
 	const deleteFunction: DeleteFunction = async (id: string) => {
 		try {
-			const response = await axios.get(`/api/assignment/delete-assignment?id=${id}`);
+			const response = await axios.get(
+				`/api/assignment/delete-assignment?id=${id}`
+			);
 			if (response.data.status) {
 				dispatch(popAssignment(id));
 				show({
@@ -35,24 +39,22 @@ function page() {
 				});
 			}
 			return response.data.status;
-		} catch (error:any) {
+		} catch (error: any) {
 			show({
 				summary: "Error",
-				detail: error.response.data.message||error.message,
+				detail: error.response.data.message || error.message,
 				type: "error",
-			})
+			});
 			return false;
 		}
 	};
-	const editFunction = (id: string) => {
-
-	};
+	const editFunction = (id: string) => {};
 	const assignments = useSelector(
 		(state: any) => state.Assignments.allAssignments
 	);
 	useEffect(() => {
-		if (assignments.length!==0) {
-			setLoading(false)
+		if (assignments.length !== 0) {
+			setLoading(false);
 			return;
 		}
 		axios
@@ -63,12 +65,12 @@ function page() {
 			.catch((error) => {
 				show({
 					summary: "Error",
-					detail: error.response.data.message||error.message,
+					detail: error.response.data.message || error.message,
 					type: "error",
-				})
+				});
 			})
 			.finally(() => {
-				setLoading(false)
+				setLoading(false);
 			});
 	}, []);
 
@@ -101,9 +103,17 @@ function page() {
 					<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
 				) : (
 					<div className="w-full h-full relative overflow-auto custom-scrollbar bg-[#1F2937]">
-						<h2 className="text-xl capitalize p-2 font-semibold sticky top-0 z-10 bg-[#393E46]">
-							Recent Assignments
-						</h2>
+						<div className="flex items-center p-2 justify-between sticky top-0 z-10 bg-[#393E46]">
+							<h2 className="text-xl capitalize font-semibold">
+								Recent Assignments
+							</h2>{" "}
+							<Link
+								href="/all/show-assignments"
+								className="font-light text-emerald-500 text-sm hover:underline hover:opacity-70"
+							>
+								Vew all
+							</Link>
+						</div>
 						<Table
 							columns={[
 								{ field: "subject", header: "Subject" },

@@ -24,7 +24,7 @@ interface toast {
 	detail: string;
 	type: string;
 }
-interface Batch {
+export interface Batch {
 	_id: string;
 	subject: string;
 	days: string[];
@@ -132,12 +132,11 @@ function page() {
 		setLimit((prev) => prev + 10);
 	};
 	useEffect(() => {
+		localStorage.clear();
 		if (data.length !== 0) {
 			setLoading(false);
 		}
-		localStorage.clear();
 		fetchData();
-		console.log("btn");
 	}, [limit, skip]);
 
 	const [key1, setKey1] = useState(0);
@@ -153,7 +152,7 @@ function page() {
 		return (
 			<div className="card flex flex-wrap justify-content-center gap-3">
 				<button
-					className="rounded-lg bg-gradient-to-tl to-emerald-400 from-emerald-600 p-3 flex items-center justify-center"
+					className="rounded-lg bg-gradient-to-tl to-emerald-400 from-emerald-600 p-3 flex items-center justify-center shadow-md active:scale-95 transition-all active:shadow-none"
 					onClick={() => onClickBtn(id, subjectWiseBatches, subjects)}
 				>
 					<i className="pi pi-plus"></i>

@@ -21,7 +21,6 @@ function ExamForm() {
 		batch: null,
 		date: null,
 	});
-	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const addDispatch: AppDispatch = useDispatch();
 	const show = ({ summary, detail, type }: ToastInterface) => {
 		addDispatch(
@@ -33,6 +32,7 @@ function ExamForm() {
 			})
 		);
 	};
+	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const subjects = AllSubjects.map((subject: any) => ({
 		name: subject.subject,
 		code: subject._id,

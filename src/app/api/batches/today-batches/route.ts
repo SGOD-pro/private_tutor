@@ -34,7 +34,6 @@ export async function GET(req: Request) {
 					},
 				},
 			},
-
 			{
 				$addFields: {
 					code: "$_id",
@@ -51,6 +50,7 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
+		console.log(batch)
 		return Response.json(
 			{ message: "Fetched successfuly", success: true, data: batch },
 			{ status: 200 }

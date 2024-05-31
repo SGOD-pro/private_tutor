@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 		const jsonData = formDataToJson(data);
 
 		let photoUrl = await uploadImage(file);
-
+		//TODO: update photo url
 		const name = capitalizeWords(jsonData.name);
 		const user = await userModel.findByIdAndUpdate(
 			_id,

@@ -44,7 +44,7 @@ function InputFields({
 		<div className="flex flex-wrap w-full mb-2 md:mb-3">
 			<label
 				htmlFor={name}
-				className="flex-grow flex-shrink basis-24 capitalize"
+				className="flex-grow flex-shrink basis-24 capitalize mr-2"
 			>
 				{name}
 			</label>

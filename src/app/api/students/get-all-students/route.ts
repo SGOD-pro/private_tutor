@@ -84,6 +84,7 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
+		console.log(allUsers[0].subjectWiseBatches);
 		return Response.json({
 			success: true,
 			data: allUsers,

@@ -15,6 +15,7 @@ interface ComponentProps {
 	id: string;
 	subjectWiseBatches?: any;
 	subjects?: string;
+	rowData?: any;
 }
 export default function RemovableSortDemo({
 	columns,
@@ -35,7 +36,6 @@ export default function RemovableSortDemo({
 						className="w-full h-full object-cover object-top"
 						width={56}
 						height={56}
-						
 					/>
 				</div>
 				<span>{rowData.name}</span>
@@ -49,7 +49,7 @@ export default function RemovableSortDemo({
 				value={values}
 				sortMode="multiple"
 				className=""
-				tableStyle={{ minWidth: "500px" }}
+				tableStyle={{ minWidth: "500px"}}
 			>
 				{columns.map((col) => (
 					<Column
@@ -60,20 +60,21 @@ export default function RemovableSortDemo({
 						body={col.field === "name" ? representativeBodyTemplate : undefined}
 					/>
 				))}
-				<Column
-					key={"actions"}
-					className="flex justify-start gap-2"
-					header="Actions"
-					body={(rowData) =>
-						Components && (
+				{Components && (
+					<Column
+						key={"actions"}
+						className="flex justify-start gap-2"
+						header="Actions"
+						body={(rowData) => (
 							<Components
 								id={rowData._id}
 								subjectWiseBatches={rowData.subjectWiseBatches || ""}
 								subjects={rowData.subjects || ""}
+								rowData={rowData}
 							/>
-						)
-					}
-				/>
+						)}
+					/>
+				)}
 			</DataTable>
 		</div>
 	);

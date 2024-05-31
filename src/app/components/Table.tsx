@@ -80,7 +80,7 @@ export default function BasicDemo({
 		<div className="card">
 			<DataTable
 				value={values}
-				tableStyle={{ minWidth: "40rem", width: "100%" }}
+				tableStyle={{ minWidth: "28rem", width: "100%" }}
 			>
 				{columns?.map((data, index): any => (
 					<Column field={data.field} header={data.header} key={index}></Column>

@@ -11,11 +11,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAllStudents, popStudent } from "@/store/slices/Students";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
+import Link from "next/link";
 
 export interface StudentDetailsInterface {
 	admissionNo: string;
-	picture: string | null;
-	subject: string | null;
+	picture: string | null | any;
+	subjects: string | null;
 	name: string;
 	_id?: string;
 }
@@ -49,7 +50,7 @@ export default function Home() {
 		{ field: "subject", header: "Subjects" },
 	];
 	useEffect(() => {
-		if (students?.length===0) {
+		if (students?.length === 0) {
 			axios
 				.get("/api/students/setStudent")
 				.then((response) => {
@@ -92,14 +93,13 @@ export default function Home() {
 	const [values, setValues] = useState<StudentDetailsInterface>({
 		admissionNo: "",
 		picture: null,
-		subject: null,
+		subjects: null,
 		name: "",
 	});
 	const [update, setUpdate] = useState(false);
 	const [subject, setSubject] = useState<any[]>([]);
 	const [key, setKey] = useState(0);
 	const editFunction = (data: any) => {
-		
 		const subject = data.subject
 			? data.subject.includes(",")
 				? data.subject
@@ -111,7 +111,7 @@ export default function Home() {
 		setValues({
 			admissionNo: data.admissionNo,
 			picture: data.picture,
-			subject,
+			subjects:subject,
 			name: data.name,
 		});
 
@@ -150,9 +150,17 @@ export default function Home() {
 							<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
 						) : (
 							<div className={`w-full p-2 opacity-1`}>
-								<h2 className="text-2xl my-2 capitalize font-semibold">
-									add exam
-								</h2>
+								<div className="flex items-center justify-between">
+									<h2 className="text-2xl my-2 capitalize font-semibold">
+										add exam
+									</h2>
+									<Link
+										href="/all/show-exam"
+										className="font-light text-emerald-500 text-sm hover:underline hover:opacity-70"
+									>
+										Vew all
+									</Link>
+								</div>
 								<ExamForm />
 							</div>
 						)}
@@ -164,9 +172,17 @@ export default function Home() {
 						<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
 					) : (
 						<div className="w-full h-full relative">
-							<h2 className="text-xl capitalize p-2 font-semibold sticky top-0 z-10 bg-[#393E46]">
-								recent students
-							</h2>
+							<div className="flex items-center justify-between bg-[#393E46] w-full p-2 sticky top-0 z-10 ">
+								<h2 className="text-xl capitalize font-semibold ">
+									recent students
+								</h2>
+								<Link
+									href="/all/all-students"
+									className="font-light text-emerald-500 text-sm hover:underline hover:opacity-70"
+								>
+									All student
+								</Link>
+							</div>
 							<Table
 								columns={columns}
 								values={students}

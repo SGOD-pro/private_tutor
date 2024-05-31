@@ -92,6 +92,9 @@ function page() {
 		console.log(convertTimeStringToDate(data.time.split("-")[1].trim()));
 	};
 	const batches = useSelector((state: any) => state.Batches.allBatches);
+	useEffect(() => {
+		localStorage.clear();
+	}, []);
 
 	return (
 		<div className="w-full h-full flex flex-wrap gap-3 overflow-auto">
@@ -153,7 +156,7 @@ function page() {
 						<Table
 							columns={columns}
 							values={
-								Array.isArray(batches) && batches[0]._id.trim() !== ""
+								Array.isArray(batches) && batches[0]?._id.trim() !== ""
 									? batches
 									: []
 							}
