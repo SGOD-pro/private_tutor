@@ -57,7 +57,12 @@ function AllStudents() {
 	const subjects = allSubject.map((subject: any) => ({
 		name: subject.subject,
 	}));
-	const [selectedSubject, setSelectedSubject] = useState(null);
+	interface selectedSubject {
+		code: string;
+		name: string;
+	}
+	const [selectedSubject, setSelectedSubject] =
+		useState<selectedSubject | null>(null);
 
 	const [data, setData] = useState<StudentDetailsInterface[]>([]);
 	const [filteredValue, setFilteredValue] = useState<StudentDetailsInterface[]>(
@@ -153,6 +158,26 @@ function AllStudents() {
 	}, [batchDetails]);
 
 	const [search, setSearch] = useState<string>("");
+
+	useEffect(() => {
+		if (!selectedSubject && search.trim() === "") {
+			return;
+		}
+		let filteredValues = data.filter((item) => {
+			const nameField = item.name || ""; // Ensure the field exists
+			const regex = new RegExp(search, "i"); // 'i' for case-insensitive search
+			return regex.test(nameField);
+		});
+		if (selectedSubject) {
+			filteredValues = filteredValues.filter((item) => {
+				const nameField = item.subjects || "";
+				const regex = new RegExp(selectedSubject.name?.trim(), "i"); 
+				return regex.test(nameField);
+			});
+		}
+		setFilteredValue(filteredValues);
+	}, [search,selectedSubject]);
+
 	const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearch(e.target.value);
 		if (e.target.value.trim() === "" && !selectedSubject) {
@@ -161,13 +186,6 @@ function AllStudents() {
 			return;
 		}
 		setFiltering(true);
-
-		const filteredValues = filteredValue.filter((item) => {
-			const nameField = item.name || ""; // Ensure the field exists
-			const regex = new RegExp(e.target.value, "i"); // 'i' for case-insensitive search
-			return regex.test(nameField);
-		});
-		setFilteredValue(filteredValues);
 	};
 
 	const setSubject = (e: any) => {
@@ -177,12 +195,6 @@ function AllStudents() {
 			Fdata = data;
 		}
 		setSelectedSubject(e.value);
-		const filteredValues = Fdata.filter((item) => {
-			const nameField = item.subjects || ""; // Ensure the field exists
-			const regex = new RegExp(e.value.name?.trim(), "i"); // 'i' for case-insensitive search
-			return regex.test(nameField);
-		});
-		setFilteredValue(filteredValues);
 	};
 
 	const ActionComponent: React.FC<ActionComponentProps> = ({ rowData }) => {
