@@ -10,7 +10,7 @@ const userSchema = Schema({
     },
     admissionNo: {
         type: String,
-        unique: true,
+        unique: [true,"Admission No is not unique."],
         required: true,
     },
     picture: {

@@ -15,11 +15,20 @@ export async function POST(req: Request) {
 			);
 		}
 		console.log(_id);
-		
 		const data = await req.formData();
 		const file = data.get("picture");
 		const jsonData = formDataToJson(data);
+		console.log(jsonData);
 
+		const userExists = await userModel.find({
+			$or: [{ _id }, { admissionNo: jsonData["admissionNo"] }],
+		});
+		if (userExists.length === 0 || userExists.length > 1) {
+			return Response.json(
+				{ message: userExists.length > 1?"Duplicate admissionNo found":"User not found ", success: false },
+				{ status: 400 }
+			);
+		}
 		let photoUrl = await uploadImage(file);
 		//TODO: update photo url
 		const name = capitalizeWords(jsonData.name);
@@ -29,26 +38,28 @@ export async function POST(req: Request) {
 				$set: {
 					name,
 					subject: jsonData["subject[]"],
+					picture: photoUrl,
+					admissionNo: jsonData["admissionNo"],
 				},
 			},
-			{ new: true }
+			{ new: true, runValidators: true }
 		);
 		const response = {
 			...user.toJSON(),
-			subject: user?.subject?.join(","),
+			subjects: user?.subject?.join(","),
 		};
 		console.log(response);
-		
+
 		return Response.json(
 			{
 				message: "Student updated successfully.",
 				success: true,
-				data:response
+				data: response,
 			},
 			{ status: 200 }
 		);
 	} catch (error) {
-		console.log(error)
+		console.log(error);
 		return Response.json(
 			{
 				message: "Cann't update student, Internal server error ",

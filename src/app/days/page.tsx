@@ -14,6 +14,19 @@ interface Batch {
 	endTime: Date | null;
 	days: string[];
 }
+type DeleteFunction = (id: string) => Promise<boolean>;
+
+export const StudentDelete: DeleteFunction = async (id: string) => {
+	try {
+		console.log(id);
+
+		const response = await axios.get(`/api/batches/deleteBatch?id=${id}`);
+		return response.data.status;
+	} catch (error) {
+		console.error("Error occurred while deleting:", error);
+		return false;
+	}
+};
 function page() {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -38,27 +51,7 @@ function page() {
 			})
 		);
 	};
-	type DeleteFunction = (id: string) => Promise<boolean>;
 
-	const deleteFunction: DeleteFunction = async (id: string) => {
-		try {
-			console.log(id);
-
-			const response = await axios.get(`/api/batches/deleteBatch?id=${id}`);
-			if (response.data.status) {
-				dispatch(popBatches(id));
-				show({
-					summary: "Deleted",
-					detail: "Successfully deleted",
-					type: "info",
-				});
-			}
-			return response.data.status;
-		} catch (error) {
-			console.error("Error occurred while deleting:", error);
-			return false;
-		}
-	};
 	const [values, setValue] = useState<Batch>({
 		subject: null,
 		startTime: null,
@@ -90,6 +83,18 @@ function page() {
 		setKey((prev) => prev + 1);
 		console.log(data);
 		console.log(convertTimeStringToDate(data.time.split("-")[1].trim()));
+	};
+	const deleteFunction: DeleteFunction = async (id: string) => {
+		const response = await StudentDelete(id);
+		if (response) {
+			dispatch(popBatches(id));
+			show({
+				summary: "Deleted",
+				detail: "Successfully deleted",
+				type: "info",
+			});
+		}
+		return response;
 	};
 	const batches = useSelector((state: any) => state.Batches.allBatches);
 	useEffect(() => {

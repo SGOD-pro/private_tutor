@@ -79,6 +79,8 @@ function AddStudent({
 			}
 			url = `/api/students/update-student?id=${id}`;
 		}
+		console.log(values);
+		
 		axios
 			.post(url, values, {
 				headers: {
@@ -96,7 +98,7 @@ function AddStudent({
 				setValues({
 					admissionNo: "",
 					picture: null,
-					subject: null,
+					subjects: null,
 					name: "",
 				});
 				if (!response.data.success) {
@@ -194,7 +196,7 @@ function AddStudent({
 							setValues({
 								admissionNo: "",
 								picture: null,
-								subject: null,
+								subjects: null,
 								name: "",
 							});
 							setSelectedSubjects([]);

@@ -47,7 +47,7 @@ export default function Home() {
 	const columns = [
 		{ field: "admissionNo", header: "Admission No" },
 		{ field: "name", header: "Full name" },
-		{ field: "subject", header: "Subjects" },
+		{ field: "subjects", header: "Subjects" },
 	];
 	useEffect(() => {
 		if (students?.length === 0) {
@@ -108,6 +108,8 @@ export default function Home() {
 				: [{ name: data.subject.trim() }]
 			: [];
 		setSubject(subject);
+		console.log(subject);
+		
 		setValues({
 			admissionNo: data.admissionNo,
 			picture: data.picture,

@@ -90,7 +90,7 @@ export async function GET() {
 			},
 			{
 				$addFields: {
-					subject: {
+					subjects: {
 						$reduce: {
 							input: "$subject",
 							initialValue: "",
@@ -103,11 +103,11 @@ export async function GET() {
 				$project: {
 					name: 1,
 					admissionNo: 1,
-					subject: {
+					subjects: {
 						$substrCP: [
-							"$subject",
+							"$subjects",
 							1,
-							{ $subtract: [{ $strLenCP: "$subject" }, 1] },
+							{ $subtract: [{ $strLenCP: "$subjects" }, 1] },
 						],
 					},
 				},

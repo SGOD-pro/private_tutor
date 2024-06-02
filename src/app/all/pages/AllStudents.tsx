@@ -1,39 +1,42 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, use } from "react";
 import Popover from "../../components/Popover";
 import InputFields from "../../components/InputFields";
 import Icon from "@/app/components/Icon";
 import { StudentDetailsInterface } from "../../page";
 import Image from "next/image";
 import { MultiSelect } from "primereact/multiselect";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import QueryTable from "../../components/QueryTable";
 import SetStudentBatch from "../../components/SetStudentBatch";
 import Select from "../../components/Select";
 import axios from "axios";
 import { Batch } from "../../manageBatch/page";
+import { AppDispatch } from "@/store/store";
+import { StudentDelete } from "@/app/days/page";
+import { showToast, ToastInterface } from "@/store/slices/Toast";
 function AllStudents() {
 	const [show, setShow] = useState<boolean>(false);
 	const [show2, setShow2] = useState<boolean>(false);
+	const addDispatch: AppDispatch = useDispatch();
 	const [filtering, setFiltering] = useState<boolean>(false);
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [values, setValues] = useState<StudentDetailsInterface>({
 		admissionNo: "",
 		picture: null,
 		subjects: null,
 		name: "",
 	});
-
+	const Tshow = ({ summary, detail, type }: ToastInterface) => {
+		addDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
+	};
 	const [imageSrc, setImageSrc] = useState<any>("");
-
-	useEffect(() => {
-		if (values.picture) {
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setImageSrc(reader.result);
-			};
-			reader.readAsDataURL(values.picture);
-		}
-	}, [values.picture]);
 
 	const fileInput = useRef<any>(null);
 	const handleImage = () => {
@@ -42,7 +45,7 @@ function AllStudents() {
 		}
 	};
 
-	const [selectedSubjects, setSelectedSubjects] = useState<any[]>([]);
+	const [key, setKey] = useState(0);
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const file = e.target.files?.[0];
 		if (file) {
@@ -50,6 +53,12 @@ function AllStudents() {
 				...prev,
 				picture: file,
 			}));
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImageSrc(reader.result);
+				setKey((prev) => prev + 1);
+			};
+			reader.readAsDataURL(file);
 		}
 	};
 
@@ -82,25 +91,25 @@ function AllStudents() {
 				setData(response.data.data);
 				setFilteredValue(response.data.data);
 				if (skip === 0 && data.length === 0) {
-					// show({
-					// 	type: "success",
-					// 	summary: "Fetched",
-					// 	detail: response.data.message,
-					// });
+					Tshow({
+						type: "success",
+						summary: "Fetched",
+						detail: response.data.message,
+					});
 				}
 			})
 			.catch((errror) => {
 				if (skip === 0) {
-					// show({
-					// 	type: "error",
-					// 	summary: "Error",
-					// 	detail: errror.response?.data?.message || "An error occurred.",
-					// });
+					Tshow({
+						type: "error",
+						summary: "Error",
+						detail: errror.response?.data?.message || "An error occurred.",
+					});
 				}
 			})
 			.finally(() => {
 				if (skip === 0) {
-					// setLoading(false);
+					setLoading(false);
 				}
 			});
 	};
@@ -119,11 +128,29 @@ function AllStudents() {
 	interface ActionComponentProps {
 		rowData: any;
 	}
+
+	const [selectedSubjects, setSelectedSubjects] = useState<any[]>([]);
 	const [modifingData, setModifingData] = useState(false);
 	const editFunction = (data: any) => {
 		setShow2(false);
 		setShow(true);
+		console.log(data);
+		localStorage.clear();
+		const subs = data.subjects
+			?.split(",")
+			.map((s: any) => ({ name: s.trim() }));
+		console.log(subs);
+		setSelectedSubjects(subs);
+		setImageSrc(data.picture);
+		setValues({
+			admissionNo: data.admissionNo,
+			picture: data.picture,
+			name: data.name,
+			subjects: subs,
+		});
+		localStorage.setItem("id", data._id);
 	};
+
 	interface SubjectObject {
 		[key: string]: { code: string; name: string }[];
 	}
@@ -131,7 +158,6 @@ function AllStudents() {
 	const [batchSubjects, setBatchSubjects] = useState<string[]>([]);
 	function constructObject(data: { subjectWiseBatches: Batch[][] }): void {
 		const result: SubjectObject = {};
-
 		data.subjectWiseBatches.forEach((batchArray) => {
 			batchArray.forEach((batch) => {
 				const { _id, subject, days } = batch;
@@ -164,19 +190,22 @@ function AllStudents() {
 			return;
 		}
 		let filteredValues = data.filter((item) => {
-			const nameField = item.name || ""; // Ensure the field exists
-			const regex = new RegExp(search, "i"); // 'i' for case-insensitive search
+			const nameField = item.name || "";
+			const regex = new RegExp(search, "i");
 			return regex.test(nameField);
 		});
 		if (selectedSubject) {
 			filteredValues = filteredValues.filter((item) => {
 				const nameField = item.subjects || "";
-				const regex = new RegExp(selectedSubject.name?.trim(), "i"); 
+				const regex = new RegExp(
+					`(^|,)\\s*${selectedSubject.name?.trim()}\\s*(,|$)`,
+					"i"
+				);
 				return regex.test(nameField);
 			});
 		}
 		setFilteredValue(filteredValues);
-	}, [search,selectedSubject]);
+	}, [search, selectedSubject]);
 
 	const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearch(e.target.value);
@@ -187,20 +216,72 @@ function AllStudents() {
 		}
 		setFiltering(true);
 	};
-
+	const [tableKey, setTableKey] = useState(0);
+	const [updating, setUpdating] = useState(false);
+	const handelSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const id = localStorage.getItem("id");
+		if (!id) {
+			return;
+		}
+		const subs = selectedSubjects.map((item: any) => item.name);
+		const Newdata = { ...values, subject: subs };
+		setUpdating(true);
+		axios
+			.post(`/api/students/update-student?id=${id}`, Newdata, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			})
+			.then((response) => {
+				const newdata = data;
+				for (let i = 0; i < newdata.length; i++) {
+					if (newdata[i]._id === response.data.data._id) {
+						newdata[i] = response.data.data;
+						break;
+					}
+				}
+				setData(newdata);
+				const Fdata = filteredValue;
+				for (let i = 0; i < newdata.length; i++) {
+					if (newdata[i]._id === response.data.data._id) {
+						newdata[i] = response.data.data;
+						break;
+					}
+				}
+				setFilteredValue(Fdata);
+				Tshow({
+					summary: "Updated",
+					type: "success",
+					detail: response.data.message,
+				});
+				localStorage.clear();
+				setTableKey((prev) => prev + 1);
+			})
+			.catch((error) => {
+				Tshow({
+					summary: "Error",
+					type: "error",
+					detail: error.response.data.message || "Internal server error",
+				});
+			})
+			.finally(() => {
+				setUpdating(false);
+			});
+	};
 	const setSubject = (e: any) => {
 		setFiltering(true);
-		let Fdata = filteredValue;
-		if (search === "") {
-			Fdata = data;
-		}
+
 		setSelectedSubject(e.value);
 	};
 
 	const ActionComponent: React.FC<ActionComponentProps> = ({ rowData }) => {
 		const [disable, setDisable] = useState(false);
-		const deleteFunction = (id: string) => {
+		const deleteFunction = async (id: string) => {
 			setDisable(true);
+			await StudentDelete(id);
+			setDisable(false);
+			setTableKey((prev) => prev + 1);
 		};
 		return (
 			<div className="flex gap-2">
@@ -239,7 +320,7 @@ function AllStudents() {
 				<form
 					action=""
 					className="p-2 rounded-lg text-xl w-full h-full min-w-80 items-center"
-					//onSubmit={handelSubmit}
+					onSubmit={handelSubmit}
 					encType="multipart/form-data"
 				>
 					<div className="grp flex flex-wrap">
@@ -277,10 +358,11 @@ function AllStudents() {
 								<Image
 									src={imageSrc}
 									alt="not upl0ded"
-									className="absolute w-[200%] h-[200%] object-cover object-center"
+									className="absolute w-[150%] h-[150%] object-cover object-top"
 									id="profile-pic"
 									width={100}
 									height={100}
+									key={key}
 								></Image>
 							) : (
 								<Icon
@@ -306,13 +388,19 @@ function AllStudents() {
 							options={subjects}
 							optionLabel="name"
 							placeholder="Subjects"
-							maxSelectedLabels={3}
 							className="flex-grow flex-shrink basis-44 rounded-md text-sm bg-[#393E46]"
 						/>
 					</div>
 					<div className="text-right mt-4">
-						<button className="bg-gradient-to-tl to-blue-400 from-blue-700 rounded-md text-2xl">
-							<i className="pi pi-user-edit px-4 py-1 text-2xl"></i>
+						<button
+							className="bg-gradient-to-tl to-blue-400 from-blue-700 rounded-md text-2xl"
+							disabled={updating}
+						>
+							{!updating ? (
+								<i className="pi pi-user-edit px-4 py-1 text-2xl"></i>
+							) : (
+								<i className="pi pi-spin pi-spinner px-4 py-1 text-2xl"></i>
+							)}
 						</button>
 					</div>
 				</form>
@@ -349,8 +437,13 @@ function AllStudents() {
 							placeholder="Search by name"
 							onChange={onSearchChange}
 							value={search}
+							disabled={loading}
 						/>
-						<div className="">
+						<div className="min-w-44">
+							{loading && (
+								<div className="absolute w-full animate-pulse z-10 bg-[#393E46]/70 "></div>
+							)}
+
 							<Select
 								value={selectedSubject}
 								handleChange={setSubject}
@@ -360,16 +453,21 @@ function AllStudents() {
 						</div>
 					</div>
 				</header>
-				<div className="w-full h-[calc(100%-60px)] overflow-auto custom-scrollbar">
-					<QueryTable
-						columns={[
-							{ header: "Name", field: "name" },
-							{ header: "Admission No.", field: "admissionNo" },
-							{ header: "Subjects", field: "subjects" },
-						]}
-						values={filteredValue}
-						Components={ActionComponent}
-					></QueryTable>
+				<div className="w-full h-[calc(100%-60px)] overflow-auto custom-scrollbar relative">
+					{loading ? (
+						<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
+					) : (
+						<QueryTable
+							columns={[
+								{ header: "Name", field: "name" },
+								{ header: "Admission No.", field: "admissionNo" },
+								{ header: "Subjects", field: "subjects" },
+							]}
+							values={filteredValue}
+							Components={ActionComponent}
+							key={tableKey}
+						></QueryTable>
+					)}
 				</div>
 			</div>
 		</>
