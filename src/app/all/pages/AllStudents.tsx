@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, use } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Popover from "../../components/Popover";
 import InputFields from "../../components/InputFields";
 import Icon from "@/app/components/Icon";
@@ -12,8 +12,10 @@ import Select from "../../components/Select";
 import axios from "axios";
 import { Batch } from "../../manageBatch/page";
 import { AppDispatch } from "@/store/store";
-import { StudentDelete } from "@/app/days/page";
 import { showToast, ToastInterface } from "@/store/slices/Toast";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Loader from "@/app/components/Loader";
+
 function AllStudents() {
 	const [show, setShow] = useState<boolean>(false);
 	const [show2, setShow2] = useState<boolean>(false);
@@ -46,9 +48,11 @@ function AllStudents() {
 	};
 
 	const [key, setKey] = useState(0);
+	const [photo, setPhoto] = useState<File | null>(null);
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const file = e.target.files?.[0];
 		if (file) {
+			setPhoto(file);
 			setValues((prev) => ({
 				...prev,
 				picture: file,
@@ -70,32 +74,36 @@ function AllStudents() {
 		code: string;
 		name: string;
 	}
-	const [selectedSubject, setSelectedSubject] =
-		useState<selectedSubject | null>(null);
 
 	const [data, setData] = useState<StudentDetailsInterface[]>([]);
 	const [filteredValue, setFilteredValue] = useState<StudentDetailsInterface[]>(
 		[]
 	);
+	
+	const [selectedSubject, setSelectedSubject] =
+		useState<selectedSubject | null>(null);
 	const [skip, setSkip] = useState(0);
 	const [limit, setLimit] = useState(10);
 	const [hasMore, setHasMore] = useState(true);
 
 	const fetchData = async () => {
 		axios
-			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}`)
+			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}&subject=${selectedSubject}`)
 			.then((response) => {
 				if (response.data?.data?.length !== 10) {
 					setHasMore(false);
 				}
-				setData(response.data.data);
-				setFilteredValue(response.data.data);
 				if (skip === 0 && data.length === 0) {
+					setData(response.data.data);
+					setFilteredValue(response.data.data);
 					Tshow({
 						type: "success",
 						summary: "Fetched",
 						detail: response.data.message,
 					});
+				} else {
+					setData((prev) => [...prev, ...response.data.data]);
+					setFilteredValue((prev) => [...prev, ...response.data.data]);
 				}
 			})
 			.catch((errror) => {
@@ -120,7 +128,7 @@ function AllStudents() {
 	useEffect(() => {
 		localStorage.clear();
 		if (data.length !== 0) {
-			//setLoading(false);
+			setLoading(false);
 		}
 		fetchData();
 	}, [limit, skip]);
@@ -130,7 +138,6 @@ function AllStudents() {
 	}
 
 	const [selectedSubjects, setSelectedSubjects] = useState<any[]>([]);
-	const [modifingData, setModifingData] = useState(false);
 	const editFunction = (data: any) => {
 		setShow2(false);
 		setShow(true);
@@ -242,20 +249,19 @@ function AllStudents() {
 					}
 				}
 				setData(newdata);
-				const Fdata = filteredValue;
-				for (let i = 0; i < newdata.length; i++) {
-					if (newdata[i]._id === response.data.data._id) {
-						newdata[i] = response.data.data;
-						break;
-					}
-				}
-				setFilteredValue(Fdata);
+				
+				setFilteredValue(newdata);
 				Tshow({
 					summary: "Updated",
-					type: "success",
+					type: response.data.success ? "success" : "warn",
 					detail: response.data.message,
 				});
+				if (response.data.success) {
+					fileInput.current.value = "";
+				}
+
 				localStorage.clear();
+				setImageSrc(null);
 				setTableKey((prev) => prev + 1);
 			})
 			.catch((error) => {
@@ -278,10 +284,29 @@ function AllStudents() {
 	const ActionComponent: React.FC<ActionComponentProps> = ({ rowData }) => {
 		const [disable, setDisable] = useState(false);
 		const deleteFunction = async (id: string) => {
+			console.log(id);
 			setDisable(true);
-			await StudentDelete(id);
-			setDisable(false);
-			setTableKey((prev) => prev + 1);
+			axios
+				.get(`/api/students/deleteStudent?id=${id}`)
+				.then(() => {
+					const updatedData = data.filter((item) => item._id !== id); // Create a new array excluding the deleted student
+					console.log(updatedData); // Log the updated data
+				
+					setData(updatedData); // Update the state with the new data
+					setFilteredValue(updatedData); // Update the filtered data state
+					setTableKey((prev) => prev + 1);
+				})
+				.catch((error) => {
+					Tshow({
+						summary: "Error",
+						type: "error",
+						detail:
+							error.response.data.message ||
+							"Cannot delete! Internal server error",
+					});
+				}).finally(() => {
+					setDisable(false);
+				});
 		};
 		return (
 			<div className="flex gap-2">
@@ -453,20 +478,31 @@ function AllStudents() {
 						</div>
 					</div>
 				</header>
-				<div className="w-full h-[calc(100%-60px)] overflow-auto custom-scrollbar relative">
+				<div
+					className="w-full h-[calc(100%-60px)] overflow-auto custom-scrollbar relative"
+					id="scrollableDiv"
+				>
 					{loading ? (
 						<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
 					) : (
-						<QueryTable
-							columns={[
-								{ header: "Name", field: "name" },
-								{ header: "Admission No.", field: "admissionNo" },
-								{ header: "Subjects", field: "subjects" },
-							]}
-							values={filteredValue}
-							Components={ActionComponent}
-							key={tableKey}
-						></QueryTable>
+						<InfiniteScroll
+							dataLength={data?.length||0}
+							next={fetchMoreData}
+							hasMore={hasMore}
+							loader={<Loader />}
+							scrollableTarget="scrollableDiv"
+						>
+							<QueryTable
+								columns={[
+									{ header: "Name", field: "name" },
+									{ header: "Admission No.", field: "admissionNo" },
+									{ header: "Subjects", field: "subjects" },
+								]}
+								values={filteredValue}
+								Components={ActionComponent}
+								key={tableKey}
+							></QueryTable>
+						</InfiniteScroll>
 					)}
 				</div>
 			</div>

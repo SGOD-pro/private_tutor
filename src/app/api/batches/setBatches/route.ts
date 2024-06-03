@@ -8,18 +8,15 @@ export async function POST(req: NextRequest) {
 	try {
 		const { subject, endTime, startTime, days } = await req.json();
 		
-		//TODO: check if there is already a batch in this date and time?
 		console.log(subject, extractTime(startTime), days)
 		const exists = await batchesModel.aggregate([
 			{ $unwind: "$days" },
 			{ $match: { days: { $in: days }, subject:subject.name, startTime:extractTime(startTime) } },
 		]);
-		console.log("post");
-		console.log(exists);
 		if (exists.length > 0) {
 			return NextResponse.json(
 				{
-					message: "Already have batch!",
+					message: "Already have same batch!",
 					success: false,
 				},
 				{ status: 400 }

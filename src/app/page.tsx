@@ -82,7 +82,7 @@ export default function Home() {
 
 	const deleteFunction: DeleteFunction = async (id: string) => {
 		try {
-			const response = await axios.get(`/api/class-time/delete?_id=${id}`);
+			const response = await axios.get(`/api/students/deleteStudent?id=${id}`);
 			dispatch(popStudent(id));
 			return response.data.success;
 		} catch (error) {
@@ -100,12 +100,12 @@ export default function Home() {
 	const [subject, setSubject] = useState<any[]>([]);
 	const [key, setKey] = useState(0);
 	const editFunction = (data: any) => {
-		const subject = data.subject
-			? data.subject.includes(",")
-				? data.subject
+		const subject = data.subjects
+			? data.subjects.includes(",")
+				? data.subjects
 						.split(",")
 						.map((item: any): { name: string } => ({ name: item.trim() }))
-				: [{ name: data.subject.trim() }]
+				: [{ name: data.subjects.trim() }]
 			: [];
 		setSubject(subject);
 		console.log(subject);

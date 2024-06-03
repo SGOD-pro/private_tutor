@@ -17,8 +17,11 @@ export default async function ConnectDB() {
 		});
 		mongoose.connection.on("error", () => {
 			console.log("MongoDb not connected.");
+			process.exit(1);
 		});
 	} catch (error) {
 		console.log("Server error: " + error);
+		process.exit(1);
+
 	}
 }

@@ -50,7 +50,6 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
-		console.log(batch)
 		return Response.json(
 			{ message: "Fetched successfuly", success: true, data: batch },
 			{ status: 200 }

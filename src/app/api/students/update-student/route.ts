@@ -18,19 +18,26 @@ export async function POST(req: Request) {
 		const data = await req.formData();
 		const file = data.get("picture");
 		const jsonData = formDataToJson(data);
-		console.log(jsonData);
 
 		const userExists = await userModel.find({
 			$or: [{ _id }, { admissionNo: jsonData["admissionNo"] }],
 		});
 		if (userExists.length === 0 || userExists.length > 1) {
 			return Response.json(
-				{ message: userExists.length > 1?"Duplicate admissionNo found":"User not found ", success: false },
+				{
+					message:
+						userExists.length > 1
+							? "Duplicate admissionNo found"
+							: "User not found ",
+					success: false,
+				},
 				{ status: 400 }
 			);
 		}
 		let photoUrl = await uploadImage(file);
 		//TODO: update photo url
+		console.log("url" + photoUrl);
+
 		const name = capitalizeWords(jsonData.name);
 		const user = await userModel.findByIdAndUpdate(
 			_id,
@@ -48,12 +55,16 @@ export async function POST(req: Request) {
 			...user.toJSON(),
 			subjects: user?.subject?.join(","),
 		};
-		console.log(response);
 
 		return Response.json(
 			{
-				message: "Student updated successfully.",
-				success: true,
+				message:
+					file && !photoUrl
+						? "Updated but photo not uploaded"
+						: "Student updated successfully.",
+				success: file && !photoUrl
+				? false
+				: true,
 				data: response,
 			},
 			{ status: 200 }

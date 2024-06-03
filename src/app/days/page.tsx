@@ -16,7 +16,7 @@ interface Batch {
 }
 type DeleteFunction = (id: string) => Promise<boolean>;
 
-export const StudentDelete: DeleteFunction = async (id: string) => {
+export const BatchDelete: DeleteFunction = async (id: string) => {
 	try {
 		console.log(id);
 
@@ -85,7 +85,7 @@ function page() {
 		console.log(convertTimeStringToDate(data.time.split("-")[1].trim()));
 	};
 	const deleteFunction: DeleteFunction = async (id: string) => {
-		const response = await StudentDelete(id);
+		const response = await BatchDelete(id);
 		if (response) {
 			dispatch(popBatches(id));
 			show({

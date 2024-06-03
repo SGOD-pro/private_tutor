@@ -25,20 +25,24 @@ export function formDataToJson(formData: FormData) {
 }
 export const  uploadImage=async(file:any)=>{
 	if (file instanceof File) {
-		const buffer = await file.arrayBuffer();
+		let filePath;
+		try {
+			const buffer = await file.arrayBuffer();
 
-		const filePath = "./public/" + file.name;
-		await writeFileAsync(filePath, Buffer.from(buffer));
+			const filePath = "./public/" + Date.now().toString() + file.name;
 
-		console.log("file path", filePath);
-
-		const uploadedFile: any = await cloudinaryUTIL(filePath);
-		console.log(uploadedFile);
-
-		if (filePath) {
-			await unlinkAsync(filePath);
+			await writeFileAsync(filePath, Buffer.from(buffer));
+	
+			const uploadedFile: any = await cloudinaryUTIL(filePath);
+			console.log(uploadedFile);
+	
+			if (filePath) {
+				await unlinkAsync(filePath);
+			}
+			return uploadedFile?.url;
+		} catch (error) {
+			return false;
 		}
-		return uploadedFile?.url;
 	}
 }
 
@@ -68,7 +72,7 @@ export async function POST(req: NextRequest) {
 		});
 		const response = {
 			...student.toJSON(),
-			subject: student?.subject?.join(","),
+			subjects: student?.subject?.join(","),
 		};
 		console.log(response);
 		return NextResponse.json({ message: photoUrl?"Student added successfuly":"Student add but image not uploaded." , data: response,success:photoUrl?true:false },{status: 200});

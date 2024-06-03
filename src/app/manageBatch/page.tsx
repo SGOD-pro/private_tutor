@@ -187,21 +187,13 @@ function page() {
 						<button
 							className="hover:saturate-150 transition-all bg-gradient-to-tl to-blue-500 from-blue-700  rounded-lg shadow"
 							onClick={() => {
-								axios
-									.get(
-										`/api/students/get-all-students?skip=0&limit=${limit}`
-									)
-									.then((response) => {
-										console.log(response.data.data);
-										dispatch(setAllStudentsByBatch(response.data.data));
-									}).catch((error) => {
-										show({
-											type: "error",
-											summary: "Error",
-											detail: error.response?.data?.message || "An error occurred.",
-										});
-									});
-							}}
+								setSkip(0)
+								setLimit(10)
+								setHasMore(true);
+								fetchData();
+								console.log("hii");
+							}
+						}
 						>
 							<i className="pi pi-sync p-3 pointer-events-none"></i>
 						</button>

@@ -128,7 +128,7 @@ function MyForm({
 	return (
 		<form
 			action=""
-			className={`w-full h-full rounded-lg p-3 md:p-5 relative ${
+			className={`w-full min-w-[30vw] h-full rounded-lg p-3 md:p-5 relative ${
 				closeBtn && "border"
 			}`}
 			onSubmit={submitEvet}

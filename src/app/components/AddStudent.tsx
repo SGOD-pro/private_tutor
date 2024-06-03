@@ -7,7 +7,7 @@ import { pushStudent, updateStudent } from "@/store/slices/Students";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
 import axios from "axios";
-import { ToastInterface} from "@/store/slices/Toast"
+import { ToastInterface } from "@/store/slices/Toast";
 import {
 	pushStudentByBatch,
 	updateStudentsToBatch,
@@ -30,7 +30,7 @@ function AddStudent({
 	const dispatch = useDispatch();
 
 	const addDispatch: AppDispatch = useDispatch();
-	
+
 	const show = ({ summary, detail, type }: ToastInterface) => {
 		addDispatch(
 			showToast({
@@ -43,7 +43,7 @@ function AddStudent({
 	};
 	const [loading, setLoading] = useState(false);
 	const lastAdmission = useSelector((state: any) => state.Students.allStudents);
-
+	const [adno, setAdno] = useState(0);
 	function updateAddNo() {
 		const lastStudent = lastAdmission[0];
 		const lastDigit = lastStudent?.admissionNo?.split("-");
@@ -55,6 +55,7 @@ function AddStudent({
 				: 0) + 1
 		}`;
 		setValues((prev) => ({ ...prev, admissionNo: newAddNo }));
+		setAdno((prev) => prev + 1);
 	}
 
 	useEffect(() => {
@@ -72,6 +73,7 @@ function AddStudent({
 		event.preventDefault();
 		setLoading(true);
 		let url = `/api/students/setStudent`;
+		let adno=values.admissionNo;
 		if (update) {
 			const id = localStorage.getItem("id");
 			if (!id) {
@@ -80,7 +82,7 @@ function AddStudent({
 			url = `/api/students/update-student?id=${id}`;
 		}
 		console.log(values);
-		
+
 		axios
 			.post(url, values, {
 				headers: {
@@ -121,10 +123,12 @@ function AddStudent({
 				show({ summary: "Error", type: "error", detail: error.message });
 			})
 			.finally(() => {
+				if (update) {
+					updateAddNo()
+				}
 				setLoading(false);
 				setUpdate(false);
 				localStorage.clear();
-				updateAddNo();
 			});
 	};
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
@@ -134,6 +138,8 @@ function AddStudent({
 	useEffect(() => {
 		if (Array.isArray(lastAdmission) && !update) {
 			updateAddNo();
+			console.log("aupdating");
+			
 		}
 	}, [lastAdmission]);
 	useEffect(() => {
@@ -141,6 +147,9 @@ function AddStudent({
 			setSelectedSubjects(subject);
 		}
 	}, []);
+	useEffect(() => {
+		console.log(values.admissionNo);
+	}, [adno]);
 
 	return (
 		<form className="w-full h-full" onSubmit={handelSubmit}>

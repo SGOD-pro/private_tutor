@@ -7,6 +7,7 @@ export async function GET(req: Request) {
 		const url = new URL(req.url);
 		let skip: string | null = url.searchParams.get("skip");
 		let limit: string | null = url.searchParams.get("limit");
+		let subject: string | null = url.searchParams.get("subject");
 
 		let skipNumber: number = 0;
 		let limitNumber: number = 0;
@@ -18,9 +19,20 @@ export async function GET(req: Request) {
 		if (limit !== null) {
 			limitNumber = parseInt(limit, 10);
 		}
-		console.log(limitNumber, skipNumber);
-		
-		const allUsers = await userModel.aggregate([
+
+		const matchStage =
+			subject&&subject !== "null" ? { $match: { subjects: subject } } : null;
+		console.log(typeof matchStage);
+
+		const pipeline: any[] = [];
+
+		if (matchStage) {
+			console.log("firing");
+			
+			pipeline.push(matchStage);
+		}
+
+		pipeline.push(
 			{
 				$unwind: "$subject",
 			},
@@ -55,7 +67,9 @@ export async function GET(req: Request) {
 					subjectWiseBatches: {
 						$push: "$subjectWiseBatches",
 					},
-					picture:{$first:"$picture"},
+					picture: {
+						$first: "$picture",
+					},
 				},
 			},
 			{ $sort: { _id: -1 } },
@@ -82,9 +96,9 @@ export async function GET(req: Request) {
 					picture: 1,
 					subjectWiseBatches: 1,
 				},
-			},
-		]);
-		console.log(allUsers[0].subjectWiseBatches);
+			}
+		);
+		const allUsers = await userModel.aggregate(pipeline);
 		return Response.json({
 			success: true,
 			data: allUsers,

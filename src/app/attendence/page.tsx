@@ -83,9 +83,6 @@ function Page() {
 			.get(`/api/batches/today-batches?day=${currentDay}`)
 			.then((response) => {
 				setAllBatches(response.data.data);
-				if (response.data.data.length === 0) {
-					setDisable(true);
-				}
 			})
 			.catch((error) => {
 				show({
@@ -115,6 +112,8 @@ function Page() {
 					detail: error.response?.data?.message || "Error fetching batch",
 					type: "error",
 				});
+			}).finally(() => {
+				setLoading(false)
 			});
 	}, [allBatches, day]);
 
