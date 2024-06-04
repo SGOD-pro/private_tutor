@@ -79,7 +79,7 @@ function AllStudents() {
 	const [filteredValue, setFilteredValue] = useState<StudentDetailsInterface[]>(
 		[]
 	);
-	
+
 	const [selectedSubject, setSelectedSubject] =
 		useState<selectedSubject | null>(null);
 	const [skip, setSkip] = useState(0);
@@ -88,7 +88,9 @@ function AllStudents() {
 
 	const fetchData = async () => {
 		axios
-			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}&subject=${selectedSubject}`)
+			.get(
+				`/api/students/get-all-students?skip=${skip}&limit=${limit}&subject=${selectedSubject}`
+			)
 			.then((response) => {
 				if (response.data?.data?.length !== 10) {
 					setHasMore(false);
@@ -155,7 +157,7 @@ function AllStudents() {
 			name: data.name,
 			subjects: subs,
 		});
-		localStorage.setItem("id", data._id);
+		localStorage.setItem("_id", data._id);
 	};
 
 	interface SubjectObject {
@@ -180,6 +182,12 @@ function AllStudents() {
 		setShow(false);
 		setShow2(true);
 		const { _id, subjectWiseBatches, subjects } = data;
+		const id = localStorage.getItem("id");
+		console.log(_id , id)
+		if (id && _id === id) {
+			console.log('return')
+			return;
+		}
 		localStorage.setItem("id", _id);
 		constructObject({ subjectWiseBatches });
 		const s = subjects?.split(",");
@@ -227,7 +235,7 @@ function AllStudents() {
 	const [updating, setUpdating] = useState(false);
 	const handelSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		const id = localStorage.getItem("id");
+		const id = localStorage.getItem("_id");
 		if (!id) {
 			return;
 		}
@@ -249,7 +257,7 @@ function AllStudents() {
 					}
 				}
 				setData(newdata);
-				
+
 				setFilteredValue(newdata);
 				Tshow({
 					summary: "Updated",
@@ -289,11 +297,9 @@ function AllStudents() {
 			axios
 				.get(`/api/students/deleteStudent?id=${id}`)
 				.then(() => {
-					const updatedData = data.filter((item) => item._id !== id); // Create a new array excluding the deleted student
-					console.log(updatedData); // Log the updated data
-				
-					setData(updatedData); // Update the state with the new data
-					setFilteredValue(updatedData); // Update the filtered data state
+					const updatedData = data.filter((item) => item._id !== id);
+					setData(updatedData);
+					setFilteredValue(updatedData);
 					setTableKey((prev) => prev + 1);
 				})
 				.catch((error) => {
@@ -304,7 +310,8 @@ function AllStudents() {
 							error.response.data.message ||
 							"Cannot delete! Internal server error",
 					});
-				}).finally(() => {
+				})
+				.finally(() => {
 					setDisable(false);
 				});
 		};
@@ -486,7 +493,7 @@ function AllStudents() {
 						<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
 					) : (
 						<InfiniteScroll
-							dataLength={data?.length||0}
+							dataLength={data?.length || 0}
 							next={fetchMoreData}
 							hasMore={hasMore}
 							loader={<Loader />}
