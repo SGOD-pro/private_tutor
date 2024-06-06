@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { Card } from 'primereact/card';
 import axios from 'axios';
 
@@ -10,6 +10,7 @@ const SimpleCard = () => {
         name: "",
         time: ""
     })
+    console.log("re-rendering simmple-card")
     function gettime(date){
         const startTime = new Date(date);
         const options = { timeZone: 'Asia/Kolkata', hour12: true, hour: 'numeric', minute: 'numeric' };
@@ -29,7 +30,7 @@ const SimpleCard = () => {
     }, [])
 
     return (
-        <div className="card w-full h-full p-2" key={batchCard.name} >
+        <div className=" w-full h-full p-2" key={batchCard.name} >
         {batchCard.name!==""?
             <Card title={batchCard.name} className='h-full'>
                 <p className=' no-underline'>Time: {batchCard.time}</p>
@@ -41,4 +42,4 @@ const SimpleCard = () => {
     );
 };
 
-export default SimpleCard;
+export default memo(SimpleCard);

@@ -2,9 +2,9 @@ import { NextResponse, NextRequest } from "next/server";
 import ConnectDB from "@/db";
 import subjectModel from "@/models/Subjects";
 import { capitalizeWords } from "@/utils/Capitalize";
-ConnectDB();
 
 export async function POST(req: NextRequest) {
+	await ConnectDB();
 	try {
 		let reqBody = await req.json();
 		for (const key in reqBody) {

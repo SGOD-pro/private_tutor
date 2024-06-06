@@ -15,8 +15,8 @@ function Select({ value, handleChange, options,placeholder }: SelectProps) {
 			onChange={handleChange}
 			options={options}
 			optionLabel="name"
-			placeholder={`Select a ${placeholder}`}
-			className="w-full bg-[#393E46] p-0"
+			placeholder={`${placeholder}`}
+			className="w-full bg-[#393E46] p-0 text-sm"
 		/>
 	);
 }

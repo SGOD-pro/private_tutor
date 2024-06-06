@@ -41,10 +41,10 @@ function InputFields({
 	};
 
 	return (
-		<div className="flex flex-wrap w-full mb-2 md:mb-3">
+		<div className="flex flex-wrap items-center w-full my-1 md:my-2">
 			<label
 				htmlFor={name}
-				className="flex-grow flex-shrink basis-24 capitalize mr-2"
+				className="flex-grow flex-shrink basis-full sm:basis-24 capitalize mr-2"
 			>
 				{name}
 			</label>
@@ -53,7 +53,7 @@ function InputFields({
 				name={name}
 				value={value}
 				onChange={handleChange}
-				className="flex-grow flex-shrink basis-40 rounded-md px-2 py-2 bg-[#393E46] focus:outline outline-[3px] outline-teal-500/30 transition-all"
+				className="flex-grow flex-shrink basis-full sm:basis-44 rounded-md px-2 py-2 bg-[#393E46] focus:outline outline-[3px] outline-teal-500/30 transition-all"
 				readOnly={readOnly}
 				placeholder={placeholder || ""}
 			/>

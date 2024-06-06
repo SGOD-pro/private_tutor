@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef, memo } from "react";
 import { MultiSelect } from "primereact/multiselect";
-import { FileUpload } from "primereact/fileupload";
 import InputFields from "./InputFields";
 import { useSelector, useDispatch } from "react-redux";
 import { pushStudent, updateStudent } from "@/store/slices/Students";
@@ -13,20 +12,69 @@ import {
 	updateStudentsToBatch,
 } from "@/store/slices/BatchStudents";
 import { StudentDetailsInterface } from "../page";
+import Select from "./Select";
+import Image from "next/image";
+import Icon from "./Icon";
+interface selectedSubjectsInterface {
+	name: string;
+	code: string;
+}
 function AddStudent({
 	values,
 	setValues,
 	update,
 	setUpdate,
 	subject,
+	cols,
 }: {
 	values: StudentDetailsInterface;
 	setValues: React.Dispatch<React.SetStateAction<StudentDetailsInterface>>;
 	setUpdate: React.Dispatch<React.SetStateAction<boolean>>;
 	update: boolean;
 	subject: any[];
+	cols: number;
 }) {
-	const [selectedSubjects, setSelectedSubjects] = useState<any[]>([]);
+	console.log("rerendering add-student");
+	const [selectedSubjects, setSelectedSubjects] = useState<
+		selectedSubjectsInterface[] | null
+	>(null);
+
+	const [studyIn, setStudyIn] = useState<any | null>(null);
+	const options = [
+		{ name: "School", code: "School" },
+		{ name: "Collage", code: "Collage" },
+	];
+	const setStudy = (e: any) => {
+		setStudyIn(e.value);
+		console.log(e.value);
+		const v = e.value.name === "School" ? false : true;
+		setValues((prev) => ({ ...prev, clg: v }));
+	};
+
+	const [imageSrc, setImageSrc] = useState<any>("");
+	const fileInput = useRef<any>(null);
+	const handleImage = () => {
+		if (fileInput) {
+			fileInput.current.click();
+		}
+	};
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+		const file = e.target.files?.[0];
+		if (file) {
+			setValues((prev) => ({
+				...prev,
+				picture: file,
+			}));
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImageSrc(reader.result);
+				setKey((prev) => prev + 1);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
 	const dispatch = useDispatch();
 
 	const addDispatch: AppDispatch = useDispatch();
@@ -69,11 +117,64 @@ function AddStudent({
 	}, [selectedSubjects]);
 	const [key, setKey] = useState(0);
 	const [disable, setDisable] = useState(false);
-	const handelSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+	const validateForm = () => {
+		if (!values.admissionNo.trim()) {
+			show({
+				summary: "Validation Error",
+				type: "error",
+				detail: "Admission number is required.",
+			});
+			return false;
+		}
+		if (!values.name.trim()) {
+			show({
+				summary: "Validation Error",
+				type: "error",
+				detail: "Name is required.",
+			});
+			return false;
+		}
+		if (values.subjects === null || values.subjects.length === 0) {
+			show({
+				summary: "Validation Error",
+				type: "error",
+				detail: "At least one subject is required.",
+			});
+			return false;
+		}
+		if (!values.stream.trim()) {
+			show({
+				summary: "Validation Error",
+				type: "error",
+				detail: "Stream is required.",
+			});
+			return false;
+		}
+		if (values.fees <= 0) {
+			show({
+				summary: "Validation Error",
+				type: "error",
+				detail: "Fees must be greater than zero.",
+			});
+			return false;
+		}
+		if (values.phoneNo === null || values.phoneNo.length === 0) {
+			show({
+				summary: "Validation Error",
+				type: "error",
+				detail: "At least one phone number is required.",
+			});
+			return false;
+		}
+	
+		return true;
+	};
+	
+	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setLoading(true);
 		let url = `/api/students/setStudent`;
-		let adno=values.admissionNo;
+		let adno = values.admissionNo;
 		if (update) {
 			const id = localStorage.getItem("id");
 			if (!id) {
@@ -82,7 +183,10 @@ function AddStudent({
 			url = `/api/students/update-student?id=${id}`;
 		}
 		console.log(values);
-
+		if (!validateForm) {
+			return;
+		}
+		setDisable(true);
 		axios
 			.post(url, values, {
 				headers: {
@@ -100,8 +204,12 @@ function AddStudent({
 				setValues({
 					admissionNo: "",
 					picture: null,
-					subjects: null,
+					subjects: [],
 					name: "",
+					clg: false,
+					stream: "",
+					fees: 0,
+					phoneNo: [],
 				});
 				if (!response.data.success) {
 					show({
@@ -110,7 +218,7 @@ function AddStudent({
 						detail: response.data.message,
 					});
 				}
-				setSelectedSubjects([]);
+				setSelectedSubjects(null);
 				setKey((prevKey) => prevKey + 1);
 
 				show({
@@ -120,83 +228,138 @@ function AddStudent({
 				});
 			})
 			.catch((error) => {
-				show({ summary: "Error", type: "error", detail: error.message });
+				show({
+					summary: "Error",
+					type: "error",
+					detail: error.response.data.message || error.message,
+				});
 			})
 			.finally(() => {
-				if (update) {
-					updateAddNo()
-				}
-				setLoading(false);
+				updateAddNo();
+				setDisable(false);
 				setUpdate(false);
 				localStorage.clear();
 			});
 	};
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
-	const subjects = AllSubjects.map((subject: any) => ({
-		name: subject.subject,
-	}));
-	useEffect(() => {
-		if (Array.isArray(lastAdmission) && !update) {
-			updateAddNo();
-			console.log("aupdating");
-			
-		}
-	}, [lastAdmission]);
+	const subjects = useCallback(
+		AllSubjects.map((subject: any) => ({
+			name: subject.subject,
+		})),
+		[]
+	);
 	useEffect(() => {
 		if (update) {
 			setSelectedSubjects(subject);
+			setImageSrc(values.picture);
+			setStudyIn(
+				values.clg
+					? { name: "School", code: "School" }
+					: { name: "Collage", code: "Collage" }
+			);
 		}
 	}, []);
+	useEffect(() => {
+		if (Array.isArray(lastAdmission) && !update) {
+			updateAddNo();
+		}
+	}, [lastAdmission]);
+
 	useEffect(() => {
 		console.log(values.admissionNo);
 	}, [adno]);
 
 	return (
-		<form className="w-full h-full" onSubmit={handelSubmit}>
+		<form
+			className={`w-full h-full grid gap-3 items-center ${
+				cols === 2 ? "sm:grid-cols-2" : "sm:grid-cols-1"
+			} grid-cols-1`}
+			onSubmit={handleSubmit}
+		>
 			<InputFields
 				name={"admissionNo"}
 				value={values.admissionNo}
 				setValue={setValues}
-				readOnly={update}
 			/>
 			<InputFields name={"name"} value={values.name} setValue={setValues} />
-			<div className="flex flex-wrap">
-				<label htmlFor="" className="flex-grow flex-shrink basis-16">
+			<div className="flex flex-wrap items-center relative justify-start">
+				<label htmlFor="" className="mr-14">
 					Upload image
 				</label>
-				<div className="card flex justify-content-center flex-shrink flex-grow basis-36 text-sm">
-					<FileUpload
-						mode="basic"
-						name="photo"
-						accept="image/*"
-						key={key}
-						maxFileSize={1000000}
-						onSelect={(e: any) =>
-							setValues((prev) => ({ ...prev, picture: e.files[0] }))
-						}
-						className="max-w-36"
-						disabled={update}
+				<input
+					type="file"
+					accept="image/*"
+					className="invisible absolute"
+					ref={fileInput}
+					onChange={handleFileChange}
+					id="image"
+				/>
+				<div
+					className="w-16 h-16 ml-5 border rounded-full relative overflow-hidden grid place-content-center cursor-pointer"
+					onClick={handleImage}
+				>
+					{imageSrc ? (
+						<Image
+							src={imageSrc}
+							alt="not upl0ded"
+							className="absolute w-[150%] h-[150%] object-cover object-top scale-150"
+							id="profile-pic"
+							width={100}
+							height={100}
+						/>
+					) : (
+						<Icon
+							src={"https://cdn.lordicon.com/bgebyztw.json"}
+							secondaryColor={"#EEEEEE"}
+						/>
+					)}
+				</div>
+			</div>
+			<div className="card items-center flex flex-wrap w-full my-1 md:my-2">
+				<label htmlFor="" className="flex-grow flex-shrink basis-28">
+					Subjects
+				</label>
+				<div className="flex-grow flex-shrink basis-full sm:basis-44">
+					<MultiSelect
+						value={selectedSubjects}
+						onChange={(e) => {
+							setSelectedSubjects(e.value);
+						}}
+						options={subjects}
+						optionLabel="name"
+						placeholder="Select Subjects"
+						maxSelectedLabels={3}
+						className="text-sm bg-[#393E46] w-full"
 					/>
 				</div>
 			</div>
-			<div className="card  justify-content-center flex flex-wrap w-full my-3">
-				<label htmlFor="" className="flex-grow flex-shrink basis-24">
-					Subjects
+			<div className="flex flex-wrap w-full my-1 md:my-2 items-center">
+				<label htmlFor="" className="flex-grow flex-shrink basis-28">
+					Select study in
 				</label>
-				<MultiSelect
-					value={selectedSubjects}
-					onChange={(e) => {
-						setSelectedSubjects(e.value);
-					}}
-					options={subjects}
-					optionLabel="name"
-					placeholder="Select Subjects"
-					maxSelectedLabels={3}
-					className="flex-grow flex-shrink basis-44 rounded-md text-sm bg-[#393E46]"
-				/>
+				<div className="flex-grow flex-shrink basis-full sm:basis-44">
+					<Select
+						value={studyIn}
+						handleChange={setStudy}
+						options={options}
+						placeholder={"Select study in"}
+					/>
+				</div>
 			</div>
-
-			<div className=" text-right">
+			<InputFields name={"stream"} value={values.stream} setValue={setValues} />
+			<InputFields
+				name={"phoneNo"}
+				value={values.phoneNo}
+				setValue={setValues}
+				type={"number"}
+			/>
+			<InputFields
+				name={"fees"}
+				value={values.fees}
+				setValue={setValues}
+				type="number"
+			/>
+			<div className="text-right sm:col-start-2">
 				{update && (
 					<button
 						className={`px-3 py-1 text-lg rounded-md bg-gradient-to-l to-red-400 from-red-700 mr-3`}
@@ -205,16 +368,20 @@ function AddStudent({
 							setValues({
 								admissionNo: "",
 								picture: null,
-								subjects: null,
+								subjects: [],
 								name: "",
+								clg: false,
+								stream: "",
+								fees: 0,
+								phoneNo: [],
 							});
-							setSelectedSubjects([]);
+							setSelectedSubjects(null);
 							localStorage.clear();
 							setUpdate(false);
 							updateAddNo();
 						}}
 					>
-						{loading ? (
+						{disable ? (
 							<i className="pi pi-spin pi-spinner ml-1"></i>
 						) : (
 							<i className="pi pi-times"></i>
@@ -223,16 +390,16 @@ function AddStudent({
 				)}
 				<button
 					className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
-						update && " bg-gradient-to-l to-emerald-400 from-emerald-700"
+						update && "bg-gradient-to-l to-emerald-400 from-emerald-700"
 					}`}
 					disabled={disable}
 				>
 					{!update ? "Add" : <i className="pi pi-check"></i>}
-					{loading && <i className="pi pi-spin pi-spinner ml-1"></i>}
+					{disable && <i className="pi pi-spin pi-spinner ml-1"></i>}
 				</button>
 			</div>
 		</form>
 	);
 }
 
-export default AddStudent;
+export default memo(AddStudent);

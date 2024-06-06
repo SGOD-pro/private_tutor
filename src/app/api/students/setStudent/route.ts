@@ -23,7 +23,7 @@ export function formDataToJson(formData: FormData) {
 	}
 	return json;
 }
-export const  uploadImage=async(file:any)=>{
+export const uploadImage = async (file: any) => {
 	if (file instanceof File) {
 		let filePath;
 		try {
@@ -32,10 +32,10 @@ export const  uploadImage=async(file:any)=>{
 			const filePath = "./public/" + Date.now().toString() + file.name;
 
 			await writeFileAsync(filePath, Buffer.from(buffer));
-	
+
 			const uploadedFile: any = await cloudinaryUTIL(filePath);
 			console.log(uploadedFile);
-	
+
 			if (filePath) {
 				await unlinkAsync(filePath);
 			}
@@ -44,7 +44,7 @@ export const  uploadImage=async(file:any)=>{
 			return false;
 		}
 	}
-}
+};
 
 export async function POST(req: NextRequest) {
 	await ConnectDB();
@@ -52,17 +52,27 @@ export async function POST(req: NextRequest) {
 		const data = await req.formData();
 		const file = data.get("picture");
 		const jsonData = formDataToJson(data);
+		console.log(typeof data.get("fees"));
+		return data;
 		const exists = await userModel.findOne({
 			admissionNo: data.get("admissionNo"),
 		});
+		const admissionNo = data.get("admissionNo");
+		const clg = data.get("clg") === "true";
+		const stream = data.get("stream");
+		
+		let fees=0;
+		fees=data.get("fees")?parseFloat(data.get("fees")||"0") : 0;
+	
+		const phoneNo = data.get("phoneNo");
 		if (exists) {
 			return NextResponse.json(
-				{ message: "Already student exists.", success: false },
+				{ message: "Already admission no exists.", success: false },
 				{ status: 400 }
 			);
 		}
-		let photoUrl= await uploadImage(file);
-		
+		let photoUrl = await uploadImage(file);
+
 		const name = capitalizeWords(jsonData.name);
 		const student = await userModel.create({
 			admissionNo: data.get("admissionNo"),
@@ -75,11 +85,23 @@ export async function POST(req: NextRequest) {
 			subjects: student?.subject?.join(","),
 		};
 		console.log(response);
-		return NextResponse.json({ message: photoUrl?"Student added successfuly":"Student add but image not uploaded." , data: response,success:photoUrl?true:false },{status: 200});
+		return NextResponse.json(
+			{
+				message: photoUrl
+					? "Student added successfuly"
+					: "Student add but image not uploaded.",
+				data: response,
+				success: photoUrl ? true : false,
+			},
+			{ status: 200 }
+		);
 	} catch (error) {
 		console.log(error);
 
-		return NextResponse.json({ message: "not done",success:false }, { status: 500 });
+		return NextResponse.json(
+			{ message: "not done", success: false },
+			{ status: 500 }
+		);
 	}
 }
 export async function GET() {
@@ -104,9 +126,7 @@ export async function GET() {
 				},
 			},
 			{
-				$project: {
-					name: 1,
-					admissionNo: 1,
+				$addFields: {
 					subjects: {
 						$substrCP: [
 							"$subjects",
@@ -124,7 +144,7 @@ export async function GET() {
 		});
 	} catch (error: any) {
 		console.log(error);
-		
+
 		return NextResponse.json({ message: error.message, status: 500 });
 	}
 }

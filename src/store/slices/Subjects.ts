@@ -10,7 +10,7 @@ interface SubjectState {
 }
 // Define the initial state
 const initialState: SubjectState = {
-	allSubjects: [{ _id: "", subject: null }],
+	allSubjects: [],
 };
 
 // Create your slice

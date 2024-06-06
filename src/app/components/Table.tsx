@@ -2,20 +2,10 @@ import React, { useState, useEffect } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 
-interface Product {
-	id: string;
-	code: string;
-	name: string;
-	description: string;
-	image: string;
-	price: number;
-	category: string;
-	quantity: number;
-	inventoryStatus: string;
-	rating: number;
-}
+import { StudentDetailsInterface } from "../page";
 type DeleteFunction = (id: string) => Promise<boolean>;
-type EditFunction = (id: string) => void;
+type EditFunction = (data: StudentDetailsInterface) => void;
+
 
 interface Columns {
 	field: string;
@@ -39,7 +29,7 @@ export default function BasicDemo({
 
 
 
-	const ButtonTemplate = ({ data, deleteFunction, editFunction }: { data: any, deleteFunction?: (id: string) => Promise<boolean>, editFunction?: (id: string) => void }) => {
+	const ButtonTemplate = ({ data, deleteFunction, editFunction }: { data: any, deleteFunction?: (id: string) => Promise<boolean>, editFunction?: (data: StudentDetailsInterface) => void }) => {
 		const [loading, setLoading] = useState(false);
 	  
 		const handleDelete = async () => {
@@ -77,10 +67,11 @@ export default function BasicDemo({
 	  };
 
 	return (
-		<div className="card">
+		<div className="card m-0 p-0">
 			<DataTable
 				value={values}
-				tableStyle={{ minWidth: "28rem", width: "100%" }}
+				tableStyle={{ minWidth: "28rem", width: "100%" ,padding:0,margin:0}}
+				className="m-0 p-0"
 			>
 				{columns?.map((data, index): any => (
 					<Column field={data.field} header={data.header} key={index}></Column>

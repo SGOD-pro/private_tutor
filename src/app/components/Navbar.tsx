@@ -1,10 +1,16 @@
 "use client";
-import React from "react";
+import React, { memo } from "react";
 import Icon from "../components/Icon";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-function Navbar() {
+function Navbar({
+	show,
+	setShow,
+}: {
+	show: boolean;
+	setShow: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
 	const pathname = usePathname();
 	const links = [
 		{
@@ -41,11 +47,13 @@ function Navbar() {
 			pathname: "Settings",
 			route: "/settings",
 			icon: "https://cdn.lordicon.com/dmgxtuzn.json",
-			secondaryColor:"#00ADB5"
+			secondaryColor: "#00ADB5",
 		},
 	];
 	return (
-		<div className="w-32 flex items-center justify-center md:w-56">
+		<div className={`w-32 fixed h-screen top-0 left-0 ${!show?'-translate-x-full':'-translate-x-0'} transition-all sm:-translate-x-0 sm:relative flex items-center justify-center md:w-56 z-50 bg-[#00ADB5] rounded-r-3xl sm:bg-transparent sm:z-0 shadow-lg shadow-black sm:shadow-none`
+		}>
+			<i className="absolute pi pi-times top-3 right-5 sm:hidden" onClick={()=>setShow(false)}></i>
 			<ul className="w-full p-2">
 				{links.map((link) => (
 					<li
@@ -58,7 +66,10 @@ function Navbar() {
 							href={link.route}
 							className={`flex items-center flex-col md:flex-row md:gap-4 py-2 p-1`}
 						>
-							<Icon src={link.icon} secondaryColor={link.secondaryColor||null}/>
+							<Icon
+								src={link.icon}
+								secondaryColor={link.secondaryColor || null}
+							/>
 							<h2 className=" leading-none text-basic md:text-lg text-center capitalize">
 								{link.pathname}
 							</h2>
@@ -70,4 +81,4 @@ function Navbar() {
 	);
 }
 
-export default Navbar;
+export default memo(Navbar);

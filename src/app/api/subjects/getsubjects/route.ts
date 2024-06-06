@@ -1,9 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
 import ConnectDB from "@/db";
 import subjectModel from "@/models/Subjects";
-ConnectDB();
 
 export async function GET(req: NextRequest) {
+	await ConnectDB();
 	try {
 		const allSubjects = await subjectModel.find();
 		return NextResponse.json({

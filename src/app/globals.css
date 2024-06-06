@@ -7,7 +7,16 @@
 	--background-start-rgb: 214, 219, 220;
 	--background-end-rgb: 255, 255, 255;
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+/* display: none; <- Crashes Chrome on hover */
+-webkit-appearance: none;
+margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
 
+input[type=number] {
+-moz-appearance:textfield; /* Firefox */
+}
 @media (prefers-color-scheme: dark) {
 	:root {
 		--foreground-rgb: 255, 255, 255;
@@ -46,7 +55,12 @@ span input {
 	--sb-size: 7px;
 	scroll-behavior: smooth;
 }
-
+@media (max-width: 768px) {
+	.custom-scrollbar {
+		
+		--sb-size: 5px;
+	}
+}
 .custom-scrollbar::-webkit-scrollbar {
 	width: var(--sb-size);
 	height: var(--sb-size);
