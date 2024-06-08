@@ -29,7 +29,7 @@ function AddStudent({
 }: {
 	values: StudentDetailsInterface;
 	setValues: React.Dispatch<React.SetStateAction<StudentDetailsInterface>>;
-	setUpdate: React.Dispatch<React.SetStateAction<boolean>>;
+	setUpdate?: React.Dispatch<React.SetStateAction<boolean>>;
 	update: boolean;
 	subject: any[];
 	cols: number;
@@ -118,19 +118,27 @@ function AddStudent({
 	const [key, setKey] = useState(0);
 	const [disable, setDisable] = useState(false);
 
-	const validateForm = () => {
+	function validateForm() {
 		if (!values.admissionNo.trim()) {
 			show({
 				summary: "Validation Error",
-				type: "error",
+				type: "warn",
 				detail: "Admission number is required.",
+			});
+			return false;
+		}
+		if (!values.institutionName.trim()) {
+			show({
+				summary: "Validation Error",
+				type: "warn",
+				detail: "Instituon name is required.",
 			});
 			return false;
 		}
 		if (!values.name.trim()) {
 			show({
 				summary: "Validation Error",
-				type: "error",
+				type: "warn",
 				detail: "Name is required.",
 			});
 			return false;
@@ -138,7 +146,7 @@ function AddStudent({
 		if (values.subjects === null || values.subjects.length === 0) {
 			show({
 				summary: "Validation Error",
-				type: "error",
+				type: "warn",
 				detail: "At least one subject is required.",
 			});
 			return false;
@@ -146,7 +154,7 @@ function AddStudent({
 		if (!values.stream.trim()) {
 			show({
 				summary: "Validation Error",
-				type: "error",
+				type: "warn",
 				detail: "Stream is required.",
 			});
 			return false;
@@ -154,7 +162,7 @@ function AddStudent({
 		if (values.fees <= 0) {
 			show({
 				summary: "Validation Error",
-				type: "error",
+				type: "warn",
 				detail: "Fees must be greater than zero.",
 			});
 			return false;
@@ -162,15 +170,15 @@ function AddStudent({
 		if (values.phoneNo === null || values.phoneNo.length === 0) {
 			show({
 				summary: "Validation Error",
-				type: "error",
+				type: "warn",
 				detail: "At least one phone number is required.",
 			});
 			return false;
 		}
-	
+
 		return true;
-	};
-	
+	}
+
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		let url = `/api/students/setStudent`;
@@ -182,8 +190,7 @@ function AddStudent({
 			}
 			url = `/api/students/update-student?id=${id}`;
 		}
-		console.log(values);
-		if (!validateForm) {
+		if (!validateForm()) {
 			return;
 		}
 		setDisable(true);
@@ -209,6 +216,7 @@ function AddStudent({
 					clg: false,
 					stream: "",
 					fees: 0,
+					institutionName: "",
 					phoneNo: [],
 				});
 				if (!response.data.success) {
@@ -237,7 +245,9 @@ function AddStudent({
 			.finally(() => {
 				updateAddNo();
 				setDisable(false);
-				setUpdate(false);
+				if (setUpdate) {
+					setUpdate(false);
+				}
 				localStorage.clear();
 			});
 	};
@@ -246,7 +256,7 @@ function AddStudent({
 		AllSubjects.map((subject: any) => ({
 			name: subject.subject,
 		})),
-		[]
+		[AllSubjects]
 	);
 	useEffect(() => {
 		if (update) {
@@ -272,8 +282,8 @@ function AddStudent({
 	return (
 		<form
 			className={`w-full h-full grid gap-3 items-center ${
-				cols === 2 ? "sm:grid-cols-2" : "sm:grid-cols-1"
-			} grid-cols-1`}
+				cols === 2 ? "sm:grid-cols-2 grid-cols-1" : "grid-cols-1"
+			} `}
 			onSubmit={handleSubmit}
 		>
 			<InputFields
@@ -348,6 +358,11 @@ function AddStudent({
 			</div>
 			<InputFields name={"stream"} value={values.stream} setValue={setValues} />
 			<InputFields
+				name={"institutionName"}
+				value={values.stream}
+				setValue={setValues}
+			/>
+			<InputFields
 				name={"phoneNo"}
 				value={values.phoneNo}
 				setValue={setValues}
@@ -359,10 +374,10 @@ function AddStudent({
 				setValue={setValues}
 				type="number"
 			/>
-			<div className="text-right sm:col-start-2">
-				{update && (
+			<div className={`text-right ${cols===2&&'sm:col-start-2'}`}>
+				{(update && setUpdate) && (
 					<button
-						className={`px-3 py-1 text-lg rounded-md bg-gradient-to-l to-red-400 from-red-700 mr-3`}
+						className={`px-3 py-1 text-lg rounded-md active:scale-90 transition-all shadow-md shadow-black active:shadow-none bg-gradient-to-l to-red-400 from-red-700 mr-3`}
 						disabled={disable}
 						onClick={() => {
 							setValues({
@@ -372,10 +387,12 @@ function AddStudent({
 								name: "",
 								clg: false,
 								stream: "",
+								institutionName: "",
 								fees: 0,
 								phoneNo: [],
 							});
 							setSelectedSubjects(null);
+							setImageSrc("")
 							localStorage.clear();
 							setUpdate(false);
 							updateAddNo();
@@ -389,7 +406,7 @@ function AddStudent({
 					</button>
 				)}
 				<button
-					className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
+					className={`px-3 py-1 text-lg rounded-md bg-[#393E46] active:scale-90 transition-all shadow-md shadow-black active:shadow-none ${
 						update && "bg-gradient-to-l to-emerald-400 from-emerald-700"
 					}`}
 					disabled={disable}

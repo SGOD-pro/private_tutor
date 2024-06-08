@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
@@ -174,4 +174,4 @@ function MyForm({
 	);
 }
 
-export default MyForm;
+export default memo(MyForm);

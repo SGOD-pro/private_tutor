@@ -15,7 +15,7 @@ import { AppDispatch } from "@/store/store";
 import { showToast, ToastInterface } from "@/store/slices/Toast";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loader from "@/app/components/Loader";
-
+import AddStudent from "@/app/components/AddStudent";
 function AllStudents() {
 	const [show, setShow] = useState<boolean>(false);
 	const [show2, setShow2] = useState<boolean>(false);
@@ -24,9 +24,14 @@ function AllStudents() {
 	const [loading, setLoading] = useState(true);
 	const [values, setValues] = useState<StudentDetailsInterface>({
 		admissionNo: "",
+		institutionName: "",
 		picture: null,
-		subjects: null,
+		subjects: [],
 		name: "",
+		clg: false,
+		stream: "",
+		fees: 0,
+		phoneNo: [],
 	});
 	const Tshow = ({ summary, detail, type }: ToastInterface) => {
 		addDispatch(
@@ -37,33 +42,6 @@ function AllStudents() {
 				visible: true,
 			})
 		);
-	};
-	const [imageSrc, setImageSrc] = useState<any>("");
-
-	const fileInput = useRef<any>(null);
-	const handleImage = () => {
-		if (fileInput) {
-			fileInput.current.click();
-		}
-	};
-
-	const [key, setKey] = useState(0);
-	const [photo, setPhoto] = useState<File | null>(null);
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		const file = e.target.files?.[0];
-		if (file) {
-			setPhoto(file);
-			setValues((prev) => ({
-				...prev,
-				picture: file,
-			}));
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setImageSrc(reader.result);
-				setKey((prev) => prev + 1);
-			};
-			reader.readAsDataURL(file);
-		}
 	};
 
 	const allSubject = useSelector((state: any) => state.Subjects.allSubjects);
@@ -140,9 +118,12 @@ function AllStudents() {
 	}
 
 	const [selectedSubjects, setSelectedSubjects] = useState<any[]>([]);
+	const [update, setUpdate] = useState<boolean>(true);
+	const [formKey, setFormKey] = useState(0);
 	const editFunction = (data: any) => {
 		setShow2(false);
 		setShow(true);
+		setFormKey((prev) => prev + 1);
 		console.log(data);
 		localStorage.clear();
 		const subs = data.subjects
@@ -150,12 +131,16 @@ function AllStudents() {
 			.map((s: any) => ({ name: s.trim() }));
 		console.log(subs);
 		setSelectedSubjects(subs);
-		setImageSrc(data.picture);
 		setValues({
+			institutionName: data.institutionName,
 			admissionNo: data.admissionNo,
 			picture: data.picture,
+			subjects: data.subjects,
 			name: data.name,
-			subjects: subs,
+			clg: data.clg,
+			stream: data.stream,
+			phoneNo: data.phoneNo,
+			fees: data.fees,
 		});
 		localStorage.setItem("_id", data._id);
 	};
@@ -183,9 +168,9 @@ function AllStudents() {
 		setShow2(true);
 		const { _id, subjectWiseBatches, subjects } = data;
 		const id = localStorage.getItem("id");
-		console.log(_id , id)
+		console.log(_id, id);
 		if (id && _id === id) {
-			console.log('return')
+			console.log("return");
 			return;
 		}
 		localStorage.setItem("id", _id);
@@ -209,14 +194,26 @@ function AllStudents() {
 			const regex = new RegExp(search, "i");
 			return regex.test(nameField);
 		});
+		
 		if (selectedSubject) {
 			filteredValues = filteredValues.filter((item) => {
-				const nameField = item.subjects || "";
-				const regex = new RegExp(
-					`(^|,)\\s*${selectedSubject.name?.trim()}\\s*(,|$)`,
-					"i"
-				);
-				return regex.test(nameField);
+				const subjectsField = item.subjects;
+				if (typeof subjectsField === "string") {
+					const regex = new RegExp(
+						`(^|,)\\s*${selectedSubject.name?.trim()}\\s*(,|$)`,
+						"i"
+					);
+					return regex.test(subjectsField);
+				} else if (Array.isArray(subjectsField)) {
+					const joinedSubjects = subjectsField.join(",");
+					const regex = new RegExp(
+						`(^|,)\\s*${selectedSubject.name?.trim()}\\s*(,|$)`,
+						"i"
+					);
+					return regex.test(joinedSubjects);
+				} else {
+					return false;
+				}
 			});
 		}
 		setFilteredValue(filteredValues);
@@ -233,59 +230,9 @@ function AllStudents() {
 	};
 	const [tableKey, setTableKey] = useState(0);
 	const [updating, setUpdating] = useState(false);
-	const handelSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		const id = localStorage.getItem("_id");
-		if (!id) {
-			return;
-		}
-		const subs = selectedSubjects.map((item: any) => item.name);
-		const Newdata = { ...values, subject: subs };
-		setUpdating(true);
-		axios
-			.post(`/api/students/update-student?id=${id}`, Newdata, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			})
-			.then((response) => {
-				const newdata = data;
-				for (let i = 0; i < newdata.length; i++) {
-					if (newdata[i]._id === response.data.data._id) {
-						newdata[i] = response.data.data;
-						break;
-					}
-				}
-				setData(newdata);
 
-				setFilteredValue(newdata);
-				Tshow({
-					summary: "Updated",
-					type: response.data.success ? "success" : "warn",
-					detail: response.data.message,
-				});
-				if (response.data.success) {
-					fileInput.current.value = "";
-				}
-
-				localStorage.clear();
-				setImageSrc(null);
-				setTableKey((prev) => prev + 1);
-			})
-			.catch((error) => {
-				Tshow({
-					summary: "Error",
-					type: "error",
-					detail: error.response.data.message || "Internal server error",
-				});
-			})
-			.finally(() => {
-				setUpdating(false);
-			});
-	};
 	const setSubject = (e: any) => {
 		setFiltering(true);
-
 		setSelectedSubject(e.value);
 	};
 
@@ -318,7 +265,7 @@ function AllStudents() {
 		return (
 			<div className="flex gap-2">
 				<button
-					className="bg-gradient-to-tl shadow-md active:scale-95 transition-all active:shadow-none to-red-400 from-red-700 rounded-lg p-3 grid place-items-center"
+					className="bg-gradient-to-tl shadow-md shadow-black active:scale-95 transition-all active:shadow-none to-red-400 from-red-700 rounded-lg p-3 grid place-items-center"
 					onClick={() => deleteFunction(rowData._id)}
 					disabled={disable}
 				>
@@ -329,14 +276,14 @@ function AllStudents() {
 					)}
 				</button>
 				<button
-					className="bg-gradient-to-tl shadow-md active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 rounded-lg p-3 grid place-items-center"
+					className="bg-gradient-to-tl shadow-md shadow-black active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 rounded-lg p-3 grid place-items-center"
 					onClick={() => editFunction(rowData)}
 					disabled={disable}
 				>
 					<i className="pi pi-pen-to-square"></i>
 				</button>
 				<button
-					className="bg-gradient-to-tl shadow-md active:scale-95 transition-all active:shadow-none to-amber-400 from-amber-700 rounded-lg p-3 grid place-items-center"
+					className="bg-gradient-to-tl shadow-md shadow-black active:scale-95 transition-all active:shadow-none to-amber-400 from-amber-700 rounded-lg p-3 grid place-items-center"
 					onClick={() => setBatch(rowData)}
 					disabled={disable}
 				>
@@ -349,93 +296,14 @@ function AllStudents() {
 	return (
 		<>
 			<Popover show={show} setShow={setShow}>
-				<form
-					action=""
-					className="p-2 rounded-lg text-xl w-full h-full min-w-80 items-center"
-					onSubmit={handelSubmit}
-					encType="multipart/form-data"
-				>
-					<div className="grp flex flex-wrap">
-						<InputFields
-							name={"admissionNo"}
-							value={values.admissionNo}
-							setValue={setValues}
-						/>
-					</div>
-					<div className="grp flex  flex-wrap">
-						<InputFields
-							name={"name"}
-							value={values.name}
-							setValue={setValues}
-							type={"text"}
-						/>
-					</div>
-					<div className="relative flex flex-wrap items-center mb-3">
-						<input
-							type="file"
-							accept="image/*"
-							className="invisible absolute"
-							ref={fileInput}
-							onChange={handleFileChange}
-							id="image"
-						/>
-						<label htmlFor="image" className="basis-24 ">
-							Photo
-						</label>
-						<div
-							className="w-24 h-24 ml-5 border rounded-full relative overflow-hidden grid place-content-center cursor-pointer "
-							onClick={handleImage}
-						>
-							{imageSrc ? (
-								<Image
-									src={imageSrc}
-									alt="not upl0ded"
-									className="absolute w-[150%] h-[150%] object-cover object-top"
-									id="profile-pic"
-									width={100}
-									height={100}
-									key={key}
-								></Image>
-							) : (
-								<Icon
-									src={"https://cdn.lordicon.com/bgebyztw.json"}
-									secondaryColor={"#EEEEEE"}
-								/>
-							)}
-						</div>
-					</div>
-					<div className="flex flex-wrap">
-						<label
-							htmlFor="subjects"
-							className=" flex-shrink flex-grow basis-5"
-						>
-							Subjects
-						</label>
-						<MultiSelect
-							value={selectedSubjects}
-							onChange={(e) => {
-								setSelectedSubjects(e.value);
-							}}
-							id="subjects"
-							options={subjects}
-							optionLabel="name"
-							placeholder="Subjects"
-							className="flex-grow flex-shrink basis-44 rounded-md text-sm bg-[#393E46]"
-						/>
-					</div>
-					<div className="text-right mt-4">
-						<button
-							className="bg-gradient-to-tl to-blue-400 from-blue-700 rounded-md text-2xl"
-							disabled={updating}
-						>
-							{!updating ? (
-								<i className="pi pi-user-edit px-4 py-1 text-2xl"></i>
-							) : (
-								<i className="pi pi-spin pi-spinner px-4 py-1 text-2xl"></i>
-							)}
-						</button>
-					</div>
-				</form>
+				<AddStudent
+					values={values}
+					setValues={setValues}
+					update={true}
+					subject={selectedSubjects}
+					cols={1}
+					key={formKey}
+				/>
 			</Popover>
 
 			<Popover show={show2} setShow={setShow2}>
@@ -480,7 +348,7 @@ function AllStudents() {
 								value={selectedSubject}
 								handleChange={setSubject}
 								options={subjects}
-								placeholder={""}
+								placeholder={"Subjects"}
 							></Select>
 						</div>
 					</div>

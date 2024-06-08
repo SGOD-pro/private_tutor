@@ -5,7 +5,8 @@ import "./checkbox.css";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { pushBatches, updateBatches } from "@/store/slices/Batch";
-
+import { AppDispatch } from "@/store/store";
+import { showToast,ToastInterface } from "@/store/slices/Toast";
 interface Batch {
 	subject: { name: string } | null;
 	startTime: Date | null;
@@ -31,6 +32,18 @@ function AddDaysTime({
 	const subjects = AllSubjects.map((subject: any) => ({
 		name: subject.subject,
 	}));
+	
+	const addDispatch: AppDispatch = useDispatch();
+	const show = ({ summary, detail, type }: ToastInterface) => {
+		addDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
+	};
 	function calcEndTime() {
 		if (values.startTime) {
 			const newDate = new Date(values.startTime);
@@ -77,6 +90,11 @@ function AddDaysTime({
 				});
 				console.log(response.data.data);
 
+				show({
+						type: "success",
+						summary: "Added",
+						detail: response.data.message,
+					});
 				if (update) {
 					dispatch(updateBatches(response.data.data));
 				} else {
@@ -84,7 +102,12 @@ function AddDaysTime({
 				}	
 			})
 			.catch((error) => {
-				console.log(error);
+				console.log(error.response.status);
+				show({
+						type: error.response.status>400?"error":"warn",
+						summary: error.response.status>400?"Error":"Warning",
+						detail:error.response.data.message||"Internal Server Error",
+					});
 			})
 			.finally(() => {
 				setDisable(false);

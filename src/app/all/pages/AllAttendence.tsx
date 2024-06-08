@@ -5,6 +5,8 @@ import { AppDispatch } from "@/store/store";
 import { showToast, ToastInterface } from "@/store/slices/Toast";
 import { useDispatch } from "react-redux";
 import Image from "next/image";
+import { Calendar } from "primereact/calendar";
+import { Nullable } from "primereact/ts-helpers";
 
 interface BatchesInterface {
 	batchName: string;
@@ -78,6 +80,34 @@ function AllAttendence() {
 				setCardLoading(false);
 			});
 	};
+	const [showFilter, setShowFilter] = useState(false);
+	const filterOptions = (e: any) => {
+		if (e.target.id !== "filterOptions") {
+			setShowFilter(false);
+		}
+	};
+	useEffect(() => {
+		document.addEventListener("click", filterOptions);
+
+		return () => {
+			document.removeEventListener("click", filterOptions);
+		};
+	}, []);
+	
+	//First filter Specific date
+	const [showF1, setShowF1] = useState(false);
+	const [date, setDate] = useState<Nullable<Date>>(null);
+
+	//Second filter between range
+	const [showF2, setShowF2] = useState(false);
+	const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
+
+
+	useEffect(() => {
+	  setShowF1(false)
+	  setShowF2(false)
+	}, [show])
+	
 	return (
 		<>
 			<Popover show={show} setShow={setShow}>
@@ -105,7 +135,89 @@ function AllAttendence() {
 					)}
 				</div>
 			</Popover>
-			<div className="w-full rounded-md h-full overflow-auto custom-scrollbar">
+			<Popover show={showF1} setShow={setShowF1}>
+				<form action="" className="">
+					<div className="flex-auto">
+						<label htmlFor="buttondisplay" className="font-bold block mb-2">
+							Button Display
+						</label>
+						<Calendar
+							id="buttondisplay"
+							value={date}
+							onChange={(e) => setDate(e.value)}
+							className="w-full"
+						/>
+					</div>
+					<div className="text-right">
+						<button className="rounded-md px-3 py-1 text-lg shadow-md shadow-black active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 mt-2 bg-gradient-to-r">
+							Apply
+						</button>
+					</div>
+				</form>
+			</Popover>
+			<Popover show={showF2} setShow={setShowF2}>
+				<form action="" className="">
+					<div className="card flex justify-content-center flex-auto flex-wrap">
+						<label htmlFor="range" className="font-bold block mb-2">
+							From - To
+						</label>
+						<Calendar
+							value={dates}
+							onChange={(e) => setDates(e.value)}
+							selectionMode="range"
+							readOnlyInput
+							hideOnRangeSelection
+							id="range"
+							className="w-full"
+						/>
+					</div>
+					<div className="text-right">
+						<button className="rounded-md px-3 py-1 text-lg shadow-md shadow-black active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 mt-2 bg-gradient-to-r">
+							Apply
+						</button>
+					</div>
+				</form>
+			</Popover>
+			<header className="flex justify-between items-center relative">
+				<h2 className="font-semibold text-3xl">All attendence</h2>
+				<i
+					className="pi pi-filter text-lg hover:bg-slate-500/60 p-3 px-4 transition-all cursor-pointer rounded-md"
+					id="filterOptions"
+					onClick={() => {
+						setShowFilter((prev) => !prev);
+					}}
+				></i>
+				<div
+					className={`${
+						showFilter
+							? "visible opacity-100 translate-y-full"
+							: "invisible opacity-0 translate-y-[90%]"
+					} transition-all absolute bottom-0  right-10 flex flex-col bg-slate-900 p-4 rounded-lg`}
+				>
+					<button
+						className="rounded-md bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all"
+						onClick={() => {
+							setShowF1(true);
+							setShowF2(false);
+						}}
+					>
+						Pin Pont
+					</button>
+					<button
+						className="rounded-md bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all"
+						onClick={() => {
+							setShowF2(true);
+							setShowF1(false);
+						}}
+					>
+						Time <span className="bg-orange-500 p-1 rounded">Warp</span>
+					</button>
+					<button className="rounded-md bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all">
+						Applicant ID
+					</button>
+				</div>
+			</header>
+			<div className="w-full rounded-md h-[calc(100%-3rem)] overflow-auto custom-scrollbar">
 				<div className="">
 					{data.map((item: ShowAttendenceInterface, index: number) => (
 						<>

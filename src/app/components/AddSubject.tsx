@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import InputFields from "./InputFields";
 import axios from "axios";
 import { useDispatch } from "react-redux";
@@ -10,6 +10,8 @@ function AddSubject() {
 	const [subject, setSubject] = useState({
 		subject: "",
 	});
+	console.log("rerendering add-subject");
+
 	const dispatch = useDispatch();
 	const [disable, setDisable] = useState(false);
 	const addDispatch: AppDispatch = useDispatch();
@@ -76,4 +78,4 @@ function AddSubject() {
 	);
 }
 
-export default AddSubject;
+export default memo(AddSubject);

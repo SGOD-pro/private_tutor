@@ -30,7 +30,7 @@ const SimpleCard = () => {
     }, [])
 
     return (
-        <div className=" w-full h-full p-2" key={batchCard.name} >
+        <div className={` w-full ${batchCard.name!==""?'h-36':'h-full'} p-2`} key={batchCard.name} >
         {batchCard.name!==""?
             <Card title={batchCard.name} className='h-full'>
                 <p className=' no-underline'>Time: {batchCard.time}</p>

@@ -16,6 +16,7 @@ import Loading from "./components/Loading";
 
 export type StudentDetailsInterface = {
 	admissionNo: string;
+	institutionName: string;
 	picture: string | null | File;
 	subjects: string[] | null | string;
 	name: string;
@@ -98,6 +99,7 @@ export default function Home() {
 
 	const [values, setValues] = useState<StudentDetailsInterface>({
 		admissionNo: "",
+		institutionName: "",
 		picture: null,
 		subjects: [],
 		name: "",
@@ -125,6 +127,7 @@ export default function Home() {
 		setSubject(subjectList);
 		console.log(data);
 		setValues({
+			institutionName: data.institutionName,
 			admissionNo: data.admissionNo,
 			picture: data.picture,
 			subjects: data.subjects,
@@ -139,9 +142,15 @@ export default function Home() {
 		setKey((prev) => prev + 1);
 	};
 	return (
-		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full lg:overflow-hidden overflow-auto custom-scrollbar gap-3">
+		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full md:overflow-hidden overflow-auto custom-scrollbar gap-3">
+			<div className="absolute right-4 top-3 z-40 grid cursor-pointer place-items-center w-10 h-10 bg-cyan-400 rounded-full">
+				<i className="pi pi-bell relative text-xl "></i>
+				<span
+					className="animate-ping absolute h-full w-full rounded-full bg-sky-400 opacity-75"
+				></span>
+			</div>
 			<div className=" flex flex-col gap-2">
-			<div className="md:h-1/2 rounded-lg sm:rounded-tl-[20px] md:rounded-tl-[44px] border border-slate-400/70 p-3 md:p-3 md:pl-8 md:overflow-auto relative transition-all">
+				<div className="md:max-h-1/2 md:min-h-[45%] rounded-lg sm:rounded-tl-[20px] md:rounded-tl-[44px] border border-slate-400/70 p-3 md:p-3 md:pl-8 md:overflow-auto relative transition-all">
 					<Loading loading={loading}>
 						<AddStudent
 							values={values}
@@ -154,7 +163,7 @@ export default function Home() {
 						/>
 					</Loading>
 				</div>
-				<div className="md:h-[calc(50%-3.1rem)] max-h-[70vh] rounded-lg sm:rounded-bl-[20px] md:rounded-bl-[44px] border border-slate-400/70 overflow-auto relative custom-scrollbar transition-all">
+				<div className="md:h-[calc(38%-0rem)] max-h-[70vh] rounded-lg sm:rounded-bl-[20px] md:rounded-bl-[44px] border border-slate-400/70 overflow-hidden relative  transition-all">
 					<div className="flex items-center justify-between bg-[#393E46] w-full p-2 sticky top-0 z-10 ">
 						<h2 className="text-xl capitalize font-semibold ">
 							recent students
@@ -166,19 +175,21 @@ export default function Home() {
 							All student
 						</Link>
 					</div>
-					<Loading loading={loading}>
-						<Table
-							columns={columns}
-							values={students}
-							deleteFunction={deleteFunction}
-							editFunction={editFunction}
-						/>
-					</Loading>
+					<div className="max-h-[calc(100%-0rem)] overflow-auto pb-20 custom-scrollbar">
+						<Loading loading={loading}>
+							<Table
+								columns={columns}
+								values={students}
+								deleteFunction={deleteFunction}
+								editFunction={editFunction}
+							/>
+						</Loading>
+					</div>
 				</div>
 			</div>
-			<div className="hidden lg:flex min-w-72 flex-col gap-3 relative rounded-lg overflow-hidden">
+			<div className="hidden lg:flex min-w-56 flex-col gap-2 relative rounded-lg overflow-hidden">
 				<Loading loading={loading}>
-					<div className="h-40 w-full relative border border-slate-400/60 rounded-lg">
+					<div className=" w-full relative border border-slate-400/60 rounded-lg">
 						<SimpleCard />
 					</div>
 					<div className=" w-full relative border border-slate-400/60 rounded-lg p-2">

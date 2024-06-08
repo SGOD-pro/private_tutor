@@ -53,17 +53,18 @@ export async function POST(req: NextRequest) {
 		const file = data.get("picture");
 		const jsonData = formDataToJson(data);
 		console.log(typeof data.get("fees"));
-		return data;
 		const exists = await userModel.findOne({
 			admissionNo: data.get("admissionNo"),
 		});
 		const admissionNo = data.get("admissionNo");
 		const clg = data.get("clg") === "true";
 		const stream = data.get("stream");
-		
-		let fees=0;
-		fees=data.get("fees")?parseFloat(data.get("fees")||"0") : 0;
-	
+
+		let fees = 0;
+
+		fees = parseFloat(jsonData["fees"] || "0");
+
+		return Response.json(data);
 		const phoneNo = data.get("phoneNo");
 		if (exists) {
 			return NextResponse.json(
