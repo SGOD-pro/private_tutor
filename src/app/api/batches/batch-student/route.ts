@@ -1,5 +1,5 @@
 import ConnectDB from "@/db";
-import userModel from "@/models/UserModel";
+import userModel from "@/models/StudentModel";
 import mongoose from "mongoose";
 
 export async function POST(req: Request) {

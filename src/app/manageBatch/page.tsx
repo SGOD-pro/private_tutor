@@ -164,7 +164,7 @@ function page() {
 	return (
 		<>
 			<div
-				className={`absolute z-50 backdrop-blur-md w-[90%] md:w-1/2 top-1/2 left-1/2 -translate-x-1/2 transition-all -translate-y-1/2 duration-300  ${
+				className={`absolute z-50 backdrop-blur-md bg-zinc-900/70 w-[90%] md:w-1/2 top-1/2 left-1/2 -translate-x-1/2 transition-all -translate-y-1/2 duration-300  ${
 					showForm
 						? " scale-100 opacity-1 visible"
 						: "invisible opacity-0 scale-90"

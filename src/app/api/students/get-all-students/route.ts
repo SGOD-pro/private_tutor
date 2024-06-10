@@ -1,5 +1,5 @@
 import ConnectDB from "@/db";
-import userModel from "@/models/UserModel";
+import userModel from "@/models/StudentModel";
 
 export async function GET(req: Request) {
 	await ConnectDB();
@@ -27,19 +27,17 @@ export async function GET(req: Request) {
 		const pipeline: any[] = [];
 
 		if (matchStage) {
-			console.log("firing");
-			
 			pipeline.push(matchStage);
 		}
 
 		pipeline.push(
 			{
-				$unwind: "$subject",
+				$unwind: "$subjects",
 			},
 			{
 				$lookup: {
 					from: "batches",
-					localField: "subject",
+					localField: "subjects",
 					foreignField: "subject",
 					as: "subjectWiseBatches",
 					pipeline: [
@@ -62,7 +60,7 @@ export async function GET(req: Request) {
 						$first: "$admissionNo",
 					},
 					subjects: {
-						$push: "$subject",
+						$push: "$subjects",
 					},
 					subjectWiseBatches: {
 						$push: "$subjectWiseBatches",

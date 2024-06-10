@@ -69,7 +69,6 @@ function AddStudent({
 			const reader = new FileReader();
 			reader.onloadend = () => {
 				setImageSrc(reader.result);
-				setKey((prev) => prev + 1);
 			};
 			reader.readAsDataURL(file);
 		}
@@ -115,23 +114,16 @@ function AddStudent({
 			}));
 		}
 	}, [selectedSubjects]);
-	const [key, setKey] = useState(0);
 	const [disable, setDisable] = useState(false);
-
+	const [phoneNo, setPhoneNo] = useState<string[]>([]);
+	const [phoneNoLen, setPhoneNoLen] = useState<number>(0);
+	const [phoneNoText, setPhoneNoText] = useState("");
 	function validateForm() {
 		if (!values.admissionNo.trim()) {
 			show({
 				summary: "Validation Error",
 				type: "warn",
 				detail: "Admission number is required.",
-			});
-			return false;
-		}
-		if (!values.institutionName.trim()) {
-			show({
-				summary: "Validation Error",
-				type: "warn",
-				detail: "Instituon name is required.",
 			});
 			return false;
 		}
@@ -143,7 +135,12 @@ function AddStudent({
 			});
 			return false;
 		}
-		if (values.subjects === null || values.subjects.length === 0) {
+		const subjects = selectedSubjects?.map((subject) => subject.name);
+		console.log(subjects);
+		if (subjects) {
+			setValues((prev) => ({ ...prev, subjects }));
+		}
+		if (subjects?.length === 0) {
 			show({
 				summary: "Validation Error",
 				type: "warn",
@@ -151,7 +148,7 @@ function AddStudent({
 			});
 			return false;
 		}
-		if (!values.stream.trim()) {
+		if (!values.stream?.trim()) {
 			show({
 				summary: "Validation Error",
 				type: "warn",
@@ -159,15 +156,31 @@ function AddStudent({
 			});
 			return false;
 		}
-		if (values.fees <= 0) {
+		if (!values.institutionName?.trim()) {
 			show({
 				summary: "Validation Error",
 				type: "warn",
-				detail: "Fees must be greater than zero.",
+				detail: "Instituon name is required.",
 			});
 			return false;
 		}
-		if (values.phoneNo === null || values.phoneNo.length === 0) {
+		const data = { ...values };
+		if (phoneNo.length === 0 && phoneNoText.trim() !== "") {
+			if (phoneNoText.trim().length < 10) {
+				show({
+					summary: "Insufficient",
+					type: "info",
+					detail: `Phone number must be 10 digits, given ${
+						phoneNoText.trim().length
+					}`,
+				});
+				return false;
+			}
+			data.phoneNo = [phoneNoText];
+		} else {
+			data.phoneNo = phoneNo;
+		}
+		if (data.phoneNo === null || data.phoneNo?.length === 0) {
 			show({
 				summary: "Validation Error",
 				type: "warn",
@@ -175,14 +188,55 @@ function AddStudent({
 			});
 			return false;
 		}
-
+		if (!values.fees || values.fees <= 0) {
+			show({
+				summary: "Validation Error",
+				type: "warn",
+				detail: "Fees must be greater than zero.",
+			});
+			return false;
+		}
 		return true;
 	}
+	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
+	const subjects = useCallback(
+		AllSubjects.map((subject: any) => ({
+			name: subject.subject,
+		})),
+		[AllSubjects]
+	);
+
+	useEffect(() => {
+		if (update) {
+			setSelectedSubjects(subject);
+			setImageSrc(values.picture);
+			setValues((prev) => ({ ...prev, picture: null }));
+			setStudyIn(
+				!values.clg
+					? { name: "School", code: "School" }
+					: { name: "Collage", code: "Collage" }
+			);
+			if (values.phoneNo && values.phoneNo[0]) {
+				setPhoneNoLen(values.phoneNo.length === 2 ? 2 : 0);
+				setPhoneNoText(values.phoneNo[0] || "");
+				if (values.phoneNo.length === 2) {
+					setPhoneNo(values.phoneNo);
+				}
+			}
+		}
+	}, []);
+	useEffect(() => {
+		if (Array.isArray(lastAdmission) && !update) {
+			updateAddNo();
+		}
+	}, [lastAdmission]);
+	useEffect(() => {
+		console.log(values.admissionNo);
+	}, [adno]);
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		let url = `/api/students/setStudent`;
-		let adno = values.admissionNo;
 		if (update) {
 			const id = localStorage.getItem("id");
 			if (!id) {
@@ -193,9 +247,19 @@ function AddStudent({
 		if (!validateForm()) {
 			return;
 		}
+		const data = { ...values };
+		if (phoneNo.length === 0 && phoneNoText.trim() !== "") {
+			data.phoneNo = [phoneNoText];
+			console.log("ph text");
+		} else {
+			console.log("ph array");
+			data.phoneNo = phoneNo;
+			console.log(phoneNo);
+		}
 		setDisable(true);
+		console.log(data);
 		axios
-			.post(url, values, {
+			.post(url, data, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -219,6 +283,12 @@ function AddStudent({
 					institutionName: "",
 					phoneNo: [],
 				});
+				setPhoneNo([]);
+				setPhoneNoText("");
+				setPhoneNoLen(0);
+				setStudyIn(null);
+				setImageSrc(null);
+				setSelectedSubjects(null);
 				if (!response.data.success) {
 					show({
 						summary: update ? "Updated" : "Added",
@@ -227,58 +297,30 @@ function AddStudent({
 					});
 				}
 				setSelectedSubjects(null);
-				setKey((prevKey) => prevKey + 1);
-
 				show({
 					summary: update ? "Updated" : "Added",
 					type: "success",
 					detail: response.data.message,
 				});
+				if (setUpdate) {
+					setUpdate(false);
+				}
 			})
 			.catch((error) => {
+				console.log(error);
+
 				show({
 					summary: "Error",
 					type: "error",
-					detail: error.response.data.message || error.message,
+					detail: error.response?.data?.message || error.message,
 				});
 			})
 			.finally(() => {
 				updateAddNo();
 				setDisable(false);
-				if (setUpdate) {
-					setUpdate(false);
-				}
 				localStorage.clear();
 			});
 	};
-	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
-	const subjects = useCallback(
-		AllSubjects.map((subject: any) => ({
-			name: subject.subject,
-		})),
-		[AllSubjects]
-	);
-	useEffect(() => {
-		if (update) {
-			setSelectedSubjects(subject);
-			setImageSrc(values.picture);
-			setStudyIn(
-				values.clg
-					? { name: "School", code: "School" }
-					: { name: "Collage", code: "Collage" }
-			);
-		}
-	}, []);
-	useEffect(() => {
-		if (Array.isArray(lastAdmission) && !update) {
-			updateAddNo();
-		}
-	}, [lastAdmission]);
-
-	useEffect(() => {
-		console.log(values.admissionNo);
-	}, [adno]);
-
 	return (
 		<form
 			className={`w-full h-full grid gap-3 items-center ${
@@ -332,7 +374,7 @@ function AddStudent({
 				<div className="flex-grow flex-shrink basis-full sm:basis-44">
 					<MultiSelect
 						value={selectedSubjects}
-						onChange={(e) => {
+						onChange={(e: any) => {
 							setSelectedSubjects(e.value);
 						}}
 						options={subjects}
@@ -359,23 +401,86 @@ function AddStudent({
 			<InputFields name={"stream"} value={values.stream} setValue={setValues} />
 			<InputFields
 				name={"institutionName"}
-				value={values.stream}
+				value={values.institutionName}
 				setValue={setValues}
 			/>
-			<InputFields
-				name={"phoneNo"}
-				value={values.phoneNo}
-				setValue={setValues}
-				type={"number"}
-			/>
+			<div className="flex flex-wrap items-center w-full my-1 md:my-2">
+				<label
+					htmlFor="phone-no"
+					className="flex-grow flex-shrink basis-full sm:basis-24 capitalize mr-2"
+				>
+					Phone number
+				</label>
+				<div className="flex flex-grow flex-shrink basis-full sm:basis-44 rounded-md bg-[#393E46] transition-all items-center px-1 border border-transparent peer">
+					{phoneNoLen > 0 && (
+						<i
+							className="pi pi-angle-left p-1 rounded-full bg-emerald-500 cursor-pointer"
+							onClick={() => {
+								setPhoneNoText(phoneNo[0]);
+							}}
+						></i>
+					)}
+					<input
+						type="number"
+						value={phoneNoText}
+						onChange={(e) => {
+							setPhoneNoText(e.target.value);
+						}}
+						className="flex-grow w-14 flex-shrink basis-full outline-none sm:basis-36 rounded-md px-1 py-2 bg-transparent peer"
+						placeholder="Enter phone numbers"
+						readOnly={phoneNoLen === 2}
+						id="phone-no"
+					/>
+					{phoneNoLen < 2 ? (
+						<i
+							className="pi pi-plus p-1 rounded-full bg-emerald-500 cursor-pointer"
+							onClick={() => {
+								const trimmedPhoneNoText = phoneNoText.trim();
+								if (trimmedPhoneNoText.length !== 10) {
+									show({
+										summary: "Insufficient",
+										type: "info",
+										detail: `Phone number must be 10 digits, given ${trimmedPhoneNoText.length}`,
+									});
+									return;
+								}
+								if (trimmedPhoneNoText !== "") {
+									setPhoneNo((prev) => [...prev, trimmedPhoneNoText]);
+									setPhoneNoLen((prev) => prev + 1);
+									if (phoneNo.length !== 1) {
+										setPhoneNoText("");
+									}
+								}
+							}}
+						></i>
+					) : (
+						<i
+							className="pi pi-eraser rounded-full p-1 mr-1 bg-orange-600 cursor-pointer"
+							onClick={() => {
+								setPhoneNo([]);
+								setPhoneNoText("");
+								setPhoneNoLen(0);
+							}}
+						></i>
+					)}
+					{phoneNoLen === 2 && (
+						<i
+							className="pi pi-angle-right p-1 rounded-full bg-emerald-500 cursor-pointer"
+							onClick={() => {
+								setPhoneNoText(phoneNo[1]);
+							}}
+						></i>
+					)}
+				</div>
+			</div>
 			<InputFields
 				name={"fees"}
 				value={values.fees}
 				setValue={setValues}
 				type="number"
 			/>
-			<div className={`text-right ${cols===2&&'sm:col-start-2'}`}>
-				{(update && setUpdate) && (
+			<div className={`text-right ${cols === 2 && "sm:col-start-2"}`}>
+				{update && setUpdate && (
 					<button
 						className={`px-3 py-1 text-lg rounded-md active:scale-90 transition-all shadow-md shadow-black active:shadow-none bg-gradient-to-l to-red-400 from-red-700 mr-3`}
 						disabled={disable}
@@ -392,7 +497,11 @@ function AddStudent({
 								phoneNo: [],
 							});
 							setSelectedSubjects(null);
-							setImageSrc("")
+							setImageSrc("");
+							setPhoneNo([]);
+							setPhoneNoText("");
+							setPhoneNoLen(0);
+							setStudyIn(null);
 							localStorage.clear();
 							setUpdate(false);
 							updateAddNo();

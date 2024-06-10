@@ -1,6 +1,6 @@
 import { capitalizeWords } from "@/utils/Capitalize";
 import ConnectDB from "@/db";
-import userModel from "@/models/UserModel";
+import userModel from "@/models/StudentModel";
 import { formDataToJson, uploadImage } from "../setStudent/route";
 
 export async function POST(req: Request) {
@@ -14,10 +14,30 @@ export async function POST(req: Request) {
 				{ status: 404 }
 			);
 		}
-		console.log(_id);
 		const data = await req.formData();
 		const file = data.get("picture");
 		const jsonData = formDataToJson(data);
+
+		const name = capitalizeWords(jsonData.name);
+		const phoneNo = jsonData["phoneNo[]"];
+		const admissionNo = data.get("admissionNo");
+		const clg = data.get("clg") === "true";
+		const stream = data.get("stream");
+		const subjects = jsonData["subject[]"];
+		const institutionName = jsonData["institutionName"];
+		let fees = 0;
+		fees = parseFloat(jsonData["fees"] || 0);
+
+		if (
+			[name, admissionNo, stream, institutionName].some(
+				(value) => !value || value.trim() === ""
+			)
+		) {
+			return Response.json(
+				{ message: "Some attributes are missing", success: false },
+				{ status: 400 }
+			);
+		}
 
 		const userExists = await userModel.find({
 			$or: [{ _id }, { admissionNo: jsonData["admissionNo"] }],
@@ -34,37 +54,43 @@ export async function POST(req: Request) {
 				{ status: 400 }
 			);
 		}
-		let photoUrl = await uploadImage(file);
-		//TODO: update photo url
-		console.log("url" + photoUrl);
-
-		const name = capitalizeWords(jsonData.name);
+		let photoUrl;
+		if (file) {
+			photoUrl = await uploadImage(file);
+		}
+		console.log(jsonData);
 		const user = await userModel.findByIdAndUpdate(
 			_id,
 			{
 				$set: {
 					name,
-					subject: jsonData["subject[]"],
+					subjects,
 					picture: photoUrl,
-					admissionNo: jsonData["admissionNo"],
+					admissionNo,
+					clg,
+					institutionName,
+					stream,
+					fees,
+					phoneNo,
 				},
 			},
 			{ new: true, runValidators: true }
 		);
+
+		if (!user) {
+			throw new Error();
+		}
 		const response = {
 			...user.toJSON(),
-			subjects: user?.subject?.join(","),
+			subjects: user?.subjects?.join(","),
 		};
-
 		return Response.json(
 			{
 				message:
 					file && !photoUrl
 						? "Updated but photo not uploaded"
 						: "Student updated successfully.",
-				success: file && !photoUrl
-				? false
-				: true,
+				success: file && !photoUrl ? false : true,
 				data: response,
 			},
 			{ status: 200 }

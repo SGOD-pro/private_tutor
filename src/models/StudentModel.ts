@@ -29,7 +29,6 @@ const StudentSchema: Schema<StudentSchemaInterface> = new Schema({
 	},
 	picture: {
 		type: String,
-		required: [true, "Picture is required"],
 	},
 	subjects: {
 		type: [String],

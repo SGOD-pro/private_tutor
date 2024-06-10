@@ -7,6 +7,9 @@ import { useDispatch } from "react-redux";
 import Image from "next/image";
 import { Calendar } from "primereact/calendar";
 import { Nullable } from "primereact/ts-helpers";
+import InputFields from "@/app/components/InputFields";
+import QueryTable from "@/app/components/QueryTable";
+import Loading from "@/app/components/Loading";
 
 interface BatchesInterface {
 	batchName: string;
@@ -23,6 +26,7 @@ interface Studnets {
 	_id: string;
 	name: string;
 	picture: string;
+	presents: number;
 }
 function AllAttendence() {
 	const [show, setShow] = useState(false);
@@ -93,7 +97,7 @@ function AllAttendence() {
 			document.removeEventListener("click", filterOptions);
 		};
 	}, []);
-	
+
 	//First filter Specific date
 	const [showF1, setShowF1] = useState(false);
 	const [date, setDate] = useState<Nullable<Date>>(null);
@@ -102,41 +106,52 @@ function AllAttendence() {
 	const [showF2, setShowF2] = useState(false);
 	const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
 
+	//Third filter by name and admission no
+	const [showF3, setShowF3] = useState(false);
 
+	const [byStudent, setByStudent] = useState({
+		admissionNo: "CA-24/25-",
+		name: "",
+	});
 	useEffect(() => {
-	  setShowF1(false)
-	  setShowF2(false)
-	}, [show])
-	
+		setShowF1(false);
+		setShowF2(false);
+	}, [show]);
+
 	return (
 		<>
 			<Popover show={show} setShow={setShow}>
-				<div className="h-[30vw] min-h-96 w-full overflow-auto custom-scrollbar mt-3">
-					{students.length > 0 ? (
-						<div>
-							{students.map((student) => (
-								<div
-									className="flex items-center gap-3 mb-2 bg-slate-500/30 p-2 px-3 rounded-lg hover:bg-slate-500/60 transition-all"
-									key={student._id}
-								>
-									<Image
-										src={student.picture}
-										className="h-16 w-16 rounded-full object-cover"
-										alt={student.name[0]}
-										width={100}
-										height={100}
-									/>
-									<h3 className="text-xl">{student.name}</h3>
-								</div>
-							))}
-						</div>
-					) : (
-						<h1>No record found</h1>
-					)}
+				<div className="h-[30vw] min-h-96 w-full overflow-auto custom-scrollbar mt-3 relative rounded-lg">
+					<Loading loading={cardLoading}>
+						{students.length > 0 ? (
+							<div>
+								{students.map((student) => (
+									<div
+										className="flex items-center justify-between gap-3 mb-2 bg-slate-500/30 p-2 px-3 rounded-lg hover:bg-slate-500/60 transition-all"
+										key={student._id}
+									>
+										<div className="flex items-center gap-3">
+											<Image
+												src={student.picture}
+												className="h-16 w-16 rounded-full object-cover"
+												alt={student.name[0]}
+												width={100}
+												height={100}
+											/>
+											<h3 className="text-xl">{student.name}</h3>
+										</div>
+										<h2 className="text-lg">69</h2>
+									</div>
+								))}
+							</div>
+						) : (
+							<h1>No record found</h1>
+						)}
+					</Loading>
 				</div>
 			</Popover>
 			<Popover show={showF1} setShow={setShowF1}>
-				<form action="" className="">
+				<form action="" className="sm:w-[35vw]">
 					<div className="flex-auto">
 						<label htmlFor="buttondisplay" className="font-bold block mb-2">
 							Button Display
@@ -156,7 +171,7 @@ function AllAttendence() {
 				</form>
 			</Popover>
 			<Popover show={showF2} setShow={setShowF2}>
-				<form action="" className="">
+				<form action="" className="sm:w-[35vw]">
 					<div className="card flex justify-content-center flex-auto flex-wrap">
 						<label htmlFor="range" className="font-bold block mb-2">
 							From - To
@@ -177,6 +192,39 @@ function AllAttendence() {
 						</button>
 					</div>
 				</form>
+			</Popover>
+			<Popover setShow={setShowF3} show={showF3}>
+				<header className="w-[50vw] border-b border-b-slate-700">
+					<form action="" className="flex gap-5 items-center justify-between">
+						<div className="w-[40%]">
+							<InputFields
+								name={"admissionNo"}
+								value={byStudent.admissionNo}
+								setValue={setByStudent}
+								placeholder={"Search by admission number"}
+							></InputFields>
+						</div>
+						<div className="w-[40%]">
+							<InputFields
+								name={"name"}
+								value={byStudent.name}
+								setValue={setByStudent}
+								placeholder={"Search by Name"}
+							></InputFields>
+						</div>
+					</form>
+				</header>
+				<div className="h-[64vh] overflow-auto custom-scrollbar">
+					<h2 className="text-center opacity-80">No result found</h2>
+					<QueryTable
+						columns={[
+							{ field: "name", header: "Name" },
+							{ field: "admissionNo", header: "Admission no" },
+							{ field: "presents", header: "Presents" },
+						]}
+						values={[]}
+					/>
+				</div>
 			</Popover>
 			<header className="flex justify-between items-center relative">
 				<h2 className="font-semibold text-3xl">All attendence</h2>
@@ -199,6 +247,7 @@ function AllAttendence() {
 						onClick={() => {
 							setShowF1(true);
 							setShowF2(false);
+							setShowF3(false);
 						}}
 					>
 						Pin Pont
@@ -208,11 +257,19 @@ function AllAttendence() {
 						onClick={() => {
 							setShowF2(true);
 							setShowF1(false);
+							setShowF3(false);
 						}}
 					>
 						Time <span className="bg-orange-500 p-1 rounded">Warp</span>
 					</button>
-					<button className="rounded-md bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all">
+					<button
+						className="rounded-md bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all"
+						onClick={() => {
+							setShowF3(true);
+							setShowF2(false);
+							setShowF1(false);
+						}}
+					>
 						Applicant ID
 					</button>
 				</div>

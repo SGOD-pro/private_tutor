@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Popover from "../../components/Popover";
-import InputFields from "../../components/InputFields";
-import Icon from "@/app/components/Icon";
 import { StudentDetailsInterface } from "../../page";
-import Image from "next/image";
-import { MultiSelect } from "primereact/multiselect";
 import { useDispatch, useSelector } from "react-redux";
 import QueryTable from "../../components/QueryTable";
 import SetStudentBatch from "../../components/SetStudentBatch";
@@ -65,6 +61,7 @@ function AllStudents() {
 	const [hasMore, setHasMore] = useState(true);
 
 	const fetchData = async () => {
+		//use dispatch and selector
 		axios
 			.get(
 				`/api/students/get-all-students?skip=${skip}&limit=${limit}&subject=${selectedSubject}`
@@ -110,6 +107,7 @@ function AllStudents() {
 		if (data.length !== 0) {
 			setLoading(false);
 		}
+		// TODO: set condition if selector is empty or not the call fetchdata
 		fetchData();
 	}, [limit, skip]);
 
@@ -118,7 +116,6 @@ function AllStudents() {
 	}
 
 	const [selectedSubjects, setSelectedSubjects] = useState<any[]>([]);
-	const [update, setUpdate] = useState<boolean>(true);
 	const [formKey, setFormKey] = useState(0);
 	const editFunction = (data: any) => {
 		setShow2(false);
@@ -194,7 +191,7 @@ function AllStudents() {
 			const regex = new RegExp(search, "i");
 			return regex.test(nameField);
 		});
-		
+
 		if (selectedSubject) {
 			filteredValues = filteredValues.filter((item) => {
 				const subjectsField = item.subjects;
@@ -229,7 +226,6 @@ function AllStudents() {
 		setFiltering(true);
 	};
 	const [tableKey, setTableKey] = useState(0);
-	const [updating, setUpdating] = useState(false);
 
 	const setSubject = (e: any) => {
 		setFiltering(true);
@@ -296,14 +292,14 @@ function AllStudents() {
 	return (
 		<>
 			<Popover show={show} setShow={setShow}>
-				<AddStudent
-					values={values}
-					setValues={setValues}
-					update={true}
-					subject={selectedSubjects}
-					cols={1}
-					key={formKey}
-				/>
+					<AddStudent
+						values={values}
+						setValues={setValues}
+						update={true}
+						subject={selectedSubjects}
+						cols={1}
+						key={formKey}
+					/>
 			</Popover>
 
 			<Popover show={show2} setShow={setShow2}>

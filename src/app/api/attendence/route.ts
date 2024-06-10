@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import ConnectDB from "@/db";
-import userModel from "@/models/UserModel";
+import userModel from "@/models/StudentModel";
 import mongoose from "mongoose";
 
 
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
 				$addFields: {
 					subject: {
 						$reduce: {
-							input: "$subject",
+							input: "$subjects",
 							initialValue: "",
 							in: {
 								$concat: [

@@ -21,6 +21,11 @@ export async function POST(req: Request) {
 		if (data) {
 			data.studentsId = studentsId;
 			await data.save();
+
+			// const result = await User.updateMany(
+			// 	{ _id: { $in: ids } },
+			// 	{ $inc: { presents: -1 } }
+			// );
 			return Response.json(
 				{ success: true, message: "Attendence updated successfully." },
 				{ status: 200 }
@@ -30,6 +35,11 @@ export async function POST(req: Request) {
 			batchId,
 			studentsId,
 		});
+		// const objectIds = documentIds.map(id => mongoose.Types.ObjectId(id));
+		// const result = await User.updateMany(
+        //     { _id: { $in: objectIds } },
+        //     { $inc: { presents: 1 } }
+        // );
 		return Response.json(
 			{ success: true, message: "Attendence added successfully" },
 			{ status: 200 }

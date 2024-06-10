@@ -1,4 +1,4 @@
-import userModel from "@/models/UserModel";
+import userModel from "@/models/StudentModel";
 import { NextResponse, NextRequest } from "next/server";
 import { capitalizeWords } from "@/utils/Capitalize";
 import { cloudinaryUTIL } from "@/utils/Cloudinary";
@@ -52,38 +52,56 @@ export async function POST(req: NextRequest) {
 		const data = await req.formData();
 		const file = data.get("picture");
 		const jsonData = formDataToJson(data);
-		console.log(typeof data.get("fees"));
 		const exists = await userModel.findOne({
-			admissionNo: data.get("admissionNo"),
+			admissionNo: jsonData["admissionNo"],
 		});
+		const name = capitalizeWords(jsonData.name);
+		const phoneNo = jsonData["phoneNo[]"];
 		const admissionNo = data.get("admissionNo");
 		const clg = data.get("clg") === "true";
 		const stream = data.get("stream");
-
+		const subjects = jsonData["subject[]"];
+		const institutionName = jsonData["institutionName"];
 		let fees = 0;
+		fees = parseFloat(jsonData["fees"] || 0);
 
-		fees = parseFloat(jsonData["fees"] || "0");
-
-		return Response.json(data);
-		const phoneNo = data.get("phoneNo");
-		if (exists) {
+		if (
+			[name, admissionNo, stream, institutionName].some(
+				(value) =>  value?.trim() === ""
+			)
+		) {
 			return NextResponse.json(
-				{ message: "Already admission no exists.", success: false },
+				{ message: "Some attributes are missing", success: false },
 				{ status: 400 }
 			);
 		}
-		let photoUrl = await uploadImage(file);
+		
 
-		const name = capitalizeWords(jsonData.name);
+		if (exists) {
+			return NextResponse.json(
+				{ message: "Already admission no exists.", success: false },
+				{ status: 409 }
+			);
+		}
+		let photoUrl;
+		if (file) {
+			photoUrl = await uploadImage(file);
+		}
+
 		const student = await userModel.create({
 			admissionNo: data.get("admissionNo"),
 			picture: photoUrl || "",
-			subject: jsonData["subject[]"],
+			subjects,
 			name,
+			phoneNo,
+			clg,
+			institutionName,
+			stream,
+			fees
 		});
 		const response = {
 			...student.toJSON(),
-			subjects: student?.subject?.join(","),
+			subjects: student?.subjects?.join(","),
 		};
 		console.log(response);
 		return NextResponse.json(
@@ -119,7 +137,7 @@ export async function GET() {
 				$addFields: {
 					subjects: {
 						$reduce: {
-							input: "$subject",
+							input: "$subjects",
 							initialValue: "",
 							in: { $concat: ["$$value", ",", "$$this"] },
 						},

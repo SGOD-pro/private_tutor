@@ -61,7 +61,6 @@ export default function Home() {
 				.get("/api/students/setStudent")
 				.then((response) => {
 					dispatch(setAllStudents(response.data.data));
-					console.log(response.data.data);
 					show({
 						type: "success",
 						summary: "Fetched",
@@ -125,14 +124,13 @@ export default function Home() {
 				  }))
 			: [];
 		setSubject(subjectList);
-		console.log(data);
 		setValues({
 			institutionName: data.institutionName,
 			admissionNo: data.admissionNo,
 			picture: data.picture,
 			subjects: data.subjects,
 			name: data.name,
-			clg: data.clg,
+			clg: data.clg?true:false,
 			stream: data.stream,
 			phoneNo: data.phoneNo,
 			fees: data.fees,
@@ -150,7 +148,7 @@ export default function Home() {
 				></span>
 			</div>
 			<div className=" flex flex-col gap-2">
-				<div className="md:max-h-1/2 md:min-h-[45%] rounded-lg sm:rounded-tl-[20px] md:rounded-tl-[44px] border border-slate-400/70 p-3 md:p-3 md:pl-8 md:overflow-auto relative transition-all">
+				<div className="md:max-h-1/2 md:min-h-[45%] rounded-lg min-h-[50vh] sm:rounded-tl-[20px] md:rounded-tl-[44px] border border-slate-400/70 p-3 md:p-3 md:pl-8 md:overflow-auto relative transition-all">
 					<Loading loading={loading}>
 						<AddStudent
 							values={values}
@@ -175,7 +173,7 @@ export default function Home() {
 							All student
 						</Link>
 					</div>
-					<div className="max-h-[calc(100%-0rem)] overflow-auto pb-20 custom-scrollbar">
+					<div className="max-h-[calc(100%-0rem)] md:min-h-[42.5vh] lg:min-h-[52vh] overflow-auto pb-20 custom-scrollbar bg-[#1F2937]">
 						<Loading loading={loading}>
 							<Table
 								columns={columns}
