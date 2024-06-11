@@ -27,7 +27,7 @@ export const BatchDelete: DeleteFunction = async (id: string) => {
 		return false;
 	}
 };
-function page() {
+function Days() {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
 	const columns = [
@@ -175,4 +175,4 @@ function page() {
 	);
 }
 
-export default page;
+export default Days;

@@ -1,9 +1,10 @@
+import Script from 'next/script'
 import React from 'react'
 
 function Loader() {
     return (
         <div className='w-full flex justify-center items-center'>
-            <script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/infinity.js"></script>
+            <Script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/infinity.js"></Script>
             <l-infinity
                 size="55"
                 stroke="4"

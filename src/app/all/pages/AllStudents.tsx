@@ -312,13 +312,13 @@ function AllStudents() {
 
 			<div className="w-full h-full overflow-hidden rounded-l-[2rem]">
 				<header className="w-full h-14 p-1">
-					<div className="flex w-full gap-3 justify-end items-center">
-						<h2 className="text-xl">
-							Filters{" "}
+					<div className="flex w-full gap-2 justify-end items-center">
+						<h2 className="text-lg">
+							Filters
 							<i
 								className={`pi ${
 									!filtering ? "pi-filter" : "pi-filter-slash"
-								} p-4 rounded-full cursor-pointer hover:bg-slate-100/20`}
+								} p-3 rounded-full cursor-pointer hover:bg-slate-100/20`}
 								onClick={() => {
 									setFilteredValue(data);
 									setFiltering(false);
@@ -329,7 +329,7 @@ function AllStudents() {
 						</h2>
 						<input
 							type="text"
-							className="rounded-md bg-[#393E46] p-2 outline-none  px-3"
+							className="rounded-md bg-[#393E46] p-2 outline-none w-48 px-3"
 							placeholder="Search by name"
 							onChange={onSearchChange}
 							value={search}

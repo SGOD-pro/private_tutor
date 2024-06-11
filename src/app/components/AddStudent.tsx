@@ -200,7 +200,7 @@ function AddStudent({
 	}
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const subjects = useCallback(
-		AllSubjects.map((subject: any) => ({
+		AllSubjects?.map((subject: any) => ({
 			name: subject.subject,
 		})),
 		[AllSubjects]
@@ -289,6 +289,7 @@ function AddStudent({
 				setStudyIn(null);
 				setImageSrc(null);
 				setSelectedSubjects(null);
+				setSelectedSubjects(null);
 				if (!response.data.success) {
 					show({
 						summary: update ? "Updated" : "Added",
@@ -296,7 +297,6 @@ function AddStudent({
 						detail: response.data.message,
 					});
 				}
-				setSelectedSubjects(null);
 				show({
 					summary: update ? "Updated" : "Added",
 					type: "success",

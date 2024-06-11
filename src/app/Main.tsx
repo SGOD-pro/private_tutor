@@ -54,7 +54,7 @@ function Main({ children }: { children: React.ReactNode }) {
 
 	return (
 		<>
-			<main className=" flex bg-[#00ADB5] w-screen h-screen overflow-hidden">
+			<main className=" flex bg-[#00ADB5] w-screen h-screen overflow-auto">
 				<Navbar show={showNav} setShow={setShowNav} />
 				<ToastComponent />
 				<div

@@ -21,8 +21,7 @@ export async function GET(req: Request) {
 		}
 
 		const matchStage =
-			subject&&subject !== "null" ? { $match: { subjects: subject } } : null;
-		console.log(typeof matchStage);
+			subject && subject !== "null" ? { $match: { subjects: subject } } : null;
 
 		const pipeline: any[] = [];
 
@@ -56,6 +55,21 @@ export async function GET(req: Request) {
 					name: {
 						$first: "$name",
 					},
+					clg: {
+						$first: "$clg",
+					},
+					phoneNo: {
+						$first: "$phoneNo",
+					},
+					stream: {
+						$first: "$stream",
+					},
+					institutionName: {
+						$first: "$institutionName",
+					},
+					fees: {
+						$first: "$fees",
+					},
 					admissionNo: {
 						$first: "$admissionNo",
 					},
@@ -74,10 +88,7 @@ export async function GET(req: Request) {
 			{ $skip: skipNumber },
 			{ $limit: limitNumber },
 			{
-				$project: {
-					_id: 1,
-					name: 1,
-					admissionNo: 1,
+				$addFields: {
 					subjects: {
 						$reduce: {
 							input: "$subjects",
@@ -91,8 +102,6 @@ export async function GET(req: Request) {
 							},
 						},
 					},
-					picture: 1,
-					subjectWiseBatches: 1,
 				},
 			}
 		);

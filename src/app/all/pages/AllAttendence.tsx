@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback } from "react";
 import Popover from "@/app/components/Popover";
 import axios from "axios";
 import { AppDispatch } from "@/store/store";
@@ -34,16 +34,16 @@ function AllAttendence() {
 	const [data, setData] = useState<ShowAttendenceInterface[]>([]);
 	const appDispatch: AppDispatch = useDispatch();
 
-	const Tshow = ({ summary, detail, type }: ToastInterface) => {
-		appDispatch(
-			showToast({
-				severity: type,
-				summary,
-				detail,
-				visible: true,
-			})
-		);
-	};
+	const Tshow = useCallback(({ summary, detail, type }: ToastInterface) => {
+        appDispatch(
+            showToast({
+                severity: type,
+                summary,
+                detail,
+                visible: true,
+            })
+        );
+    }, [appDispatch]);
 	useEffect(() => {
 		setLoading(true);
 		axios
@@ -59,7 +59,7 @@ function AllAttendence() {
 					type: "error",
 				});
 			});
-	}, []);
+	}, [Tshow]);
 	const [students, setStudents] = useState<Studnets[]>([]);
 	const [cardLoading, setCardLoading] = useState(true);
 	const showStudents = (id: string) => {
@@ -92,7 +92,6 @@ function AllAttendence() {
 	};
 	useEffect(() => {
 		document.addEventListener("click", filterOptions);
-
 		return () => {
 			document.removeEventListener("click", filterOptions);
 		};

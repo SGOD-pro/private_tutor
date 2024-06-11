@@ -72,7 +72,7 @@ export default function Home() {
 					show({
 						type: "error",
 						summary: "Error",
-						detail: error.response.data.message,
+						detail: error.response?.data?.message||"Server error",
 					});
 				})
 				.finally(() => {

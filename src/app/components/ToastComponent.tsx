@@ -1,6 +1,6 @@
 // ToastComponent.tsx
 "use client"
-import React, { useEffect, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
 import { Toast } from "primereact/toast";
@@ -28,4 +28,4 @@ const ToastComponent: React.FC = () => {
     return <Toast className=" z-50" ref={toastRef} />;
 };
 
-export default ToastComponent;
+export default memo(ToastComponent);

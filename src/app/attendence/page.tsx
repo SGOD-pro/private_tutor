@@ -15,7 +15,7 @@ interface ComponentProps {
 	id: string;
 }
 
-function Page() {
+function Attendance() {
 	const [disable, setDisable] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [ids, setIds] = useState<string[]>([]);
@@ -112,8 +112,9 @@ function Page() {
 					detail: error.response?.data?.message || "Error fetching batch",
 					type: "error",
 				});
-			}).finally(() => {
-				setLoading(false)
+			})
+			.finally(() => {
+				setLoading(false);
 			});
 	}, [allBatches, day]);
 
@@ -208,13 +209,18 @@ function Page() {
 	const [nav, setNav] = useState(false);
 	return (
 		<>
-			<div className="h-full rounded-l-[3.2rem] rounded-lg overflow-hidden bg-[#1F2937] z-0">
-				<div className="h-full overflow-auto custom-scrollbar relative z-0">
-				<div className="icon text-right py-2 pr-5 lg:hidden z-[100] relative">
-						<i className="pi pi-align-right text-2xl cursor-pointer z-50" onClick={()=>{setNav(prev=>!prev)}}></i>
+			<div className="h-full  sm:rounded-l-[20px] md:rounded-l-[3.2rem] rounded-lg overflow-hidden bg-[#1F2937] z-0">
+				<div className="h-full overflow-hidden custom-scrollbar relative z-0 text-sm">
+					<div className="icon text-right py-2 pr-5 lg:hidden z-[100] relative">
+						<i
+							className="pi pi-align-right text-2xl cursor-pointer z-50"
+							onClick={() => {
+								setNav((prev) => !prev);
+							}}
+						></i>
 					</div>
 					<header
-						className={`lg:flex flex-col lg:flex-row items-center justify-between  px-5 py-1 absolute lg:relative bg-[#101317] lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-10 lg:w-full transition-all ease-out ${
+						className={`lg:flex flex-col lg:flex-row items-center justify-between  px-4 py-1 absolute lg:relative bg-[#101317] lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-10 lg:w-full transition-all ease-out ${
 							nav ? "translate-x-0" : "translate-x-full"
 						} lg:translate-x-0 lg:left-0`}
 					>
@@ -256,26 +262,32 @@ function Page() {
 							</button>
 						</div>
 					</header>
-					
-					{loading ? (
-						<div
-							className={`absolute w-full h-[92%] animate-pulse z-10 bg-[#393E46]/70 `}
-						></div>
-					) : (
-						<QueryTable
-							columns={[
-								{ field: "name", header: "Name" },
-								{ field: "subject", header: "Subjects" },
-							]}
-							values={searchData}
-							Components={CheckboxComponent}
-						/>
-					)}
+					<div className="overflow-auto w-full h-full">
+						{loading ? (
+							<div
+								className={`absolute w-full h-[92%] animate-pulse z-10 bg-[#393E46]/70 `}
+							></div>
+						) : (
+							<QueryTable
+								columns={[
+									{ field: "name", header: "Name" },
+									{ field: "subject", header: "Subjects" },
+								]}
+								values={searchData}
+								Components={CheckboxComponent}
+							/>
+						)}
+					</div>
 				</div>
-				<Link href='/all/attendence' className="fixed bottom-20 right-16 bg-lime-800 rounded-full "><i className="pi pi-history text-2xl px-5 py-4"></i></Link>
+				<Link
+					href="/all/attendence"
+					className="fixed bottom-20 right-16 bg-lime-800 rounded-full "
+				>
+					<i className="pi pi-history text-2xl px-5 py-4"></i>
+				</Link>
 			</div>
 		</>
 	);
 }
 
-export default Page;
+export default Attendance;

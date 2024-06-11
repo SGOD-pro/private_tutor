@@ -10,7 +10,7 @@ import { showToast } from "@/store/slices/Toast";
 import { ToastInterface } from "@/store/slices/Toast";
 import Link from "next/link";
 
-function page() {
+function Assignment() {
 	const addDispatch: AppDispatch = useDispatch();
 	const [loading, setLoading] = useState(true);
 	const dispatch = useDispatch();
@@ -48,7 +48,7 @@ function page() {
 			return false;
 		}
 	};
-	const editFunction = (id: string) => {};
+	const editFunction = (data: any) => {};
 	const assignments = useSelector(
 		(state: any) => state.Assignments.allAssignments
 	);
@@ -132,4 +132,4 @@ function page() {
 	);
 }
 
-export default page;
+export default Assignment;

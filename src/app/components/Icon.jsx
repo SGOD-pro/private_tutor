@@ -1,20 +1,26 @@
-"use client"
-import React from 'react'
+"use client";
 
-function Icon({ src,secondaryColor }) {
+import React from 'react';
+import Script from 'next/script';
+
+function Icon({ src, secondaryColor }) {
     return (
         <>
-            <script src="https://cdn.lordicon.com/lordicon.js"></script>
+            <Script 
+                src="https://cdn.lordicon.com/lordicon.js" 
+                strategy="afterInteractive" 
+            />
             <lord-icon
                 src={src}
                 trigger="hover"
                 stroke="bold"
                 state="hover-swirl"
-                colors={`primary:#EEEEEE,secondary:${secondaryColor||"#EEEEEE"}`}
-                style={{ width: "45px", height: "45px" }}>
+                colors={`primary:#EEEEEE,secondary:${secondaryColor || "#EEEEEE"}`}
+                style={{ width: "45px", height: "45px" }}
+            >
             </lord-icon>
         </>
-    )
+    );
 }
 
-export default Icon
+export default Icon;
