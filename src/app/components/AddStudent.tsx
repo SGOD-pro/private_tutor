@@ -88,7 +88,6 @@ function AddStudent({
 			})
 		);
 	};
-	const [loading, setLoading] = useState(false);
 	const lastAdmission = useSelector((state: any) => state.Students.allStudents);
 	const [adno, setAdno] = useState(0);
 	function updateAddNo() {
@@ -101,6 +100,7 @@ function AddStudent({
 				? +lastDigit[lastDigit.length - 1]
 				: 0) + 1
 		}`;
+		console.log(newAddNo);
 		setValues((prev) => ({ ...prev, admissionNo: newAddNo }));
 		setAdno((prev) => prev + 1);
 	}
@@ -230,97 +230,101 @@ function AddStudent({
 			updateAddNo();
 		}
 	}, [lastAdmission]);
+	
 	useEffect(() => {
-		console.log(values.admissionNo);
-	}, [adno]);
+        updateAddNo();
+    }, [values.admissionNo]);
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		let url = `/api/students/setStudent`;
-		if (update) {
-			const id = localStorage.getItem("id");
-			if (!id) {
+	const handleSubmit = useCallback(
+		(event: React.FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+			let url = `/api/students/setStudent`;
+			if (update) {
+				const id = localStorage.getItem("id");
+				if (!id) {
+					return;
+				}
+				url = `/api/students/update-student?id=${id}`;
+			}
+			if (!validateForm()) {
 				return;
 			}
-			url = `/api/students/update-student?id=${id}`;
-		}
-		if (!validateForm()) {
-			return;
-		}
-		const data = { ...values };
-		if (phoneNo.length === 0 && phoneNoText.trim() !== "") {
-			data.phoneNo = [phoneNoText];
-			console.log("ph text");
-		} else {
-			console.log("ph array");
-			data.phoneNo = phoneNo;
-			console.log(phoneNo);
-		}
-		setDisable(true);
-		console.log(data);
-		axios
-			.post(url, data, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			})
-			.then((response) => {
-				if (update) {
-					dispatch(updateStudent(response.data.data));
-					dispatch(updateStudentsToBatch(response.data.data));
-				} else {
-					dispatch(pushStudent(response.data.data));
-					dispatch(pushStudentByBatch(response.data.data));
-				}
-				setValues({
-					admissionNo: "",
-					picture: null,
-					subjects: [],
-					name: "",
-					clg: false,
-					stream: "",
-					fees: 0,
-					institutionName: "",
-					phoneNo: [],
-				});
-				setPhoneNo([]);
-				setPhoneNoText("");
-				setPhoneNoLen(0);
-				setStudyIn(null);
-				setImageSrc(null);
-				setSelectedSubjects(null);
-				setSelectedSubjects(null);
-				if (!response.data.success) {
+			const data = { ...values };
+			if (phoneNo.length === 0 && phoneNoText.trim() !== "") {
+				data.phoneNo = [phoneNoText];
+				console.log("ph text");
+			} else {
+				data.phoneNo = phoneNo;
+				console.log(phoneNo);
+			}
+			setDisable(true);
+			console.log(data);
+			axios
+				.post(url, data, {
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				})
+				.then((response) => {
+					if (update) {
+						dispatch(updateStudent(response.data.data));
+						dispatch(updateStudentsToBatch(response.data.data));
+					} else {
+						dispatch(pushStudent(response.data.data));
+						dispatch(pushStudentByBatch(response.data.data));
+					}
+					setValues({
+						admissionNo: "",
+						picture: null,
+						subjects: [],
+						name: "",
+						clg: false,
+						stream: "",
+						fees: 0,
+						institutionName: "",
+						phoneNo: [],
+					});
+					setPhoneNo([]);
+					setPhoneNoText("");
+					setPhoneNoLen(0);
+					setStudyIn(null);
+					setImageSrc(null);
+					setSelectedSubjects(null);
+					setSelectedSubjects(null);
+					if (!response.data.success) {
+						show({
+							summary: update ? "Updated" : "Added",
+							type: "warning",
+							detail: response.data.message,
+						});
+					}
 					show({
 						summary: update ? "Updated" : "Added",
-						type: "warning",
+						type: "success",
 						detail: response.data.message,
 					});
-				}
-				show({
-					summary: update ? "Updated" : "Added",
-					type: "success",
-					detail: response.data.message,
+					if (setUpdate) {
+						setUpdate(false);
+					}
+				})
+				.catch((error) => {
+					console.log(error);
+	
+					show({
+						summary: "Error",
+						type: "error",
+						detail: error.response?.data?.message || error.message,
+					});
+				})
+				.finally(() => {
+					updateAddNo();
+					setDisable(false);
+					localStorage.clear();
 				});
-				if (setUpdate) {
-					setUpdate(false);
-				}
-			})
-			.catch((error) => {
-				console.log(error);
-
-				show({
-					summary: "Error",
-					type: "error",
-					detail: error.response?.data?.message || error.message,
-				});
-			})
-			.finally(() => {
-				updateAddNo();
-				setDisable(false);
-				localStorage.clear();
-			});
-	};
+		},
+	  [values],
+	)
+	
 	return (
 		<form
 			className={`w-full h-full grid gap-3 items-center ${
@@ -332,6 +336,7 @@ function AddStudent({
 				name={"admissionNo"}
 				value={values.admissionNo}
 				setValue={setValues}
+				key={adno}
 			/>
 			<InputFields name={"name"} value={values.name} setValue={setValues} />
 			<div className="flex flex-wrap items-center relative justify-start">

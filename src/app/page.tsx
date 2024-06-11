@@ -173,7 +173,7 @@ export default function Home() {
 							All student
 						</Link>
 					</div>
-					<div className="max-h-[calc(100%-0rem)] md:min-h-[42.5vh] lg:min-h-[52vh] overflow-auto pb-20 custom-scrollbar bg-[#1F2937]">
+					<div className="max-h-[calc(100%-0rem)] md:min-h-[42.5vh] lg:min-h-[52vh] overflow-auto md:pb-36 custom-scrollbar bg-[#1F2937]">
 						<Loading loading={loading}>
 							<Table
 								columns={columns}
