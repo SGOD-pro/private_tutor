@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import InputFields from "./InputFields";
 import { Calendar } from "primereact/calendar";
 import Select from "./Select";
@@ -22,16 +22,20 @@ function ExamForm() {
 		date: null,
 	});
 	const addDispatch: AppDispatch = useDispatch();
-	const show = ({ summary, detail, type }: ToastInterface) => {
-		addDispatch(
-			showToast({
-				severity: type,
-				summary,
-				detail,
-				visible: true,
-			})
-		);
-	};
+	const show = useCallback(
+		({ summary, detail, type }: ToastInterface) => {
+			addDispatch(
+				showToast({
+					severity: type,
+					summary,
+					detail,
+					visible: true,
+				})
+			);
+		},
+	  [],
+	)
+	
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const subjects = AllSubjects.map((subject: any) => ({
 		name: subject.subject,

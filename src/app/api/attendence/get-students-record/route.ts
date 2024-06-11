@@ -23,7 +23,7 @@ export async function GET(req: Request) {
 			},
 			{
 				$lookup: {
-					from: "users",
+					from: "students",
 					localField: "studentsId",
 					foreignField: "_id",
 					as: "student",
@@ -31,7 +31,8 @@ export async function GET(req: Request) {
                         {
                             $project:{
                                 name:1,
-                                picture:1
+                                picture:1,
+								presents:1
                             }
                         }
                     ]

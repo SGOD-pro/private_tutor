@@ -8,7 +8,8 @@ interface SelectProps {
 	placeholder?:string
 }
 
-function Select({ value, handleChange, options,placeholder }: SelectProps) {
+function Select({ value, handleChange, options,placeholder
+ }: SelectProps) {
 	return (
 		<Dropdown
 			value={value}

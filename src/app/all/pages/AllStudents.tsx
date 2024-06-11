@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Popover from "../../components/Popover";
 import { StudentDetailsInterface } from "../../page";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,7 +29,8 @@ function AllStudents() {
 		fees: 0,
 		phoneNo: [],
 	});
-	const Tshow = ({ summary, detail, type }: ToastInterface) => {
+
+	const Tshow = useCallback(({ summary, detail, type }: ToastInterface) => {
 		addDispatch(
 			showToast({
 				severity: type,
@@ -38,7 +39,7 @@ function AllStudents() {
 				visible: true,
 			})
 		);
-	};
+	}, []);
 
 	const allSubject = useSelector((state: any) => state.Subjects.allSubjects);
 	const subjects = allSubject.map((subject: any) => ({
@@ -62,6 +63,9 @@ function AllStudents() {
 
 	const fetchData = async () => {
 		//use dispatch and selector
+		if (skip === 0) {
+			setLoading(true);
+		}
 		axios
 			.get(
 				`/api/students/get-all-students?skip=${skip}&limit=${limit}&subject=${selectedSubject}`
@@ -165,7 +169,6 @@ function AllStudents() {
 		setShow2(true);
 		const { _id, subjectWiseBatches, subjects } = data;
 		const id = localStorage.getItem("id");
-		console.log(_id, id);
 		if (id && _id === id) {
 			console.log("return");
 			return;
@@ -288,18 +291,18 @@ function AllStudents() {
 			</div>
 		);
 	};
-
+const [showNav, setShowNav] = useState(false)
 	return (
 		<>
 			<Popover show={show} setShow={setShow}>
-					<AddStudent
-						values={values}
-						setValues={setValues}
-						update={true}
-						subject={selectedSubjects}
-						cols={1}
-						key={formKey}
-					/>
+				<AddStudent
+					values={values}
+					setValues={setValues}
+					update={true}
+					subject={selectedSubjects}
+					cols={1}
+					key={formKey}
+				/>
 			</Popover>
 
 			<Popover show={show2} setShow={setShow2}>
@@ -310,15 +313,20 @@ function AllStudents() {
 				/>
 			</Popover>
 
-			<div className="w-full h-full overflow-hidden rounded-l-[2rem]">
-				<header className="w-full h-14 p-1">
-					<div className="flex w-full gap-2 justify-end items-center">
-						<h2 className="text-lg">
+			<div className="w-full h-full overflow-hidden rounded-l-[2rem] relative">
+				<div className="text-right py-1 px-2 sm:hidden bg-slate-900">
+					<i className="pi pi-align-justify p-2  relative z-50 bg-slate-700 rounded-md cursor-pointer" onClick={()=>{
+						setShowNav(prev=>!prev)
+					}}></i>
+				</div>
+				<header className={`w-full sm:h-14 p-1 py-4 sm:py-1 absolute  transition-all z-40 bg-slate-900 sm:relative sm:translate-y-0 ${showNav?'translate-y-0':'-translate-y-full'} top-0 sm:bg-[#1F2937] sm:border-b shadow-md shadow-black rounded-b-xl sm:rounded-none sm:shadow-none`}>
+					<div className="flex w-full gap-2 justify-end sm:items-center flex-col sm:flex-row items-start">
+						<h2 className="text-lg  mt-4 sm:mt-0 pl-2 sm:pl-0">
 							Filters
 							<i
 								className={`pi ${
 									!filtering ? "pi-filter" : "pi-filter-slash"
-								} p-3 rounded-full cursor-pointer hover:bg-slate-100/20`}
+								} p-3 ml-1 rounded-full cursor-pointer hover:bg-slate-100/20`}
 								onClick={() => {
 									setFilteredValue(data);
 									setFiltering(false);
@@ -329,13 +337,13 @@ function AllStudents() {
 						</h2>
 						<input
 							type="text"
-							className="rounded-md bg-[#393E46] p-2 outline-none w-48 px-3"
+							className="rounded-md bg-[#393E46] p-2 outline-none w-full sm:w-48 px-3"
 							placeholder="Search by name"
 							onChange={onSearchChange}
 							value={search}
 							disabled={loading}
 						/>
-						<div className="min-w-44">
+						<div className="sm:min-w-44 sm:w-56 w-full">
 							{loading && (
 								<div className="absolute w-full animate-pulse z-10 bg-[#393E46]/70 "></div>
 							)}

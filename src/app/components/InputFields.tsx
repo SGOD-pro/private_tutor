@@ -3,6 +3,7 @@ import React, { ChangeEvent } from "react";
 interface InputFieldsProps {
 	name?: string;
 	type?: string;
+	lable?:string;
 	value: any;
 	setValue: React.Dispatch<React.SetStateAction<any>>;
 	readOnly?: boolean;
@@ -11,6 +12,7 @@ interface InputFieldsProps {
 
 function InputFields({
 	name,
+	lable,
 	type = "text",
 	value,
 	setValue,
@@ -46,7 +48,7 @@ function InputFields({
 				htmlFor={name}
 				className="flex-grow flex-shrink basis-full sm:basis-24 capitalize mr-2"
 			>
-				{name}
+				{lable||name}
 			</label>
 			<input
 				type={type}

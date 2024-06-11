@@ -1,5 +1,7 @@
 import ConnectDB from "@/db";
 import attendenceModel from "@/models/Attendence";
+import studentModel from "@/models/StudentModel";
+import mongoose from "mongoose";
 
 export async function POST(req: Request) {
 	ConnectDB();
@@ -35,11 +37,11 @@ export async function POST(req: Request) {
 			batchId,
 			studentsId,
 		});
-		// const objectIds = documentIds.map(id => mongoose.Types.ObjectId(id));
-		// const result = await User.updateMany(
-        //     { _id: { $in: objectIds } },
-        //     { $inc: { presents: 1 } }
-        // );
+		const objectIds = studentsId.map((id:string) => new mongoose.Types.ObjectId(id));
+		await studentModel.updateMany(
+            { _id: { $in: objectIds } },
+            { $inc: { presents: 1 } }
+        );
 		return Response.json(
 			{ success: true, message: "Attendence added successfully" },
 			{ status: 200 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import "./checkbox.css";
 import { showToast } from "@/store/slices/Toast";
 import { ToastInterface } from "@/store/slices/Toast";
@@ -39,7 +39,7 @@ function Attendance() {
 		setIds(newVal);
 	};
 
-	const show = ({ summary, detail, type }: ToastInterface) => {
+	const show = useCallback(({ summary, detail, type }: ToastInterface) => {
 		appDispatch(
 			showToast({
 				severity: type,
@@ -48,7 +48,7 @@ function Attendance() {
 				visible: true,
 			})
 		);
-	};
+	}, []);
 
 	const CheckboxComponent: React.FC<ComponentProps> = ({ id }) => {
 		return (

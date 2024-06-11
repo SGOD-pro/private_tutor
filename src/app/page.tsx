@@ -5,7 +5,7 @@ import ExamForm from "./components/ExamForm";
 import Table from "./components/Table";
 import SimpleCard from "./components/SimpleCard";
 import AddSubject from "./components/AddSubject";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setAllStudents, popStudent } from "@/store/slices/Students";
@@ -39,7 +39,7 @@ export default function Home() {
 		detail: string;
 		type: string;
 	}
-	const show = ({ summary, detail, type }: toast) => {
+	const show = useCallback(({ summary, detail, type }: toast) => {
 		addDispatch(
 			showToast({
 				severity: type,
@@ -48,7 +48,7 @@ export default function Home() {
 				visible: true,
 			})
 		);
-	};
+	}, []);
 
 	const columns = [
 		{ field: "admissionNo", header: "Admission No" },
@@ -72,7 +72,7 @@ export default function Home() {
 					show({
 						type: "error",
 						summary: "Error",
-						detail: error.response?.data?.message||"Server error",
+						detail: error.response?.data?.message || "Server error",
 					});
 				})
 				.finally(() => {
@@ -89,9 +89,10 @@ export default function Home() {
 		try {
 			const response = await axios.get(`/api/students/deleteStudent?id=${id}`);
 			dispatch(popStudent(id));
+			
 			return response.data.success;
-		} catch (error) {
-			console.error("Error occurred while deleting:", error);
+		} catch (error:any) {
+			console.error("Error occurred while deleting:", error);show({summary:"Not deleted",type:"error",detail:error.response?.data?.message||"Server error while deleting"});
 			return false;
 		}
 	};
@@ -130,12 +131,12 @@ export default function Home() {
 			picture: data.picture,
 			subjects: data.subjects,
 			name: data.name,
-			clg: data.clg?true:false,
+			clg: data.clg ? true : false,
 			stream: data.stream,
 			phoneNo: data.phoneNo,
 			fees: data.fees,
 		});
-		if (data._id) localStorage.setItem("id", data._id);
+		if (data._id) localStorage.setItem("_id", data._id);
 		setUpdate(true);
 		setKey((prev) => prev + 1);
 	};
@@ -143,9 +144,7 @@ export default function Home() {
 		<div className="grid grid-cols-1 lg:grid-cols-[2.5fr,1fr] w-full h-full md:overflow-hidden overflow-auto custom-scrollbar gap-3">
 			<div className="absolute right-4 top-3 z-40 grid cursor-pointer place-items-center w-10 h-10 bg-cyan-400 rounded-full">
 				<i className="pi pi-bell relative text-xl "></i>
-				<span
-					className="animate-ping absolute h-full w-full rounded-full bg-sky-400 opacity-75"
-				></span>
+				<span className="animate-ping absolute h-full w-full rounded-full bg-sky-400 opacity-75"></span>
 			</div>
 			<div className=" flex flex-col gap-2">
 				<div className="md:max-h-1/2 md:min-h-[45%] rounded-lg min-h-[50vh] sm:rounded-tl-[20px] md:rounded-tl-[44px] border border-slate-400/70 p-3 md:p-3 md:pl-8 md:overflow-auto relative transition-all">

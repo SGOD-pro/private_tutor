@@ -11,11 +11,7 @@ const SimpleCard = () => {
         time: ""
     })
     console.log("re-rendering simmple-card")
-    function gettime(date){
-        const startTime = new Date(date);
-        const options = { timeZone: 'Asia/Kolkata', hour12: true, hour: 'numeric', minute: 'numeric' };
-        return startTime.toLocaleTimeString('en-US', options);
-    }
+   
     useEffect(() => {
         const currentDate = new Date();
         const currentDayIndex = currentDate.getDay();

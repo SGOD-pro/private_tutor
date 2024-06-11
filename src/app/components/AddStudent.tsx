@@ -39,7 +39,7 @@ function AddStudent({
 		selectedSubjectsInterface[] | null
 	>(null);
 
-	const [studyIn, setStudyIn] = useState<any | null>(null);
+	const [studyIn, setStudyIn] = useState<any | null>({ name: "School", code: "School" });
 	const options = [
 		{ name: "School", code: "School" },
 		{ name: "Collage", code: "Collage" },
@@ -136,7 +136,6 @@ function AddStudent({
 			return false;
 		}
 		const subjects = selectedSubjects?.map((subject) => subject.name);
-		console.log(subjects);
 		if (subjects) {
 			setValues((prev) => ({ ...prev, subjects }));
 		}
@@ -238,10 +237,12 @@ function AddStudent({
 	const handleSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
+			
 			let url = `/api/students/setStudent`;
 			if (update) {
-				const id = localStorage.getItem("id");
+				const id = localStorage.getItem("_id");
 				if (!id) {
+					console.log("!id");
 					return;
 				}
 				url = `/api/students/update-student?id=${id}`;
@@ -249,15 +250,24 @@ function AddStudent({
 			if (!validateForm()) {
 				return;
 			}
+
 			const data = { ...values };
 			if (phoneNo.length === 0 && phoneNoText.trim() !== "") {
+				if (phoneNoText.length!==10) {
+					show({
+						summary: "Insufficient",
+						type: "info",
+						detail: `Phone number must be 10 digits, given ${phoneNoText.length}`,
+					});
+					return;
+				}
 				data.phoneNo = [phoneNoText];
-				console.log("ph text");
 			} else {
 				data.phoneNo = phoneNo;
 				console.log(phoneNo);
 			}
 			setDisable(true);
+			console.log(phoneNoText);
 			console.log(data);
 			axios
 				.post(url, data, {
@@ -287,7 +297,7 @@ function AddStudent({
 					setPhoneNo([]);
 					setPhoneNoText("");
 					setPhoneNoLen(0);
-					setStudyIn(null);
+					setStudyIn({ name: "School", code: "School" });
 					setImageSrc(null);
 					setSelectedSubjects(null);
 					setSelectedSubjects(null);
@@ -322,7 +332,7 @@ function AddStudent({
 					localStorage.clear();
 				});
 		},
-	  [values],
+	  [values,phoneNoText,phoneNo],
 	)
 	
 	return (
@@ -403,11 +413,13 @@ function AddStudent({
 					/>
 				</div>
 			</div>
-			<InputFields name={"stream"} value={values.stream} setValue={setValues} />
+			<InputFields name={"stream"} value={values.stream} setValue={setValues}
+						lable={values.clg?"stream":"class"} />
 			<InputFields
 				name={"institutionName"}
 				value={values.institutionName}
 				setValue={setValues}
+				lable={values.clg?"institutionName":"SchoolName"}
 			/>
 			<div className="flex flex-wrap items-center w-full my-1 md:my-2">
 				<label
@@ -506,7 +518,7 @@ function AddStudent({
 							setPhoneNo([]);
 							setPhoneNoText("");
 							setPhoneNoLen(0);
-							setStudyIn(null);
+							setStudyIn({ name: "School", code: "School" });
 							localStorage.clear();
 							setUpdate(false);
 							updateAddNo();

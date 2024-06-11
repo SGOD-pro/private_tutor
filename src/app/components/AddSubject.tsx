@@ -1,10 +1,10 @@
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import InputFields from "./InputFields";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { pushSubject } from "@/store/slices/Subjects";
 import { AppDispatch } from "@/store/store";
-import { showToast } from "@/store/slices/Toast";
+import { showToast, ToastInterface } from "@/store/slices/Toast";
 
 function AddSubject() {
 	const [subject, setSubject] = useState({
@@ -15,12 +15,8 @@ function AddSubject() {
 	const dispatch = useDispatch();
 	const [disable, setDisable] = useState(false);
 	const addDispatch: AppDispatch = useDispatch();
-	interface toast {
-		summary: string;
-		detail: string;
-		type: string;
-	}
-	const show = ({ summary, detail, type }: toast) => {
+
+	const show = useCallback(({ summary, detail, type }: ToastInterface) => {
 		addDispatch(
 			showToast({
 				severity: type,
@@ -29,7 +25,8 @@ function AddSubject() {
 				visible: true,
 			})
 		);
-	};
+	}, []);
+
 	const handelSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 

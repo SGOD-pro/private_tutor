@@ -1,7 +1,8 @@
 import { capitalizeWords } from "@/utils/Capitalize";
 import ConnectDB from "@/db";
 import userModel from "@/models/StudentModel";
-import { formDataToJson, uploadImage } from "../setStudent/route";
+import formDataToJson from "@/utils/FormData";
+import uploadImage from "@/utils/UploadColudinary";
 
 export async function POST(req: Request) {
 	await ConnectDB();

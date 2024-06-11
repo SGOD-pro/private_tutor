@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Popover from "@/app/components/Popover";
 import axios from "axios";
 import { AppDispatch } from "@/store/store";
@@ -34,20 +34,23 @@ function AllAttendence() {
 	const [data, setData] = useState<ShowAttendenceInterface[]>([]);
 	const appDispatch: AppDispatch = useDispatch();
 
-	const Tshow = useCallback(({ summary, detail, type }: ToastInterface) => {
-        appDispatch(
-            showToast({
-                severity: type,
-                summary,
-                detail,
-                visible: true,
-            })
-        );
-    }, [appDispatch]);
+	const Tshow = useCallback(
+		({ summary, detail, type }: ToastInterface) => {
+			appDispatch(
+				showToast({
+					severity: type,
+					summary,
+					detail,
+					visible: true,
+				})
+			);
+		},
+		[appDispatch]
+	);
 	useEffect(() => {
 		setLoading(true);
 		axios
-			.get(`/api/attendence/get-all-attendence`)
+			.get(`/api/attendence/get-all-attendence?addno={}&name={}&date-start={}&date-end={}`)
 			.then((response) => {
 				setData(response.data.data);
 				console.log(response.data.data);
@@ -58,8 +61,8 @@ function AllAttendence() {
 					detail: error.response.data.message || error.message,
 					type: "error",
 				});
-			});
-	}, [Tshow]);
+			}).finally(() => {setLoading(false)});
+	}, []);
 	const [students, setStudents] = useState<Studnets[]>([]);
 	const [cardLoading, setCardLoading] = useState(true);
 	const showStudents = (id: string) => {
@@ -68,7 +71,9 @@ function AllAttendence() {
 		}
 		setCardLoading(true);
 		axios
-			.get(`/api/attendence/get-students-record?id=${id}`)
+			.get(
+				`/api/attendence/get-students-record?id=${id}`
+			)
 			.then((response) => {
 				console.log(response.data.data.students);
 				setStudents(response.data.data.students);
@@ -139,7 +144,7 @@ function AllAttendence() {
 											/>
 											<h3 className="text-xl">{student.name}</h3>
 										</div>
-										<h2 className="text-lg">69</h2>
+										<h2 className="text-lg">{student.presents}</h2>
 									</div>
 								))}
 							</div>
@@ -213,22 +218,24 @@ function AllAttendence() {
 						</div>
 					</form>
 				</header>
-				<div className="h-[64vh] overflow-auto custom-scrollbar">
-					<h2 className="text-center opacity-80">No result found</h2>
-					<QueryTable
-						columns={[
-							{ field: "name", header: "Name" },
-							{ field: "admissionNo", header: "Admission no" },
-							{ field: "presents", header: "Presents" },
-						]}
-						values={[]}
-					/>
+				<div className="h-[64vh] overflow-auto custom-scrollbar relative">
+					<Loading loading={false}>
+						<h2 className="text-center opacity-80">No result found</h2>
+						<QueryTable
+							columns={[
+								{ field: "name", header: "Name" },
+								{ field: "admissionNo", header: "Admission no" },
+								{ field: "presents", header: "Presents" },
+							]}
+							values={[]}
+						/>
+					</Loading>
 				</div>
 			</Popover>
 			<header className="flex justify-between items-center relative">
 				<h2 className="font-semibold text-3xl">All attendence</h2>
 				<i
-					className="pi pi-filter text-lg hover:bg-slate-500/60 p-3 px-4 transition-all cursor-pointer rounded-md"
+					className="pi md:hidden block pi-filter text-lg hover:bg-slate-500/60 p-3 px-4 transition-all cursor-pointer rounded-md"
 					id="filterOptions"
 					onClick={() => {
 						setShowFilter((prev) => !prev);
@@ -239,7 +246,7 @@ function AllAttendence() {
 						showFilter
 							? "visible opacity-100 translate-y-full"
 							: "invisible opacity-0 translate-y-[90%]"
-					} transition-all absolute bottom-0  right-10 flex flex-col bg-slate-900 p-4 rounded-lg`}
+					} transition-all absolute bottom-0 right-10 xl:right-10 sm:right-0 flex flex-col md:flex-row lg:gap-6 md:gap-3 bg-slate-900 md:bg-transparent p-4 md:p-0 rounded-lg md:visible md:opacity-100 md:translate-y-0 md:relative`}
 				>
 					<button
 						className="rounded-md bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all"
@@ -273,43 +280,45 @@ function AllAttendence() {
 					</button>
 				</div>
 			</header>
-			<div className="w-full rounded-md h-[calc(100%-3rem)] overflow-auto custom-scrollbar">
-				<div className="">
-					{data.map((item: ShowAttendenceInterface, index: number) => (
-						<>
-							<h2 className="mt-3 text-3xl font-semibold font-mono">
-								{item.date}
-							</h2>
-							{item.batches.map((batch: BatchesInterface) => (
-								<div className="col-12 w-full" key={batch.batchName.length}>
-									<div className="flex flex-column xl:flex-row xl:items-start p-2 gap-2 border-t-1 surface-border">
-										<div className="flex flex-column sm:flex-row justify-content-between  items-center flex-1 gap-1 justify-between border border-slate-400/50 p-2 px-4 rounded-md">
-											<div className="flex flex-column  items-center sm:items-start">
-												<div className="text-xl font-bold text-900">
-													{batch.batchName}
+			<div className="w-full rounded-md h-[calc(100%-3rem)] overflow-auto custom-scrollbar relative">
+				<Loading loading={loading}>
+					<div className="">
+						{data.map((item: ShowAttendenceInterface, index: number) => (
+							<>
+								<h2 className="mt-3 text-3xl font-semibold font-mono">
+									{item.date}
+								</h2>
+								{item.batches.map((batch: BatchesInterface) => (
+									<div className="col-12 w-full" key={batch.batchName.length}>
+										<div className="flex flex-column xl:flex-row xl:items-start p-2 gap-2 border-t-1 surface-border">
+											<div className="flex flex-column sm:flex-row justify-content-between  items-center flex-1 gap-1 justify-between border border-slate-400/50 p-2 px-4 rounded-md">
+												<div className="flex flex-column  items-center sm:items-start">
+													<div className="text-xl font-bold text-900">
+														{batch.batchName}
+													</div>
 												</div>
-											</div>
-											<div className="flex sm:flex-column items-center gap-3 sm:gap-2">
-												<span className="text-2xl font-semibold">
-													{batch.noOfPresents}
-												</span>
-												<button
-													className="rounded-full bg-gradient-to-tl shadow-md active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 grid place-items-center p-2"
-													onClick={() => {
-														setShow(true);
-														showStudents(batch.originalId);
-													}}
-												>
-													<i className="pi pi-eye px-1  text-2xl"></i>
-												</button>
+												<div className="flex sm:flex-column items-center gap-3 sm:gap-2">
+													<span className="text-2xl font-semibold">
+														{batch.noOfPresents}
+													</span>
+													<button
+														className="rounded-full bg-gradient-to-tl shadow-md active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 grid place-items-center p-2"
+														onClick={() => {
+															setShow(true);
+															showStudents(batch.originalId);
+														}}
+													>
+														<i className="pi pi-eye px-1  text-2xl"></i>
+													</button>
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-							))}
-						</>
-					))}
-				</div>
+								))}
+							</>
+						))}
+					</div>
+				</Loading>
 			</div>
 		</>
 	);

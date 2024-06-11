@@ -1,7 +1,7 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { AppDispatch } from "@/store/store";
-import { showToast } from "@/store/slices/Toast";
+import { showToast, ToastInterface } from "@/store/slices/Toast";
 import Button from "./Button";
 import axios from "axios";
 import { useDispatch } from "react-redux";
@@ -13,12 +13,6 @@ interface Subject {
 
 interface Data {
 	[key: string]: Subject[];
-}
-
-interface toast {
-	summary: string;
-	detail: string;
-	type: string;
 }
 
 function MyForm({
@@ -38,7 +32,7 @@ function MyForm({
 	const [data, setData] = useState<any>();
 	const addDispatch: AppDispatch = useDispatch();
 
-	const show = ({ summary, detail, type }: toast) => {
+	const show = useCallback(({ summary, detail, type }: ToastInterface) => {
 		addDispatch(
 			showToast({
 				severity: type,
@@ -47,7 +41,7 @@ function MyForm({
 				visible: true,
 			})
 		);
-	};
+	}, []);
 
 	const handleChange = (e: DropdownChangeEvent, subject: string) => {
 		const { value } = e;
