@@ -21,7 +21,7 @@ export interface StudentSchemaInterface extends Document {
 	picture: string | null;
 	subjects: string[] | null;
 	batches?: ObjectId[];
-	presentByBathch: Presentbatch[];
+	presentByBatch: Presentbatch[];
 	institutionName: string;
 	admissionNo: string;
 	presents?: number;
@@ -56,7 +56,7 @@ const StudentSchema: Schema<StudentSchemaInterface> = new Schema(
 			type: [Schema.Types.ObjectId],
 			ref: "batches",
 		},
-		presentByBathch: [PresentByBatchSchema],
+		presentByBatch: [PresentByBatchSchema],
 		admissionNo: {
 			type: String,
 			required: [true, "Admission number is required"],
@@ -80,6 +80,26 @@ const StudentSchema: Schema<StudentSchemaInterface> = new Schema(
 	},
 	{ timestamps: true }
 );
+StudentSchema.pre("save", function (next) {
+	if (!this.isModified("batches")) {
+		return next();
+	}
+
+	const presentByBatchMap = new Map(
+		this.presentByBatch.map((pb) => [pb.batchId.toString(), pb])
+	);
+
+	this.batches?.forEach((batchId) => {
+		if (!presentByBatchMap.has(batchId.toString())) {
+			this.presentByBatch.push({
+				batchId,
+				presents: 0,
+			} as Presentbatch); 
+		}
+	});
+
+	next();
+});
 
 const studentModel =
 	(mongoose.models.students as mongoose.Model<StudentSchemaInterface>) ||

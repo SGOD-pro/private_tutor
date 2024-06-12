@@ -17,20 +17,15 @@ export async function POST(req: Request) {
 			throw new Error("Id not found");
 		}
 
-		const user = await userModel.findByIdAndUpdate(
-			id,
-			{
-				$set: { batches: batchIds },
-			},
-			{ new: true }
-		);
-		console.log(user);
+		const user = await userModel.findById(id);
 		if (!user) {
 			return Response.json(
 				{ success: false, message: "user not found" },
 				{ status: 404 }
 			);
 		}
+		user.batches=batchIds;
+		await user.save();
 		return Response.json(
 			{ success: true, message: "Batches saved" },
 			{ status: 200 }

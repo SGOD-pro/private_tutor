@@ -13,7 +13,7 @@ import Loading from "@/app/components/Loading";
 
 interface BatchesInterface {
 	batchName: string;
-	batchid: string;
+	batchId: string;
 	noOfPresents: string;
 	originalId: string;
 }
@@ -33,7 +33,18 @@ function AllAttendence() {
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState<ShowAttendenceInterface[]>([]);
 	const appDispatch: AppDispatch = useDispatch();
-
+	const uniqueColors = [
+		"#FF5733",
+		"#33FF57",
+		"#5733FF",
+		"#FF33B2",
+		"#B2FF33",
+		"#33B2FF",
+		"#FF3333",
+		"#33FFB2",
+		"#B233FF",
+		"#33FF33"
+	];
 	const Tshow = useCallback(
 		({ summary, detail, type }: ToastInterface) => {
 			appDispatch(
@@ -50,7 +61,9 @@ function AllAttendence() {
 	useEffect(() => {
 		setLoading(true);
 		axios
-			.get(`/api/attendence/get-all-attendence?addno={}&name={}&date-start={}&date-end={}`)
+			.get(
+				`/api/attendence/get-all-attendence?addno={}&name={}&date-start={}&date-end={}`
+			)
 			.then((response) => {
 				setData(response.data.data);
 				console.log(response.data.data);
@@ -61,19 +74,22 @@ function AllAttendence() {
 					detail: error.response.data.message || error.message,
 					type: "error",
 				});
-			}).finally(() => {setLoading(false)});
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	}, []);
 	const [students, setStudents] = useState<Studnets[]>([]);
 	const [cardLoading, setCardLoading] = useState(true);
-	const showStudents = (id: string) => {
-		if (!id || id.trim() === "") {
+	const showStudents = ({ id, batchId }: { id: string; batchId: string }) => {
+		if (!id || id.trim() === "" || !batchId || batchId.trim() === "") {
 			return;
 		}
+		console.log(batchId);
+
 		setCardLoading(true);
 		axios
-			.get(
-				`/api/attendence/get-students-record?id=${id}`
-			)
+			.get(`/api/attendence/get-students-record?id=${id}&batch=${batchId}`)
 			.then((response) => {
 				console.log(response.data.data.students);
 				setStudents(response.data.data.students);
@@ -135,13 +151,21 @@ function AllAttendence() {
 										key={student._id}
 									>
 										<div className="flex items-center gap-3">
-											<Image
-												src={student.picture}
-												className="h-16 w-16 rounded-full object-cover"
-												alt={student.name[0]}
-												width={100}
-												height={100}
-											/>
+											<div className={`h-16 w-16 rounded-full relative overflow-hidden`} style={{backgroundColor:uniqueColors[Math.floor(Math.random() * 10)]}}>
+												{!student.picture || student.picture.trim() === "" ? (
+													<h3 className="text-3xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
+														{student.name[0]}
+													</h3>
+												) : (
+													<Image
+														src={student.picture}
+														className="w-full h-full object-cover"
+														alt={student.name[0]}
+														width={100}
+														height={100}
+													/>
+												)}
+											</div>
 											<h3 className="text-xl">{student.name}</h3>
 										</div>
 										<h2 className="text-lg">{student.presents}</h2>
@@ -305,7 +329,10 @@ function AllAttendence() {
 														className="rounded-full bg-gradient-to-tl shadow-md active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 grid place-items-center p-2"
 														onClick={() => {
 															setShow(true);
-															showStudents(batch.originalId);
+															showStudents({
+																id: batch.originalId,
+																batchId: batch.batchId,
+															});
 														}}
 													>
 														<i className="pi pi-eye px-1  text-2xl"></i>

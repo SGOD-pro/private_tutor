@@ -74,6 +74,8 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
+		console.log(data[0]);
+		
 		return Response.json(
 			{ message: "Fetched all attendence", data },
 			{ status: 200 }

@@ -1,7 +1,13 @@
 import ConnectDB from "@/db";
 import attendenceModel from "@/models/Attendence";
 import studentModel from "@/models/StudentModel";
+import { arrayDifference } from "@/utils/ArrayDifference";
 import mongoose from "mongoose";
+
+function convertToMongoId(array: string[]) {
+	const objectIds = array.map((id: string) => new mongoose.Types.ObjectId(id));
+	return objectIds;
+}
 
 export async function POST(req: Request) {
 	ConnectDB();
@@ -20,14 +26,32 @@ export async function POST(req: Request) {
 				$lte: endOfDay,
 			},
 		});
+
+		const batchObjectId = new mongoose.Types.ObjectId(batchId);
 		if (data) {
+			const oldArray = data.studentsId;
+			const newArray = studentsId;
+
+			const { decrease, increase } = arrayDifference(oldArray, newArray);
+
+			const decreaseIds = convertToMongoId(decrease);
+			const increaseIds = convertToMongoId(increase);
 			data.studentsId = studentsId;
 			await data.save();
 
-			// const result = await User.updateMany(
-			// 	{ _id: { $in: ids } },
-			// 	{ $inc: { presents: -1 } }
-			// );
+			await studentModel.updateMany(
+				{ _id: { $in: decreaseIds }, "presentByBatch.batchId": batchObjectId },
+				{ $inc: { "presentByBatch.$[elem].presents": -1 } },
+				{ arrayFilters: [{ "elem.batchId": batchObjectId }] }
+			),
+			await studentModel.updateMany(
+				{ _id: { $in: increaseIds }, "presentByBatch.batchId": batchObjectId },
+				{ $inc: { "presentByBatch.$[elem].presents": 1 } },
+				{ arrayFilters: [{ "elem.batchId": batchObjectId }] }
+			)
+		
+			
+
 			return Response.json(
 				{ success: true, message: "Attendence updated successfully." },
 				{ status: 200 }
@@ -37,17 +61,25 @@ export async function POST(req: Request) {
 			batchId,
 			studentsId,
 		});
-		const objectIds = studentsId.map((id:string) => new mongoose.Types.ObjectId(id));
-		await studentModel.updateMany(
-            { _id: { $in: objectIds } },
-            { $inc: { presents: 1 } }
-        );
+		const objectIds = convertToMongoId(studentsId);
+
+		const result = await studentModel.updateMany(
+			{ _id: { $in: objectIds }, "presentByBatch.batchId": batchObjectId },
+			{ $inc: { "presentByBatch.$[elem].presents": 1 } },
+			{ arrayFilters: [{ "elem.batchId": batchObjectId }] }
+		);
+		if (!result) {
+			return Response.json(
+				{ success: false, message: "Attendence not added" },
+				{ status: 409 }
+			);
+		}
 		return Response.json(
 			{ success: true, message: "Attendence added successfully" },
 			{ status: 200 }
 		);
 	} catch (error) {
-		//console.log(error)
+		console.log(error)
 		return Response.json(
 			{ success: false, message: "Cann't add attendence successfully" },
 			{ status: 500 }
@@ -76,14 +108,14 @@ export async function GET(req: Request) {
 				$lte: endOfDay,
 			},
 		});
-		
+
 		return Response.json(
 			{ success: true, message: "Fetched attendence record.", data },
 			{ status: 200 }
 		);
 	} catch (error) {
 		console.log(error);
-		
+
 		return Response.json(
 			{ success: false, message: "Cann't get attendence record" },
 			{ status: 500 }
