@@ -39,7 +39,10 @@ function AddStudent({
 		selectedSubjectsInterface[] | null
 	>(null);
 
-	const [studyIn, setStudyIn] = useState<any | null>({ name: "School", code: "School" });
+	const [studyIn, setStudyIn] = useState<any | null>({
+		name: "School",
+		code: "School",
+	});
 	const options = [
 		{ name: "School", code: "School" },
 		{ name: "Collage", code: "Collage" },
@@ -90,7 +93,8 @@ function AddStudent({
 	};
 	const lastAdmission = useSelector((state: any) => state.Students.allStudents);
 	const [adno, setAdno] = useState(0);
-	function updateAddNo() {
+
+	const updateAddNo = useCallback(() => {
 		const lastStudent = lastAdmission[0];
 		const lastDigit = lastStudent?.admissionNo?.split("-");
 		const newAddNo = `CA-${new Date().getFullYear() % 100}/${
@@ -100,10 +104,8 @@ function AddStudent({
 				? +lastDigit[lastDigit.length - 1]
 				: 0) + 1
 		}`;
-		console.log(newAddNo);
 		setValues((prev) => ({ ...prev, admissionNo: newAddNo }));
-		setAdno((prev) => prev + 1);
-	}
+	}, [values.admissionNo]);
 
 	useEffect(() => {
 		if (selectedSubjects) {
@@ -229,15 +231,20 @@ function AddStudent({
 			updateAddNo();
 		}
 	}, [lastAdmission]);
-	
+	const [error, setError] = useState(false)
 	useEffect(() => {
-        updateAddNo();
-    }, [values.admissionNo]);
+		if (!update&&!error) {
+			updateAddNo();
+		}
+		console.log(error); 
+		if (error) {
+			setError(false);
+		}
+	}, [values.admissionNo]);
 
 	const handleSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
-			
 			let url = `/api/students/setStudent`;
 			if (update) {
 				const id = localStorage.getItem("_id");
@@ -250,10 +257,9 @@ function AddStudent({
 			if (!validateForm()) {
 				return;
 			}
-
 			const data = { ...values };
 			if (phoneNo.length === 0 && phoneNoText.trim() !== "") {
-				if (phoneNoText.length!==10) {
+				if (phoneNoText.length !== 10) {
 					show({
 						summary: "Insufficient",
 						type: "info",
@@ -267,8 +273,6 @@ function AddStudent({
 				console.log(phoneNo);
 			}
 			setDisable(true);
-			console.log(phoneNoText);
-			console.log(data);
 			axios
 				.post(url, data, {
 					headers: {
@@ -319,7 +323,20 @@ function AddStudent({
 				})
 				.catch((error) => {
 					console.log(error);
-	
+					if (error?.response?.status === 409) {
+						setError(true)
+						const regex = /(\d+)(?!.*\d)/;
+						let adno = values.admissionNo;
+						const match = adno.match(regex);
+
+						if (match) {
+							const lastNumber = parseInt(match[0], 10);
+							const incrementedNumber = (lastNumber + 1).toString(); // Convert the incremented number to a string
+							const updatedString = adno.replace(regex, incrementedNumber);
+							console.log(updatedString);
+							setValues((prev) => ({ ...prev, admissionNo: updatedString }));
+						}
+					}
 					show({
 						summary: "Error",
 						type: "error",
@@ -327,14 +344,14 @@ function AddStudent({
 					});
 				})
 				.finally(() => {
-					updateAddNo();
 					setDisable(false);
 					localStorage.clear();
+					updateAddNo();
 				});
 		},
-	  [values,phoneNoText,phoneNo],
-	)
-	
+		[values, phoneNoText, phoneNo,values.admissionNo]
+	);
+
 	return (
 		<form
 			className={`w-full h-full grid gap-3 items-center ${
@@ -346,7 +363,6 @@ function AddStudent({
 				name={"admissionNo"}
 				value={values.admissionNo}
 				setValue={setValues}
-				key={adno}
 			/>
 			<InputFields name={"name"} value={values.name} setValue={setValues} />
 			<div className="flex flex-wrap items-center relative justify-start">
@@ -413,13 +429,17 @@ function AddStudent({
 					/>
 				</div>
 			</div>
-			<InputFields name={"stream"} value={values.stream} setValue={setValues}
-						lable={values.clg?"stream":"class"} />
+			<InputFields
+				name={"stream"}
+				value={values.stream}
+				setValue={setValues}
+				lable={values.clg ? "stream" : "class"}
+			/>
 			<InputFields
 				name={"institutionName"}
 				value={values.institutionName}
 				setValue={setValues}
-				lable={values.clg?"institutionName":"SchoolName"}
+				lable={values.clg ? "institutionName" : "SchoolName"}
 			/>
 			<div className="flex flex-wrap items-center w-full my-1 md:my-2">
 				<label

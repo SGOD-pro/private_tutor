@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { memo } from 'react';
 import Script from 'next/script';
 
 function Icon({ src, secondaryColor }) {
@@ -23,4 +23,4 @@ function Icon({ src, secondaryColor }) {
     );
 }
 
-export default Icon;
+export default memo(Icon);

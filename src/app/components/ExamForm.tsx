@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import InputFields from "./InputFields";
 import { Calendar } from "primereact/calendar";
 import Select from "./Select";
@@ -167,4 +167,4 @@ function ExamForm() {
 	);
 }
 
-export default ExamForm;
+export default memo(ExamForm);

@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
 			{
 				title,
 				explanation,
-				batch: batch.code,
+				batch,
 				subbmissionDate,
 			}
 		);
@@ -81,7 +81,7 @@ export async function GET() {
 								$substr: [
 									{
 										$dateToString: {
-											format: "%m/%d/%Y",
+											format: "%d/%m/%Y",
 											date: "$subbmissionDate",
 										},
 									},
@@ -93,7 +93,7 @@ export async function GET() {
 								$substr: [
 									{
 										$dateToString: {
-											format: "%m/%d/%Y",
+											format: "%d/%m/%Y",
 											date: "$subbmissionDate",
 										},
 									},
@@ -105,7 +105,7 @@ export async function GET() {
 					},
 					days: {
 						$cond: {
-							if: { $eq: ["$days", ""] },
+							if: { $or: [{ $eq: ["$days", ""] }, { $eq: ["$days", null] }] },
 							then: "",
 							else: {
 								$substrCP: [
@@ -127,9 +127,12 @@ export async function GET() {
 					subbmissionDate: 1,
 					batch: { $concat: ["$days", " (", "$batchTime", ")"] },
 					subject: "$batch.subject",
+					batchId: "$batch._id",
+					explanation:1
 				},
 			},
-		]);
+		]
+		);
 		return Response.json(
 			{ message: "Fetched all assignments", success: true, data: assignment },
 			{ status: 200 }

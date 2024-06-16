@@ -147,7 +147,8 @@ export default function Home() {
 				<span className="animate-ping absolute h-full w-full rounded-full bg-sky-400 opacity-75"></span>
 			</div>
 			<div className=" flex flex-col gap-2">
-				<div className="md:max-h-1/2 md:min-h-[45%] rounded-lg min-h-[50vh] sm:rounded-tl-[20px] md:rounded-tl-[44px] border border-slate-400/70 p-3 md:p-3 md:pl-8 md:overflow-auto relative transition-all">
+
+				<div className="md:max-h-1/2 md:min-h-[45vh]  min-h-[50vh] rounded-lg sm:rounded-tl-[20px] md:rounded-tl-[44px] border border-slate-400/70 p-3 md:p-3 md:pl-8 md:overflow-auto relative transition-all">
 					<Loading loading={loading}>
 						<AddStudent
 							values={values}
@@ -160,7 +161,8 @@ export default function Home() {
 						/>
 					</Loading>
 				</div>
-				<div className="md:h-[calc(38%-0rem)] max-h-[70vh] rounded-lg sm:rounded-bl-[20px] md:rounded-bl-[44px] border border-slate-400/70 overflow-hidden relative  transition-all">
+
+				<div className="md:h-[43vh] max-h-[70vh] sm:rounded-bl-[20px] rounded-lg md:rounded-bl-[44px] border border-slate-400/70 overflow-hidden relative  transition-all">
 					<div className="flex items-center justify-between bg-[#393E46] w-full p-2 sticky top-0 z-10 ">
 						<h2 className="text-xl capitalize font-semibold ">
 							recent students
@@ -183,6 +185,7 @@ export default function Home() {
 						</Loading>
 					</div>
 				</div>
+
 			</div>
 			<div className="hidden lg:flex min-w-56 flex-col gap-2 relative rounded-lg overflow-hidden">
 				<Loading loading={loading}>

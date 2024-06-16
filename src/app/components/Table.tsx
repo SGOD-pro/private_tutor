@@ -4,7 +4,7 @@ import { Column } from "primereact/column";
 
 import { StudentDetailsInterface } from "../page";
 type DeleteFunction = (id: string) => Promise<boolean>;
-type EditFunction = (data: StudentDetailsInterface) => void;
+type EditFunction = (data: any) => void;
 
 interface Columns {
 	field: string;
@@ -33,7 +33,7 @@ export default function BasicDemo({
 	}: {
 		data: any;
 		deleteFunction?: (id: string) => Promise<boolean>;
-		editFunction?: (data: StudentDetailsInterface) => void;
+		editFunction?: (data: any) => void;
 	}) => {
 		const [loading, setLoading] = useState(false);
 

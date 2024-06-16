@@ -2,6 +2,7 @@
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import Image from "next/image";
+import { memo } from "react";
 interface ColumnProps {
 	field: string;
 	header: string;
@@ -17,7 +18,7 @@ interface ComponentProps {
 	subjects?: string;
 	rowData?: any;
 }
-export default function RemovableSortDemo({
+function RemovableSortDemo({
 	columns,
 	values,
 	Components,
@@ -79,3 +80,4 @@ export default function RemovableSortDemo({
 		</div>
 	);
 }
+export default memo(RemovableSortDemo);

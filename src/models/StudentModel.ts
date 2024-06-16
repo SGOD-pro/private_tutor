@@ -97,7 +97,6 @@ StudentSchema.pre("save", function (next) {
 			} as Presentbatch); 
 		}
 	});
-
 	next();
 });
 
