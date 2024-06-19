@@ -8,9 +8,7 @@ interface BatchInterface {
 }
 
 const initialState: { allBatches: BatchInterface[] } = {
-	allBatches: [
-		
-	],
+	allBatches: [],
 };
 
 export const batchSlice = createSlice({
@@ -21,11 +19,9 @@ export const batchSlice = createSlice({
 			state.allBatches = action.payload;
 		},
 		pushBatches: (state: any, action: PayloadAction<BatchInterface>) => {
-			state.allBatches.push(action.payload);
+			state.allBatches = [action.payload, ...state.allBatches];
 		},
 		popBatches: (state, action: PayloadAction<string>) => {
-			console.log(action.payload);
-			
 			state.allBatches = state.allBatches.filter(
 				(batch) => batch._id !== action.payload
 			);

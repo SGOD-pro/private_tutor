@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AddAssignmentInterface } from "@/app/assignment/AddAssignment";
+import { AddAssignmentInterface } from "@/app/assignment/page";
 
 const initialState: { allAssignments: AddAssignmentInterface[] } = {
 	allAssignments: [],

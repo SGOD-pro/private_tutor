@@ -1,3 +1,4 @@
+"use client"
 import React, { memo, useCallback, useState } from "react";
 import InputFields from "./InputFields";
 import axios from "axios";

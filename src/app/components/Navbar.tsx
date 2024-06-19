@@ -19,6 +19,12 @@ function Navbar({
 			icon: "https://cdn.lordicon.com/xzalkbkz.json",
 		},
 		{
+			pathname: "Fees",
+			route: "/fees",
+			icon: "https://cdn.lordicon.com/wyqtxzeh.json",
+			secondaryColor: "#00ADB5",
+		},
+		{
 			pathname: "Batches",
 			route: "/manageBatch",
 			icon: "https://cdn.lordicon.com/zrkkrrpl.json",
@@ -43,12 +49,7 @@ function Navbar({
 			route: "/result",
 			icon: "https://cdn.lordicon.com/abwrkdvl.json",
 		},
-		{
-			pathname: "Settings",
-			route: "/settings",
-			icon: "https://cdn.lordicon.com/dmgxtuzn.json",
-			secondaryColor: "#00ADB5",
-		},
+		
 	];
 	return (
 		<div className={`w-32 fixed h-screen top-0 left-0 ${!show?'-translate-x-full':'-translate-x-0'} transition-all sm:-translate-x-0 sm:relative flex items-center justify-center md:w-56 z-50 bg-[#00ADB5] rounded-r-3xl sm:bg-transparent sm:z-0 shadow-lg shadow-black sm:shadow-none`

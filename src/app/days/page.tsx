@@ -1,3 +1,4 @@
+// Import necessary dependencies
 "use client";
 import React, { useEffect, useState } from "react";
 import AddSubject from "../components/AddSubject";
@@ -8,25 +9,21 @@ import { popBatches, setAllBatches } from "@/store/slices/Batch";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
 import axios from "axios";
+
+// Define Batch interface
 interface Batch {
 	subject: { name: string } | null;
 	startTime: Date | null;
 	endTime: Date | null;
 	days: string[];
 }
+
+// Define DeleteFunction type
 type DeleteFunction = (id: string) => Promise<boolean>;
 
-export const BatchDelete: DeleteFunction = async (id: string) => {
-	try {
-		console.log(id);
+// BatchDelete function implementation
 
-		const response = await axios.get(`/api/batches/deleteBatch?id=${id}`);
-		return response.data.status;
-	} catch (error) {
-		console.error("Error occurred while deleting:", error);
-		return false;
-	}
-};
+// Days component implementation
 function Days() {
 	const dispatch = useDispatch();
 	const [loading, setLoading] = useState(false);
@@ -36,12 +33,16 @@ function Days() {
 		{ field: "days", header: "Days" },
 	];
 	const addDispatch: AppDispatch = useDispatch();
-	interface toast {
+
+	// Define toast interface
+	interface Toast {
 		summary: string;
 		detail: string;
 		type: string;
 	}
-	const show = ({ summary, detail, type }: toast) => {
+
+	// Show toast function
+	const show = ({ summary, detail, type }: Toast) => {
 		addDispatch(
 			showToast({
 				severity: type,
@@ -52,12 +53,15 @@ function Days() {
 		);
 	};
 
+	// State for Batch values
 	const [values, setValue] = useState<Batch>({
 		subject: null,
 		startTime: null,
 		endTime: null,
 		days: [],
 	});
+
+	// Helper function to convert time string to Date
 	function convertTimeStringToDate(timeString: string) {
 		const currentDate = new Date();
 		const [hours, minutes] = timeString.split(":").map(Number);
@@ -67,6 +71,8 @@ function Days() {
 
 	const [key, setKey] = useState(0);
 	const [update, setUpdate] = useState(false);
+
+	// Edit function
 	const editFunction = (data: any) => {
 		localStorage.setItem("batch_id", data._id);
 		setUpdate(true);
@@ -84,28 +90,44 @@ function Days() {
 		console.log(data);
 		console.log(convertTimeStringToDate(data.time.split("-")[1].trim()));
 	};
+
+	// Delete function
 	const deleteFunction: DeleteFunction = async (id: string) => {
-		const response = await BatchDelete(id);
-		if (response) {
-			dispatch(popBatches(id));
+		try {
+			console.log(id);
+			const response = await axios.get(`/api/batches/deleteBatch?id=${id}`);
+			if (response) {
+				dispatch(popBatches(id));
+				show({
+					summary: "Deleted",
+					detail: "Successfully deleted",
+					type: "info",
+				});
+			}
+			return response.data.status;
+		} catch (error) {
+			console.error("Error occurred while deleting:", error);
+
 			show({
-				summary: "Deleted",
-				detail: "Successfully deleted",
-				type: "info",
+				summary: "Not Deleted",
+				detail: "Error occurred while deleting",
+				type: "warn",
 			});
+			return false;
 		}
-		return response;
 	};
+
 	const batches = useSelector((state: any) => state.Batches.allBatches);
+
 	useEffect(() => {
 		localStorage.clear();
 	}, []);
 
 	return (
 		<div className="w-full h-full flex flex-wrap gap-3 overflow-auto">
-			<div className="w-1/2 flex-grow flex-shrink basis-96 lg:max-w-[480px] ">
+			<div className="w-1/2 flex-grow flex-shrink basis-96 lg:max-w-[480px]">
 				<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 hidden"></div>
-				<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 md:rounded-tl-[2.5rem] rounded-tl-2xl  overflow-hidden relative p-3">
+				<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 md:rounded-tl-[2.5rem] rounded-tl-2xl overflow-hidden relative p-3">
 					<div
 						className={`absolute top-0 left-0 w-full h-full animate-pulse z-10 bg-[#393E46]/70 ${
 							loading ? "block" : "hidden"
@@ -124,7 +146,7 @@ function Days() {
 					</div>
 				</div>
 
-				<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 my-2 md:my-4  overflow-hidden relative p-3">
+				<div className="rounded-md md:rounded-lg border border-[#EEEEEE]/60 my-2 md:my-4 overflow-hidden relative p-3">
 					<div
 						className={`absolute top-0 left-0 w-full h-full animate-pulse z-10 bg-[#393E46]/70 ${
 							loading ? "block" : "hidden"
@@ -152,11 +174,11 @@ function Days() {
 
 			<div className="w-1/2 flex-grow flex-shrink basis-96 overflow-hidden rounded-md border border-[#EEEEEE]/60 backdrop-blur h-full">
 				{loading ? (
-					<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70 "></div>
+					<div className="absolute w-full h-full animate-pulse z-10 bg-[#393E46]/70"></div>
 				) : (
 					<div className="w-full h-full relative overflow-auto custom-scrollbar bg-[#1F2937]">
 						<h2 className="text-xl capitalize p-2 font-semibold sticky top-0 z-10 bg-[#393E46]">
-							all batches
+							All Batches
 						</h2>
 						<Table
 							columns={columns}
