@@ -7,6 +7,7 @@ import AllStudents from "../pages/AllStudents";
 import ShowAssignments from "../pages/ShowAssignments";  
 import AllAttendence from "../pages/AllAttendence";  
 
+
 const pages = {
   "show-exam": <ShowExam />,
   "all-students": <AllStudents />,
@@ -15,6 +16,7 @@ const pages = {
 };
 
 function Page({ params }) {
+
   const { slug } = params;
   const content = pages[slug];
 

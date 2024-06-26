@@ -298,9 +298,10 @@ const [showNav, setShowNav] = useState(false)
 				<AddStudent
 					values={values}
 					setValues={setValues}
-					update={true}
+					update={show}
+					setUpdate={setShow}
 					subject={selectedSubjects}
-					cols={1}
+					cols={2}
 					key={formKey}
 				/>
 			</Popover>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setAllBatches } from "@/store/slices/Batch";
+import { setAllBatches } from "@/store/slices/SubjectBatch";
 import { setSubject } from "@/store/slices/Subjects";
 
 import Navbar from "./components/Navbar";

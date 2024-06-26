@@ -1,3 +1,4 @@
+"use client"; 
 import React, { useState, useEffect, useCallback } from "react";
 import Popover from "@/app/components/Popover";
 import axios from "axios";
@@ -10,7 +11,8 @@ import { Nullable } from "primereact/ts-helpers";
 import InputFields from "@/app/components/InputFields";
 import QueryTable from "@/app/components/QueryTable";
 import Loading from "@/app/components/Loading";
-import Button from "@/app/components/Button";
+import Link from "next/link";
+
 
 interface BatchesInterface {
 	batchName: string;
@@ -30,6 +32,7 @@ interface Studnets {
 	presents: number;
 }
 function AllAttendence() {
+	
 	const [show, setShow] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState<ShowAttendenceInterface[]>([]);
@@ -95,6 +98,8 @@ function AllAttendence() {
 			.get(url)
 			.then((response) => {
 				setData(response.data.data);
+				setDate(null);
+				setDates(null);
 			})
 			.catch((error) => {
 				Tshow({
@@ -153,8 +158,8 @@ function AllAttendence() {
 	const filterByStudent = useCallback(() => {
 		const pattern = new RegExp("^CA-\\d{2}/\\d{2}-\\d+$");
 		const isMatch = pattern.test(byStudent.admissionNo);
-		console.log(isMatch,byStudent);
-		
+		console.log(isMatch, byStudent);
+
 		if (byStudent.name.trim() === "" && !isMatch) {
 			return;
 		}
@@ -190,21 +195,24 @@ function AllAttendence() {
 		setByStudent({
 			admissionNo: "CA-24/25-",
 			name: "",
-		})
-		setbyStudentData([])
+		});
+		setbyStudentData([]);
 	}, [showF3]);
 
 	return (
 		<>
+			{/* {Show student} */}
 			<Popover show={show} setShow={setShow}>
 				<div className="h-[30vw] min-h-96 w-full overflow-auto custom-scrollbar mt-3 relative rounded-lg">
 					<Loading loading={cardLoading}>
 						{students.length > 0 ? (
 							<div>
 								{students.map((student) => (
-									<div
+									<Link
 										className="flex items-center justify-between gap-3 mb-2 bg-slate-500/30 p-2 px-3 rounded-lg hover:bg-slate-500/60 transition-all"
 										key={student._id}
+										id={student._id}
+										href={`student-attendence/${student._id}`}
 									>
 										<div className="flex items-center gap-3">
 											<div
@@ -231,7 +239,7 @@ function AllAttendence() {
 											<h3 className="text-xl">{student.name}</h3>
 										</div>
 										<h2 className="text-lg">{student.presents}</h2>
-									</div>
+									</Link>
 								))}
 							</div>
 						) : (
@@ -366,7 +374,7 @@ function AllAttendence() {
 					<i
 						className={`${
 							date || dates ? "block" : "hidden"
-						} pi pi-filter-slash p-2  bg-orange-500/70 rounded-md cursor-pointer hover:bg-orange-500/90 transition-all`}
+						} pi pi-filter-slash p-2 w-full mb-1 sm:w-fit sm:mb-0 text-center  bg-orange-500/70 rounded-md cursor-pointer hover:bg-orange-500/90 transition-all`}
 						onClick={() => {
 							setDate(null);
 							setDates(null);

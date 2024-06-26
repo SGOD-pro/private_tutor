@@ -26,7 +26,6 @@ export async function GET(req: Request) {
 		}
 	)
 	if (startDate && endDate) {
-		// 2024-06-12T20:23:50.983+00:00
 		console.log(new Date(startDate), endDate);
 
 		pipeline.push({

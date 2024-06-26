@@ -5,7 +5,7 @@ import AddSubject from "../components/AddSubject";
 import AddDaysTime from "./AddDaysTime";
 import Table from "../components/Table";
 import { useDispatch, useSelector } from "react-redux";
-import { popBatches, setAllBatches } from "@/store/slices/Batch";
+import { popBatches } from "@/store/slices/SubjectBatch";
 import { AppDispatch } from "@/store/store";
 import { showToast } from "@/store/slices/Toast";
 import axios from "axios";

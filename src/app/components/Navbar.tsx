@@ -19,10 +19,9 @@ function Navbar({
 			icon: "https://cdn.lordicon.com/xzalkbkz.json",
 		},
 		{
-			pathname: "Fees",
-			route: "/fees",
-			icon: "https://cdn.lordicon.com/wyqtxzeh.json",
-			secondaryColor: "#00ADB5",
+			pathname: "Days & Time",
+			route: "/days",
+			icon: "https://cdn.lordicon.com/qvyppzqz.json",
 		},
 		{
 			pathname: "Batches",
@@ -30,14 +29,15 @@ function Navbar({
 			icon: "https://cdn.lordicon.com/zrkkrrpl.json",
 		},
 		{
-			pathname: "Days & Time",
-			route: "/days",
-			icon: "https://cdn.lordicon.com/qvyppzqz.json",
-		},
-		{
 			pathname: "Attendence",
 			route: "/attendence",
 			icon: "https://cdn.lordicon.com/ozmbktct.json",
+		},
+		{
+			pathname: "Fees",
+			route: "/fees",
+			icon: "https://cdn.lordicon.com/wyqtxzeh.json",
+			secondaryColor: "#00ADB5",
 		},
 		{
 			pathname: "Assignment",

@@ -141,7 +141,7 @@ function AddStudent({
 		if (subjects) {
 			setValues((prev) => ({ ...prev, subjects }));
 		}
-		if (subjects?.length === 0) {
+		if (!subjects||subjects?.length === 0) {
 			show({
 				summary: "Validation Error",
 				type: "warn",
@@ -149,6 +149,8 @@ function AddStudent({
 			});
 			return false;
 		}
+		console.log(subjects);
+		
 		if (!values.stream?.trim()) {
 			show({
 				summary: "Validation Error",

@@ -8,11 +8,16 @@ export async function POST(req: NextRequest) {
 	try {
 		const { subject, endTime, startTime, days } = await req.json();
 		
-		console.log(subject, extractTime(startTime), days)
+		if ([subject.name, endTime, startTime].some(x => !x||x.trim()==="")) {
+			return Response.json({message:"Cannot get proper data"},{status:401})
+		}
+		const sTime=extractTime(startTime)
+		const eTime=extractTime(endTime)
 		const exists = await batchesModel.aggregate([
 			{ $unwind: "$days" },
-			{ $match: { days: { $in: days }, subject:subject.name, startTime:extractTime(startTime) } },
+			{ $match: { days: { $in: days }, subject:subject.name, startTime:sTime } },
 		]);
+		
 		if (exists.length > 0) {
 			return NextResponse.json(
 				{
@@ -24,8 +29,8 @@ export async function POST(req: NextRequest) {
 		}
 		const data = await batchesModel.create({
 			subject: subject.name,
-			startTime: extractTime(startTime),
-			endTime: extractTime(endTime),
+			startTime: sTime,
+			endTime: eTime,
 			days,
 		});
 
@@ -42,6 +47,6 @@ export async function POST(req: NextRequest) {
 			status: true,
 		});
 	} catch (error: any) {
-		return NextResponse.json({ message: error.message },{status:500});
+		return NextResponse.json({ message: error.message||"Internal server error" },{status:500});
 	}
 }

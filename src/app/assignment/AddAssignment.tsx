@@ -53,6 +53,9 @@ const reset=()=>{
 	setBatchValues([]);
 	setBatch(null);
 	setDate(null);
+	if (setUpdate) {
+		setUpdate(false)
+	}
 }
 	const submit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

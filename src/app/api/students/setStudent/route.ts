@@ -2,9 +2,8 @@ import userModel from "@/models/StudentModel";
 import { NextResponse, NextRequest } from "next/server";
 import { capitalizeWords } from "@/utils/Capitalize";
 import ConnectDB from "@/db";
-import formDataToJson from "@/utils/FormData"
-import uploadImage from "@/utils/UploadColudinary"
-
+import formDataToJson from "@/utils/FormData";
+import uploadImage from "@/utils/UploadColudinary";
 
 export async function POST(req: NextRequest) {
 	await ConnectDB();
@@ -27,7 +26,7 @@ export async function POST(req: NextRequest) {
 
 		if (
 			[name, admissionNo, stream, institutionName].some(
-				(value) =>  value?.trim() === ""
+				(value) => value?.trim() === ""
 			)
 		) {
 			return NextResponse.json(
@@ -35,11 +34,13 @@ export async function POST(req: NextRequest) {
 				{ status: 400 }
 			);
 		}
-		
 
 		if (exists) {
 			return NextResponse.json(
-				{ message: "Already admission no exists.", success: false },
+				{
+					message: `Already admission no assigned to ${exists.name}.`,
+					success: false,
+				},
 				{ status: 409 }
 			);
 		}
@@ -57,28 +58,33 @@ export async function POST(req: NextRequest) {
 			clg,
 			institutionName,
 			stream,
-			fees
+			fees,
 		});
 		const response = {
 			...student.toJSON(),
 			subjects: student?.subjects?.join(","),
 		};
-		console.log(response);
 		return NextResponse.json(
 			{
-				message: photoUrl
-					? "Student added successfuly"
-					: "Student add but image not uploaded.",
+				message: (!file && !photoUrl)
+					? "Student added successfully"
+					: (file && !photoUrl)
+						? "Student add but image not uploaded."
+						: "Some other condition.",
 				data: response,
-				success: photoUrl ? true : false,
+				success: (!file && !photoUrl) ? true : false,
 			},
 			{ status: 200 }
 		);
-	} catch (error) {
+		
+	} catch (error: any) {
 		console.log(error);
 
 		return NextResponse.json(
-			{ message: "not done", success: false },
+			{
+				message: error.message || "Cannot add student! Server error",
+				success: false,
+			},
 			{ status: 500 }
 		);
 	}

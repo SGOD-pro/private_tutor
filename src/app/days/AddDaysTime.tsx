@@ -5,7 +5,7 @@ import { Calendar } from "primereact/calendar";
 import "./checkbox.css";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { pushBatches, updateBatches } from "@/store/slices/Batch";
+import { pushBatches, updateBatches } from "@/store/slices/SubjectBatch";
 import { AppDispatch } from "@/store/store";
 import { showToast,ToastInterface } from "@/store/slices/Toast";
 interface Batch {
