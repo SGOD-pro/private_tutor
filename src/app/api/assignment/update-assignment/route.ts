@@ -15,7 +15,7 @@ export async function POST(req:Request) {
         assignment.title = title
         assignment.explanation = explanation
         assignment.batch = batch
-        assignment.subbmissionDate = subbmissionDate
+        assignment.submissionDate = new Date(subbmissionDate)
         await assignment.save();
         return Response.json({message:"Assignment update successfully"}, {status:200})
 
