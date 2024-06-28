@@ -81,7 +81,7 @@ export default function BasicDemo({
 				{columns?.map((data, index): any => (
 					<Column field={data.field} header={data.header} key={index}></Column>
 				))}
-				<Column
+				{(deleteFunction||editFunction)&&<Column
 					key="action"
 					body={(rowData) => (
 						<ButtonTemplate
@@ -91,7 +91,7 @@ export default function BasicDemo({
 						/>
 					)}
 					header="Actions"
-				/>
+				/>}
 			</DataTable>
 		</div>
 	);

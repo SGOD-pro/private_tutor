@@ -314,7 +314,7 @@ const [showNav, setShowNav] = useState(false)
 				/>
 			</Popover>
 
-			<div className="w-full h-full overflow-hidden rounded-l-[2rem] relative">
+			<div className="w-full h-full overflow-hidden rounded-l-[44px] relative">
 				<div className="text-right py-1 px-2 sm:hidden bg-slate-900">
 					<i className="pi pi-align-justify p-2  relative z-50 bg-slate-700 rounded-md cursor-pointer" onClick={()=>{
 						setShowNav(prev=>!prev)

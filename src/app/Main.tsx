@@ -58,7 +58,7 @@ function Main({ children }: { children: React.ReactNode }) {
 				<Navbar show={showNav} setShow={setShowNav} />
 				<ToastComponent />
 				<div
-					className={`w-full h-full shadow-left-side sm:rounded-l-3xl md:rounded-l-[4rem] sm:ml-2 p-1 md:p-5 bg-gradient-radial relative z-0 overflow-hidden`}
+					className={`w-full h-full shadow-left-side sm:rounded-l-3xl md:rounded-l-[4rem] sm:ml-2 p-1 md:p-5 bg-gradient-radial relative z-0 overflow-hidden `}
 				>
 					<i
 						className="pi pi-align-left bg-[#00ADB5] opacity-50 hover:opacity-100 rounded-full p-2 mb-3 absolute z-50 top-2 left-2 sm:hidden"

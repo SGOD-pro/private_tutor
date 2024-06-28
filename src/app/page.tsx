@@ -174,7 +174,7 @@ export default function Home() {
 							All student
 						</Link>
 					</div>
-					<div className="max-h-[calc(100%-0rem)] md:min-h-[42.5vh] min-h[45vh] lg:min-h-[52vh] overflow-auto md:pb-36 custom-scrollbar bg-[#1F2937]">
+					<div className="max-h-[calc(100%-0rem)] md:min-h-[42.5vh] min-h[48vh] lg:min-h-[52vh] overflow-auto md:pb-36 custom-scrollbar bg-[#1F2937]">
 						<Loading loading={loading}>
 							<Table
 								columns={columns}
@@ -193,11 +193,11 @@ export default function Home() {
 						<SimpleCard />
 					</div>
 					<div className=" w-full relative border border-slate-400/60 rounded-lg p-2">
-						<h2 className="text-lg font-semibold">Add exam</h2>
+						<h2 className="text-lg font-semibold">Add Subject</h2>
 						<AddSubject />
 					</div>
 					<div className=" w-full relative border border-slate-400/60 rounded-lg p-2">
-						<h2 className="text-lg font-semibold">Add exam</h2>
+						<h2 className="text-lg font-semibold">Add Exam</h2>
 						<ExamForm />
 					</div>
 				</Loading>

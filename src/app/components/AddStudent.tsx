@@ -191,14 +191,7 @@ function AddStudent({
 			});
 			return false;
 		}
-		if (!values.fees || values.fees <= 0) {
-			show({
-				summary: "Validation Error",
-				type: "warn",
-				detail: "Fees must be greater than zero.",
-			});
-			return false;
-		}
+		
 		return true;
 	}
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);

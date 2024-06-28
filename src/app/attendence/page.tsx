@@ -1,33 +1,48 @@
 "use client";
 
-import React, { useEffect, useState,useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./checkbox.css";
 import { showToast } from "@/store/slices/Toast";
 import { ToastInterface } from "@/store/slices/Toast";
 import { AppDispatch } from "@/store/store";
 import QueryTable from "../components/QueryTable";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Select from "../components/Select";
 import Link from "next/link";
 
 interface ComponentProps {
 	id: string;
 }
-
+interface SelectInterface{
+	name:string;
+	code:string
+}
 function Attendance() {
 	const [disable, setDisable] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [ids, setIds] = useState<string[]>([]);
-	const [day, setDay] = useState<string | null>(null);
 	const [search, setSearch] = useState<string>("");
-	const [allBatches, setAllBatches] = useState<any[]>([]);
 	const [values, setValues] = useState<any[]>([]);
 	const [searchData, setSearchData] = useState<any[]>([]);
-	const [batch, setBatch] = useState<any>(null);
+	const [batch, setBatch] = useState<SelectInterface|null>(null);
 
 	const appDispatch: AppDispatch = useDispatch();
+	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
+	const subjects = AllSubjects.map((subject: any) => ({
+		name: subject.subject,
+		code: subject._id,
+	}));
 
+	const batches = useSelector((state: any) => state.Batches.allBatches);
+
+	const [batchValues, setBatchValues] = useState<SelectInterface[]>([]);
+
+	const [selectedSubject, setSelectedSubject] = useState<SelectInterface|null>(null);
+	const setSubject = (e: any) => {
+		const selectedSubject = e.value;
+		setSelectedSubject(selectedSubject);
+	};
 	const handleCheckboxChange = (event: any) => {
 		const { value, checked } = event.target;
 		let newVal = [];
@@ -74,51 +89,6 @@ function Attendance() {
 	};
 
 	useEffect(() => {
-		const now = new Date();
-		const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thrus", "Fri", "Sat"];
-		let currentDay = daysOfWeek[now.getDay()];
-		setDay(currentDay);
-
-		axios
-			.get(`/api/batches/today-batches?day=${currentDay}`)
-			.then((response) => {
-				setAllBatches(response.data.data);
-			})
-			.catch((error) => {
-				show({
-					summary: "Attendance",
-					detail: error.response?.data?.message || "Error fetching batches",
-					type: "error",
-				});
-			});
-	}, []);
-
-	useEffect(() => {
-		if (!day) {
-			return;
-		}
-
-		axios
-			.get(`/api/attendence/get-batch?day=${day}`)
-			.then((response) => {
-				const cbatch = allBatches.find(
-					(batch) => batch.code === response.data.data?._id
-				);
-				setBatch(cbatch);
-			})
-			.catch((error) => {
-				show({
-					summary: "Attendance",
-					detail: error.response?.data?.message || "Error fetching batch",
-					type: "error",
-				});
-			})
-			.finally(() => {
-				setLoading(false);
-			});
-	}, [allBatches, day]);
-
-	useEffect(() => {
 		if (!batch) {
 			return;
 		}
@@ -157,9 +127,62 @@ function Attendance() {
 				});
 			});
 	}, [batch]);
+	useEffect(() => {
+		axios
+			.get(`/api/attendence/get-batch`)
+			.then((response) => {
+				console.log(response.data.data);
+				if (subjects && Array.isArray(subjects)) {
+					for (let i = 0; i < subjects.length; i++) {
+						const element = subjects[i];
+						if (element.name === response.data.data?.subject) {
+							console.log(element);
+							setSelectedSubject(element);
+							break;
+						}
+					}
+					for (let i = 0; i < batches.length; i++) {
+						const element = batches[i];
+						if (element._id === response.data.data?._id) {
+							setBatch({
+								name: `${element.days} (${element.time})`,
+								code: element._id,
+							});
+							console.log({
+								name: `${element.days} (${element.time})`,
+								code: element._id,
+							});
+							break;
+						}
+					}
+				}
+			})
+			.catch((error) => {
+				show({
+					summary: "Attendance",
+					detail: error.response?.data?.message || "Error fetching attendance!",
+					type: "error",
+				});
+			});
+	}, []);
+	useEffect(() => {
+		if (!selectedSubject) {
+			return;
+		}
+		const filteredBatches = batches
+			.filter((batch: any) => batch.subject === selectedSubject.name)
+			.map((batch: any) => ({
+				name: `${batch.days} (${batch.time})`,
+				code: batch._id,
+			}));
+		setBatchValues(filteredBatches);
+	}, [selectedSubject]);
 
 	const submit = () => {
 		if (ids.length === 0) {
+			return;
+		}
+		if (!batch) {
 			return;
 		}
 		const data = { batchId: batch.code, studentsId: ids };
@@ -220,9 +243,9 @@ function Attendance() {
 						></i>
 					</div>
 					<header
-						className={`lg:flex flex-col lg:flex-row items-center justify-between  px-4 py-1 absolute lg:relative bg-[#101317] lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-10 lg:w-full transition-all ease-out ${
+						className={`lg:flex flex-col lg:flex-row items-center justify-between  px-4 py-1 absolute lg:relative bg-[#101317] lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-50 lg:w-full transition-all ease-out ${
 							nav ? "translate-x-0" : "translate-x-full"
-						} lg:translate-x-0 lg:left-0`}
+						} lg:translate-x-0 lg:left-0 `}
 					>
 						<h2 className="text-3xl font-semibold my-10 lg:my-0">Attendance</h2>
 						<div className="text-right mt-3 flex gap-2 flex-col lg:flex-row lg:items-center">
@@ -240,10 +263,16 @@ function Attendance() {
 							</div>
 
 							<Select
+								value={selectedSubject}
+								handleChange={setSubject}
+								options={subjects}
+								placeholder="Subjects"
+							/>
+							<Select
 								value={batch}
 								handleChange={changeBatch}
-								options={allBatches}
-								placeholder="Batch"
+								options={batchValues}
+								placeholder="Batches"
 							/>
 
 							<button

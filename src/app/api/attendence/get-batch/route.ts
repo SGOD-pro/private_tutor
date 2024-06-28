@@ -4,14 +4,18 @@ import batchModel from "@/models/Batches";
 export async function GET(req: Request) {
 	await ConnectDB();
 	try {
-        const url=new URL(req.url);
-        const day=url.searchParams.get('day');
-        if (!day) {
-            return Response.json(
-                { message: "Cann't get the current day." },
-                { status: 404 }
-            );
-        }
+		const daysOfWeek = [
+			"Sun",
+			"Mon",
+			"Tue",
+			"Wed",
+			"Thrus",
+			"Fri",
+			"Sat",
+		];
+		const currentDate = new Date();
+		const day = daysOfWeek[currentDate.getDay()];
+		
 		const current = await batchModel.aggregate([
 			{
 				$match: {
@@ -56,11 +60,12 @@ export async function GET(req: Request) {
 			{
 				$limit: 1,
 			},
-            {
-                $project:{
-                    _id:1
-                }
-            }
+			{
+				$project: {
+					_id: 1,
+					subject:1
+				},
+			},
 		]);
 		return Response.json(
 			{ message: "Current batch", data: current[0] },
