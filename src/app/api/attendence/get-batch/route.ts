@@ -4,57 +4,22 @@ import batchModel from "@/models/Batches";
 export async function GET(req: Request) {
 	await ConnectDB();
 	try {
-		const daysOfWeek = [
-			"Sun",
-			"Mon",
-			"Tue",
-			"Wed",
-			"Thrus",
-			"Fri",
-			"Sat",
-		];
+		const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thrus", "Fri", "Sat"];
 		const currentDate = new Date();
 		const day = daysOfWeek[currentDate.getDay()];
-		
+
 		const current = await batchModel.aggregate([
 			{
 				$match: {
 					days: day,
-				},
-			},
-			{
-				$addFields: {
-					endTimeDate: {
-						$dateFromString: {
-							dateString: {
-								$concat: [
-									{
-										$dateToString: {
-											format: "%Y-%m-%dT",
-											date: new Date(),
-										},
-									},
-									"$endTime",
-									":00+05:30",
-								],
-							},
-						},
-					},
-					currentTime: new Date(),
-				},
-			},
-			{
-				$addFields: {
-					timeDifference: {
-						$abs: {
-							$subtract: ["$endTimeDate", "$currentTime"],
-						},
+					endTime: {
+						$lt: new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString(),
 					},
 				},
 			},
 			{
 				$sort: {
-					timeDifference: 1,
+					endTime: -1,
 				},
 			},
 			{
@@ -63,7 +28,7 @@ export async function GET(req: Request) {
 			{
 				$project: {
 					_id: 1,
-					subject:1
+					subject: 1,
 				},
 			},
 		]);

@@ -1,9 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
 
 export default async function NotFound() {
-	const headersList = headers();
-	const domain = headersList.get("host");
 	return (
 		<>
 			<div className="h-full w-full flex items-center rounded-l-[44px] rounded-lg">
@@ -14,7 +12,7 @@ export default async function NotFound() {
 							404
 						</div>
 						<p className="text-2xl md:text-3xl font-light text-zinc-300 leading-normal mb-8">
-							Sorry we couldn't find the page you're looking for
+							Sorry we couldn&apos;t find the page you&apos;re looking for
 						</p>
 
 						<Link
@@ -25,10 +23,12 @@ export default async function NotFound() {
 						</Link>
 					</div>
 					<div className="w-full lg:flex lg:justify-end lg:w-1/2 mx-5 my-12">
-						<img
+						<Image
 							src="https://user-images.githubusercontent.com/43953425/166269493-acd08ccb-4df3-4474-95c7-ad1034d3c070.svg"
-							className=""
+							className="w-full object-contain"
 							alt="Page not found"
+							width={100}
+							height={100}
 						/>
 					</div>
 				</div>

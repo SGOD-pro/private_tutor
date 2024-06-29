@@ -514,7 +514,7 @@ function AddStudent({
 			<div className={`text-right ${cols === 2 && "sm:col-start-2"}`}>
 				{update && setUpdate && (
 					<button
-						className={`px-3 py-1 text-lg rounded-md active:scale-90 transition-all shadow-md shadow-black active:shadow-none bg-gradient-to-l to-red-400 from-red-700 mr-3`}
+						className={`px-3 py-1 text-lg rounded-md active:scale-90 transition-all shadow-md shadow-black active:shadow-none bg-gradient-to-l to-red-400 from-red-700 mr-3 disabled:bg-gray-800 disabled:opacity-75`}
 						disabled={disable}
 						onClick={() => {
 							setValues({
@@ -549,7 +549,7 @@ function AddStudent({
 				<button
 					className={`px-3 py-1 text-lg rounded-md bg-[#393E46] active:scale-90 transition-all shadow-md shadow-black active:shadow-none ${
 						update && "bg-gradient-to-l to-emerald-400 from-emerald-700"
-					}`}
+					} disabled:bg-gray-800 disabled:opacity-75`}
 					disabled={disable}
 				>
 					{!update ? "Add" : <i className="pi pi-check"></i>}

@@ -21,6 +21,9 @@ export async function POST(req: NextRequest) {
 			},
 			{ new: true }
 		);
+		if (!data) {
+			return NextResponse.json({ message: "Cannot get the batch" }, { status: 404 });
+		}
 		const modifiedData = {
 			_id: data._id,
 			subject: data.subject,

@@ -76,6 +76,7 @@ const StudentSchema: Schema<StudentSchemaInterface> = new Schema(
 		fees: {
 			type: Number,
 			required: [true, "Fees is required"],
+			default:0
 		},
 	},
 	{ timestamps: true }
