@@ -29,6 +29,8 @@ export interface StudentSchemaInterface extends Document {
 	stream: string;
 	fees: number;
 	_id?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const StudentSchema: Schema<StudentSchemaInterface> = new Schema(

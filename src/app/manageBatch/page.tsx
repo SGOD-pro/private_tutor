@@ -99,8 +99,6 @@ const ManageBatch = () => {
 		axios
 			.get(`/api/students/get-all-students?skip=${skip}&limit=${limit}`)
 			.then((response) => {
-				console.log(response.data.data);
-
 				if (response.data?.data?.length !== 10) {
 					setHasMore(false);
 				}
@@ -135,6 +133,9 @@ const ManageBatch = () => {
 		localStorage.clear();
 		if (data.length !== 0) {
 			setLoading(false);
+		}
+		if (!hasMore) {
+			return;
 		}
 		fetchData();
 	}, [limit, skip]);

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { PrimeReactProvider } from "primereact/api";
 import "primereact/resources/themes/lara-dark-green/theme.css";
 import 'primereact/resources/primereact.min.css';

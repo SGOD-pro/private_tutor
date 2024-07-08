@@ -59,6 +59,9 @@ const reset=()=>{
 }
 	const submit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		console.log(details);
+		console.log(batch?.code);
+		//TODO: fix the data -> issue in subbmissionDate.  define it is as Date object(it is not a string)
 		if (details.title.trim() === "" || details.subbmissionDate === null) {
 			return;
 		}
@@ -69,7 +72,6 @@ const reset=()=>{
 		console.log(data);
 		setDisable(true);
 
-		//TODO: update the route for update the submissions
 		axios
 			.post("/api/assignment", data)
 			.then((response) => {

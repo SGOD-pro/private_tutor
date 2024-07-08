@@ -12,10 +12,17 @@ import { showToast, ToastInterface } from "@/store/slices/Toast";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loader from "@/app/components/Loader";
 import AddStudent from "@/app/components/AddStudent";
+import {
+	setAllStudentsByBatch,
+	addStudentsToBatch,
+} from "@/store/slices/BatchStudents";
+
 function AllStudents() {
 	const [show, setShow] = useState<boolean>(false);
 	const [show2, setShow2] = useState<boolean>(false);
 	const addDispatch: AppDispatch = useDispatch();
+	
+	const dispatch = useDispatch();
 	const [filtering, setFiltering] = useState<boolean>(false);
 	const [loading, setLoading] = useState(true);
 	const [values, setValues] = useState<StudentDetailsInterface>({
@@ -82,10 +89,13 @@ function AllStudents() {
 						summary: "Fetched",
 						detail: response.data.message,
 					});
+					dispatch(setAllStudentsByBatch(response.data.data));
 				} else {
 					setData((prev) => [...prev, ...response.data.data]);
 					setFilteredValue((prev) => [...prev, ...response.data.data]);
+					dispatch(addStudentsToBatch(response.data.data));
 				}
+				
 			})
 			.catch((errror) => {
 				if (skip === 0) {
@@ -199,8 +209,11 @@ function AllStudents() {
 			filteredValues = filteredValues.filter((item) => {
 				const subjectsField = item.subjects;
 				if (typeof subjectsField === "string") {
+					const escapedSubjectName = selectedSubject.name
+						?.trim()
+						.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 					const regex = new RegExp(
-						`(^|,)\\s*${selectedSubject.name?.trim()}\\s*(,|$)`,
+						`(^|,)\\s*${escapedSubjectName}\\s*(,|$)`,
 						"i"
 					);
 					return regex.test(subjectsField);
@@ -291,7 +304,7 @@ function AllStudents() {
 			</div>
 		);
 	};
-const [showNav, setShowNav] = useState(false)
+	const [showNav, setShowNav] = useState(false);
 	return (
 		<>
 			<Popover show={show} setShow={setShow}>
@@ -316,11 +329,18 @@ const [showNav, setShowNav] = useState(false)
 
 			<div className="w-full h-full overflow-hidden rounded-l-[44px] relative">
 				<div className="text-right py-1 px-2 sm:hidden bg-slate-900">
-					<i className="pi pi-align-justify p-2  relative z-50 bg-slate-700 rounded-md cursor-pointer" onClick={()=>{
-						setShowNav(prev=>!prev)
-					}}></i>
+					<i
+						className="pi pi-align-justify p-2  relative z-50 bg-slate-700 rounded-md cursor-pointer"
+						onClick={() => {
+							setShowNav((prev) => !prev);
+						}}
+					></i>
 				</div>
-				<header className={`w-full sm:h-14 p-1 py-4 sm:py-1 absolute  transition-all z-40 bg-slate-900 sm:relative sm:translate-y-0 ${showNav?'translate-y-0':'-translate-y-full'} top-0 sm:bg-[#1F2937] sm:border-b shadow-md shadow-black rounded-b-xl sm:rounded-none sm:shadow-none`}>
+				<header
+					className={`w-full sm:h-14 p-1 py-4 sm:py-1 absolute  transition-all z-40 bg-slate-900 sm:relative sm:translate-y-0 ${
+						showNav ? "translate-y-0" : "-translate-y-full"
+					} top-0 sm:bg-[#1F2937] sm:border-b shadow-md shadow-black rounded-b-xl sm:rounded-none sm:shadow-none`}
+				>
 					<div className="flex w-full gap-2 justify-end sm:items-center flex-col sm:flex-row items-start">
 						<h2 className="text-lg  mt-4 sm:mt-0 pl-2 sm:pl-0">
 							Filters

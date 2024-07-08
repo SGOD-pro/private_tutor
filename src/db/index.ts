@@ -16,7 +16,6 @@ export default async function connectDb(): Promise<void> {
 		con.connection.on("error", () => {
 			console.log("Mongoose connection error");
 		});
-
 		con.connection.on("connection", () => {
 			console.log("Mongodb connected.");
 		});

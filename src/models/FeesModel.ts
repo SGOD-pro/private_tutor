@@ -1,18 +1,16 @@
 import mongoose, { Schema, Document, ObjectId, Types } from "mongoose";
 
-
-interface Months{
-	year:string[]
-}
 interface FeesInterface extends Document {
 	studentId: ObjectId;
-	month:Months[];
+	paidMonth: Date;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
 const feesSchama: Schema<FeesInterface> = new Schema(
 	{
 		studentId: Schema.Types.ObjectId,
-		month:String
+		paidMonth: Date,
 	},
 	{ timestamps: true }
 );
