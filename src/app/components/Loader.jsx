@@ -6,7 +6,7 @@ function Loader() {
         <div className='w-full flex justify-center items-center'>
             <Script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/infinity.js"></Script>
             <l-infinity
-                size="55"
+                size="60"
                 stroke="4"
                 stroke-length="0.15"
                 bg-opacity="0.1"

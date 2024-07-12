@@ -73,3 +73,4 @@ function Main({ children }: { children: React.ReactNode }) {
 }
 
 export default Main;
+``

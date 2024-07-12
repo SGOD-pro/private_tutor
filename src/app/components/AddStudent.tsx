@@ -141,7 +141,7 @@ function AddStudent({
 		if (subjects) {
 			setValues((prev) => ({ ...prev, subjects }));
 		}
-		if (!subjects||subjects?.length === 0) {
+		if (!subjects || subjects?.length === 0) {
 			show({
 				summary: "Validation Error",
 				type: "warn",
@@ -150,7 +150,7 @@ function AddStudent({
 			return false;
 		}
 		console.log(subjects);
-		
+
 		if (!values.stream?.trim()) {
 			show({
 				summary: "Validation Error",
@@ -191,7 +191,7 @@ function AddStudent({
 			});
 			return false;
 		}
-		
+
 		return true;
 	}
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
@@ -226,12 +226,12 @@ function AddStudent({
 			updateAddNo();
 		}
 	}, [lastAdmission]);
-	const [error, setError] = useState(false)
+	const [error, setError] = useState(false);
 	useEffect(() => {
-		if (!update&&!error) {
+		if (!update && !error) {
 			updateAddNo();
 		}
-		console.log(error); 
+		console.log(error);
 		if (error) {
 			setError(false);
 		}
@@ -319,7 +319,7 @@ function AddStudent({
 				.catch((error) => {
 					console.log(error);
 					if (error?.response?.status === 409) {
-						setError(true)
+						setError(true);
 						const regex = /(\d+)(?!.*\d)/;
 						let adno = values.admissionNo;
 						const match = adno.match(regex);
@@ -344,12 +344,12 @@ function AddStudent({
 					updateAddNo();
 				});
 		},
-		[values, phoneNoText, phoneNo,values.admissionNo]
+		[values, phoneNoText, phoneNo, values.admissionNo]
 	);
 
 	return (
 		<form
-			className={`w-full h-full grid gap-3 items-center ${
+			className={`w-full h-full grid gap-2 items-center ${
 				cols === 2 ? "sm:grid-cols-2 grid-cols-1" : "grid-cols-1"
 			} `}
 			onSubmit={handleSubmit}
@@ -359,6 +359,14 @@ function AddStudent({
 				value={values.admissionNo}
 				setValue={setValues}
 			/>
+			<div className="card items-center flex flex-wrap w-full my-1 md:my-2">
+				<label htmlFor="" className="flex-grow flex-shrink basis-28">
+					Admission Date
+				</label>
+				<div className="flex-grow flex-shrink basis-full sm:basis-44">
+					{/* <Calendar value={date} onChange={(e) => setValues(prev=>{!...prev,admissionDate:e.value})} /> */}
+				</div>
+			</div>
 			<InputFields name={"name"} value={values.name} setValue={setValues} />
 			<div className="flex flex-wrap items-center relative justify-start">
 				<label htmlFor="" className="mr-14">
@@ -393,6 +401,7 @@ function AddStudent({
 					)}
 				</div>
 			</div>
+			
 			<div className="card items-center flex flex-wrap w-full my-1 md:my-2">
 				<label htmlFor="" className="flex-grow flex-shrink basis-28">
 					Subjects

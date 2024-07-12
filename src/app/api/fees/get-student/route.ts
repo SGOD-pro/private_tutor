@@ -12,27 +12,32 @@ export async function GET(req: Request) {
 		if (!id) {
 			return Response.json({ message: "Cannot get id" }, { status: 400 });
 		}
-		const std = await studentModel.findOne({ admissionNo: id });
+		const std = await studentModel.findOne({ admissionNo: id }).select("-batches -subjects -picture -stream -clg -presentByBatch -phoneNo -institutionName -presents -updatedAt");
 		if (!std) {
 			return Response.json({ message: "Cannot get student" }, { status: 404 });
 		}
-		const studentExists = await feesModel.aggregate([
-            {$match:{studentId:new mongoose.Types.ObjectId(std._id)}},
-			{$sort:{"paidMonth":-1}},
-			{$limit:1},
-        ]);
-		let month=getMonthName(std.createdAt)
-		if (studentExists.length > 0) {
-			const latestPaidMonth = new Date(studentExists[0].paidMonth);
-			latestPaidMonth.setFullYear(latestPaidMonth.getFullYear());
-			latestPaidMonth.setMonth(latestPaidMonth.getMonth() + 1);
-			month=getMonthName(latestPaidMonth)
+		let month = new Date(std.createdAt);
+		let firstPaid=true;
+		const studentExists = await feesModel.findOne(
+			{ studentId: new mongoose.Types.ObjectId(std._id) },
+			null,
+			{ sort: { paidMonth: -1 } }
+		);
+		
+		if (studentExists) {
+			const latestPaidMonth = new Date(studentExists.paidMonth);
+			month = latestPaidMonth
+			firstPaid=false;
 		}
+		
+		month.setMonth(month.getMonth() + 1);
+		console.log(std.createdAt);
+		
 		return Response.json(
 			{
 				message: "Fetched student record",
 				success: true,
-				data: {name:std.name,month:month.slice(0, 3),_id:std._id}
+				data: {...std.toJSON(),month,firstPaid}
 			},
 			{ status: 200 }
 		);

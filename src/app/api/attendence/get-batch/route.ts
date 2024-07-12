@@ -12,14 +12,68 @@ export async function GET(req: Request) {
 			{
 				$match: {
 					days: day,
-					endTime: {
-						$lt: new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString(),
+				},
+			},
+			{
+				$addFields: {
+					endDateTime: {
+						$dateFromString: {
+							dateString: {
+								$concat: [
+									{
+										$dateToString: {
+											format: "%Y-%m-%d",
+											date: "$$NOW",
+										},
+									},
+									"T",
+									"$endTime",
+									":00Z",
+								],
+							},
+						},
+					},
+					startDateTime: {
+						$dateFromString: {
+							dateString: {
+								$concat: [
+									{
+										$dateToString: {
+											format: "%Y-%m-%d",
+											date: "$$NOW",
+										},
+									},
+									"T",
+									"$startTime",
+									":00Z",
+								],
+							},
+						},
+					},
+
+					currentDateTimeIST: {
+						$dateAdd: {
+							startDate: "$$NOW",
+							unit: "minute",
+							amount: 330, // 5.5 hours in minutes
+						},
+					},
+				},
+			},
+			{
+				$redact: {
+					$cond: {
+						if: {
+							$lt: ["$endDateTime", "$currentDateTimeIST"],
+						},
+						then: "$$KEEP",
+						else: "$$PRUNE",
 					},
 				},
 			},
 			{
 				$sort: {
-					endTime: -1,
+					endDateTimeIST: -1,
 				},
 			},
 			{
@@ -27,7 +81,6 @@ export async function GET(req: Request) {
 			},
 			{
 				$project: {
-					_id: 1,
 					subject: 1,
 				},
 			},

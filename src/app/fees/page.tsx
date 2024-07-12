@@ -6,9 +6,21 @@ import axios from "axios";
 import Popover from "../components/Popover";
 import { useDispatch } from "react-redux";
 import { extractDate, getNextMonth, monthsDifference } from "@/utils/DateTime";
+import Loading from "../components/Loading";
+import PaymentForm from "../components/PaymentForm";
+import Loader from "../components/Loader";
 interface FeesInterface {
 	month: string | Date;
 	feesDate: string | Date;
+}
+
+export interface Student {
+	_id: string;
+	name: string;
+	admissionNo: string;
+	fees: number;
+	firstPaid: boolean;
+	month: Date; // Use `Date` type if you plan to work with Date objects
 }
 function Fees() {
 	const addDispatch: AppDispatch = useDispatch();
@@ -24,6 +36,7 @@ function Fees() {
 		);
 	}, []);
 	const [show2, setShow2] = useState(false);
+	const [searchLoading, setSearchLoading] = useState(false);
 
 	const validAdmissionNo = useCallback((value: string) => {
 		const regex = /^CA-\d{2}\/\d{2}-\d+$/;
@@ -41,11 +54,8 @@ function Fees() {
 	const [showNav, setShowNav] = useState(false);
 	const inputSearch = useRef<HTMLInputElement>(null);
 	const studentSearchBox = useRef<HTMLInputElement>(null);
-	const [payFee, setPayFee] = useState<{
-		name: string;
-		month: string;
-		_id: string;
-	} | null>(null);
+
+	const [studentData, setSetstudentData] = useState<Student | null>(null);
 	const SearchStudent = useCallback(() => {
 		if (!inputSearch.current) {
 			return;
@@ -54,10 +64,11 @@ function Fees() {
 		if (!validAdmissionNo(input)) {
 			return;
 		}
+		setSearchLoading(true);
 		axios
 			.get(`/api/fees/get-student?id=${input}`)
 			.then((response) => {
-				setPayFee(response.data.data);
+				setSetstudentData(response.data.data);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -66,39 +77,17 @@ function Fees() {
 					type: "error",
 					detail: error.response.data.message,
 				});
+			})
+			.finally(() => {
+				setSearchLoading(false);
 			});
 	}, []);
 
 	const [key, setKey] = useState(0);
-	const PayFee = useCallback((id: string) => {
-		axios
-			.post(`/api/fees?id=${id}`)
-			.then((response) => {
-				Toast({
-					summary: "Paid",
-					type: "success",
-					detail: response.data.message,
-				});
-				if (payFee) {
-					const tmp = payFee;
-					tmp.month = response.data.data;
-					console.log(tmp);
-					setKey((prev) => prev + 1);
-					setPayFee((prev) => ({ ...prev!, month: tmp.month }));
-				} else {
-					console.log("not");
-				}
-			})
-			.catch((error) => {
-				Toast({
-					summary: "Not paid",
-					type: "error",
-					detail: error.response.data.message,
-				});
-			});
-	}, []);
+
 	const [studentFeesDetails, setStudentFeesDetails] =
 		useState<FeesInterface[]>();
+	const [loading, setLoading] = useState(false);
 	const getStudentDetails = useCallback(() => {
 		if (!studentSearchBox.current) {
 			return;
@@ -107,6 +96,7 @@ function Fees() {
 		if (!validAdmissionNo(input)) {
 			return;
 		}
+		setLoading(true);
 		axios
 			.get(`/api/fees?id=${input}`)
 			.then((response) => {
@@ -125,13 +115,15 @@ function Fees() {
 				console.log(loop, admissionDate, currentDate);
 				data.push({
 					month: admissionDate,
-					feesDate:Array.isArray(feesPaidDetails)? feesPaidDetails[0] : null,
+					feesDate: Array.isArray(feesPaidDetails) ? feesPaidDetails[0] : null,
 				});
 				let nM = getNextMonth(admissionDate);
 				for (let i = 1; i <= loop; i++) {
 					data.push({
 						month: nM,
-						feesDate: Array.isArray(feesPaidDetails)? feesPaidDetails[i] : null,
+						feesDate: Array.isArray(feesPaidDetails)
+							? feesPaidDetails[i]
+							: null,
 					});
 					nM = getNextMonth(nM);
 				}
@@ -143,8 +135,14 @@ function Fees() {
 				Toast({
 					summary: "Invalid input",
 					type: "error",
-					detail: error.response.data.message||error.message||"Something went wrong",
+					detail:
+						error.response.data.message ||
+						error.message ||
+						"Something went wrong",
 				});
+			})
+			.finally(() => {
+				setLoading(false);
 			});
 	}, []);
 
@@ -167,23 +165,14 @@ function Fees() {
 								<i className="pi pi-search px-3 py-2 w-full"></i>
 							</button>
 						</header>
-						{payFee && (
-							<section className="flex justify-between mt-2 h-14 bg-slate-500/30 p-3 items-center rounded-md">
-								<h2 className="text-xl">{payFee.name}</h2>
-								<div className="card flex justify-content-center">
-									<button
-										className="bg-teal-500 text-lg rounded-md px-3 py-1 flex items-center gap-1"
-										onClick={() => {
-											PayFee(payFee._id);
-										}}
-										key={key}
-									>
-										<i className="pi pi-indian-rupee "></i>
-										{payFee.month}
-									</button>
+						<div className="relative">
+							{searchLoading && (
+								<div className="absolute top-0 bg-[#0E1014]/50 backdrop-blur z-50 w-full h-full flex items-center justify-center rounded-lg">
+									<Loader />
 								</div>
-							</section>
-						)}
+							)}
+							<PaymentForm data={studentData} />
+						</div>
 					</div>
 				</Popover>
 
@@ -241,34 +230,40 @@ function Fees() {
 											<thead className="font-semibold uppercase text-gray-400 text-xl ">
 												<tr>
 													<th className="p-2 whitespace-nowrap">
-														<div className="font-semibold text-left">Months</div>
+														<div className="font-semibold text-left">
+															Months
+														</div>
 													</th>
 													<th className="p-2 whitespace-nowrap">
-														<div className="font-semibold text-center text-xl">Paid date</div>
+														<div className="font-semibold text-center text-xl">
+															Paid date
+														</div>
 													</th>
 												</tr>
 											</thead>
-											<tbody className="text-sm divide-y divide-gray-100">
-												{studentFeesDetails?.map((item,index) => (
-													<tr key={index}>
-														<td className="p-2 whitespace-nowrap text-lg">
-															<div className="text-left">
-																{extractDate(item.month)}
-															</div>
-														</td>
-														<td className="p-2 whitespace-nowrap text-lg">
-															<div className="text-center font-medium text-green-500">
-																{item.feesDate ? (
-																	extractDate(item.feesDate)
-																) : (
-																	<>
-																		<span className="text-rose-500">- -</span>
-																	</>
-																)}
-															</div>
-														</td>
-													</tr>
-												))}
+											<tbody className="text-sm divide-y divide-gray-100 relative">
+												<Loading loading={loading}>
+													{studentFeesDetails?.map((item, index) => (
+														<tr key={index}>
+															<td className="p-2 whitespace-nowrap text-lg">
+																<div className="text-left">
+																	{extractDate(item.month)}
+																</div>
+															</td>
+															<td className="p-2 whitespace-nowrap text-lg">
+																<div className="text-center font-medium text-green-500">
+																	{item.feesDate ? (
+																		extractDate(item.feesDate)
+																	) : (
+																		<>
+																			<span className="text-rose-500">- -</span>
+																		</>
+																	)}
+																</div>
+															</td>
+														</tr>
+													))}
+												</Loading>
 											</tbody>
 										</table>
 									</div>

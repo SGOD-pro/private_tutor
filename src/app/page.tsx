@@ -24,6 +24,7 @@ export type StudentDetailsInterface = {
 	stream: string;
 	fees: number;
 	phoneNo: string[] | null;
+	admissionDate?:Date
 	_id?: string;
 };
 

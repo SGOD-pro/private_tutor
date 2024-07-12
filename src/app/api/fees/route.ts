@@ -77,6 +77,13 @@ export async function POST(req: Request) {
 	try {
 		const url = new URL(req.url);
 		const _id = url.searchParams.get("id");
+		let noOfMonths =1
+		const Months = url.searchParams.get("months");
+		if (typeof Months === "string") {
+			noOfMonths=parseInt(Months)
+		}
+		console.log(noOfMonths);
+		
 		if (!_id) {
 			return Response.json({ message: "Cannot get id" }, { status: 403 });
 		}
@@ -90,26 +97,23 @@ export async function POST(req: Request) {
 			{ $limit: 1 },
 		]);
 		let month = std.createdAt;
-		// console.log(exists[0]);
-
 		if (exists.length > 0) {
 			const latestPaidMonth = getNextMonth(exists[0].paidMonth);
 			month = latestPaidMonth;
 		}
-		console.log(month);
+		let paidFeesArray=[]
+		for (let i = 0; i < noOfMonths; i++) {
+			paidFeesArray.push({ studentId: std._id, paidMonth: month })
+			month=getNextMonth(month)
+		}
 
-		const paidFees = await feesModel.create({
-			studentId: std._id,
-			paidMonth: month,
-		});
-		const paidMonth = new Date(paidFees.paidMonth.getTime());
-		paidFees.paidMonth.setMonth(paidFees.paidMonth.getMonth() + 1);
-		console.log("month " + getMonthName(paidFees.paidMonth).slice(0, 3));
-		console.log("paid month " + getMonthName(paidMonth));
+		const paidFees = await feesModel.insertMany(paidFeesArray)
+
+		const paidMonth = new Date(paidFees[noOfMonths-1].paidMonth.getTime());
+		
 		return Response.json(
 			{
-				message: `${getMonthName(paidMonth)} Paid successfully `,
-				data: getMonthName(paidFees.paidMonth).slice(0, 3),
+				message: noOfMonths===1?`${getMonthName(paidMonth)}} Paid successfully`: "Paid successfully"
 			},
 
 			{ status: 201 }

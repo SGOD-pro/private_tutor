@@ -34,7 +34,7 @@ function Navbar({
 			icon: "https://cdn.lordicon.com/ozmbktct.json",
 		},
 		{
-			pathname: "Fees",
+			pathname: "Payment",
 			route: "/fees",
 			icon: "https://cdn.lordicon.com/wyqtxzeh.json",
 			secondaryColor: "#00ADB5",

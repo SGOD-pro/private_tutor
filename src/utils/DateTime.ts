@@ -4,7 +4,7 @@ export function extractTime(dateString: string): string {
 	const minutes = date.getMinutes().toString().padStart(2, "0");
 	return `${hours}:${minutes}`;
 }
-export function extractDate(dateString: string|Date): string {
+export function extractDate(dateString: string | Date): string {
 	const date = new Date(dateString);
 	const day = date.getDate().toString().padStart(2, "0");
 	const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -65,20 +65,60 @@ export function getNextMonth(dateObj: Date): Date {
 	return latestPaidMonth;
 }
 
-export function monthsDifference(date1:Date|string, date2:Date|string):number {
-    const startDate = date1 < date2 ? new Date(date1) : new Date(date2);
-    const endDate = date1 < date2 ? new Date(date2) : new Date(date1);
-    
-    const startYear = startDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const endYear = endDate.getFullYear();
-    const endMonth = endDate.getMonth();
-    
-    const yearDiff = endYear - startYear;
-    const monthDiff = endMonth - startMonth;
-    
-    const totalMonths = yearDiff * 12 + monthDiff;
-    
-    return totalMonths;
+export function monthsDifference(
+	date1: Date | string,
+	date2: Date | string
+): number {
+	const startDate = date1 < date2 ? new Date(date1) : new Date(date2);
+	const endDate = date1 < date2 ? new Date(date2) : new Date(date1);
+
+	const startYear = startDate.getFullYear();
+	const startMonth = startDate.getMonth();
+	const endYear = endDate.getFullYear();
+	const endMonth = endDate.getMonth();
+
+	const yearDiff = endYear - startYear;
+	const monthDiff = endMonth - startMonth;
+
+	const totalMonths = yearDiff * 12 + monthDiff;
+
+	return totalMonths;
 }
 
+export function getFeesMonthNames(dateObj: Date | string, numMonths: number) {
+	const startDate = extractDate(dateObj);
+	const monthNames = [
+		"January",
+		"February",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December",
+	];
+
+	const dateParts = startDate.split("-");
+	const day = parseInt(dateParts[0], 10);
+	const month = parseInt(dateParts[1], 10) - 1;
+	const year = parseInt(dateParts[2], 10);
+
+	let currentMonth = month;
+	let currentYear = year;
+	const result = [];
+
+	for (let i = 0; i < numMonths; i++) {
+		result.push(monthNames[currentMonth]);
+		currentMonth++;
+		if (currentMonth === 12) {
+			currentMonth = 0;
+			currentYear++;
+		}
+	}
+
+	return result.join(", ");
+}
