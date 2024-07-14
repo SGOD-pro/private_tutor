@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setAllBatches } from "@/store/slices/SubjectBatch";
 import { setSubject } from "@/store/slices/Subjects";
@@ -13,38 +13,34 @@ function Main({ children }: { children: React.ReactNode }) {
 	const subjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const batches = useSelector((state: any) => state.Batches.allBatches);
 	const dispatch = useDispatch();
+	const fetchSubjectsAndBatches = async () => {
+		try {
+			const [subjectsResponse, batchesResponse] = await Promise.all([
+				subjects.length === 0 && axios.get("/api/subjects/getsubjects"),
+				batches?.length === 0 && axios.get("/api/batches/getBatches"),
+			]);
 
-	useEffect(() => {
-		if (subjects.length === 0) {
-			axios
-				.get("/api/subjects/getsubjects")
-				.then((response: any) => {
-					dispatch(setSubject(response.data.allSubjects));
-				})
-				.catch((error: any) => {
-					console.log(error);
-				});
-		}
-	}, [subjects, dispatch]);
+			if (subjectsResponse) {
+				dispatch(setSubject(subjectsResponse.data.allSubjects));
+			}
 
-	useEffect(() => {
-		if (batches?.length === 0) {
-			axios
-				.get("/api/batches/getBatches")
-				.then((response) => {
-					dispatch(setAllBatches(response.data.allBatches));
-				})
-				.catch((error) => {
-					console.log(error);
-				});
-		}
-	}, [batches, dispatch]);
-	const [showNav, setShowNav] = useState(false);
-	const showNavFunc = (e: any) => {
-		if (e.target.id!=='show-nav-icon') {
-			setShowNav(false);
+			if (batchesResponse) {
+				dispatch(setAllBatches(batchesResponse.data.allBatches));
+			}
+		} catch (error) {
+			console.log(error);
 		}
 	};
+	useEffect(() => {
+		fetchSubjectsAndBatches();
+	}, [subjects, batches, dispatch]);
+	const [showNav, setShowNav] = useState(false);
+	const showNavFunc = useCallback((e: MouseEvent) => {
+		if ((e.target as HTMLElement).id !== "show-nav-icon") {
+			setShowNav(false);
+		}
+	}, []);
+
 	useEffect(() => {
 		document.addEventListener("click", showNavFunc);
 		return () => {
@@ -73,4 +69,4 @@ function Main({ children }: { children: React.ReactNode }) {
 }
 
 export default Main;
-``
+``;

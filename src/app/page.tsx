@@ -24,7 +24,7 @@ export type StudentDetailsInterface = {
 	stream: string;
 	fees: number;
 	phoneNo: string[] | null;
-	admissionDate?:Date
+	admissionDate?:Date|null
 	_id?: string;
 };
 
@@ -108,6 +108,7 @@ export default function Home() {
 		stream: "",
 		fees: 0,
 		phoneNo: [],
+		admissionDate:new Date(),
 	});
 
 	const [update, setUpdate] = useState(false);
@@ -126,6 +127,11 @@ export default function Home() {
 				  }))
 			: [];
 		setSubject(subjectList);
+		console.log(data);
+		let date=new Date()
+		if (data.admissionDate) {
+			date=new Date(data.admissionDate)
+		}
 		setValues({
 			institutionName: data.institutionName,
 			admissionNo: data.admissionNo,
@@ -136,6 +142,7 @@ export default function Home() {
 			stream: data.stream,
 			phoneNo: data.phoneNo,
 			fees: data.fees,
+			admissionDate:date
 		});
 		if (data._id) localStorage.setItem("_id", data._id);
 		setUpdate(true);

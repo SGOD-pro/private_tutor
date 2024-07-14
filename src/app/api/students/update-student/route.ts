@@ -26,6 +26,8 @@ export async function POST(req: Request) {
 		const stream = data.get("stream");
 		const subjects = jsonData["subject[]"];
 		const institutionName = jsonData["institutionName"];
+		const admissionDate = jsonData["admissionDate"];
+
 		let fees = 0;
 		fees = parseFloat(jsonData["fees"] || 0);
 
@@ -73,6 +75,7 @@ export async function POST(req: Request) {
 					stream,
 					fees,
 					phoneNo,
+					admissionDate,
 				},
 			},
 			{ new: true, runValidators: true }

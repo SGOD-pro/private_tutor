@@ -140,7 +140,6 @@ function AllStudents() {
 		const subs = data.subjects
 			?.split(",")
 			.map((s: any) => ({ name: s.trim() }));
-		console.log(subs);
 		setSelectedSubjects(subs);
 		setValues({
 			institutionName: data.institutionName,
@@ -152,6 +151,7 @@ function AllStudents() {
 			stream: data.stream,
 			phoneNo: data.phoneNo,
 			fees: data.fees,
+			admissionDate:new Date(data.admissionDate)
 		});
 		localStorage.setItem("_id", data._id);
 	};

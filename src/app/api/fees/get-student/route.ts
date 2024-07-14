@@ -16,7 +16,7 @@ export async function GET(req: Request) {
 		if (!std) {
 			return Response.json({ message: "Cannot get student" }, { status: 404 });
 		}
-		let month = new Date(std.createdAt);
+		let month = new Date(std.admissionDate);
 		let firstPaid=true;
 		const studentExists = await feesModel.findOne(
 			{ studentId: new mongoose.Types.ObjectId(std._id) },
@@ -28,10 +28,8 @@ export async function GET(req: Request) {
 			const latestPaidMonth = new Date(studentExists.paidMonth);
 			month = latestPaidMonth
 			firstPaid=false;
+			month.setMonth(month.getMonth() + 1);
 		}
-		
-		month.setMonth(month.getMonth() + 1);
-		console.log(std.createdAt);
 		
 		return Response.json(
 			{

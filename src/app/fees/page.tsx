@@ -56,7 +56,8 @@ function Fees() {
 	const studentSearchBox = useRef<HTMLInputElement>(null);
 
 	const [studentData, setSetstudentData] = useState<Student | null>(null);
-	const SearchStudent = useCallback(() => {
+	const SearchStudent = useCallback((e:React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
 		if (!inputSearch.current) {
 			return;
 		}
@@ -151,19 +152,21 @@ function Fees() {
 			<div className="rounded-l-[44px] relative h-full overflow-hidden">
 				<Popover show={show2} setShow={setShow2}>
 					<div className=" mt-2">
-						<header className="w-full flex gap-2">
-							<input
-								type="text"
-								className="p-2 w-full rounded-md outline-none"
-								placeholder="CA-24/25-xx"
-								ref={inputSearch}
-							/>
-							<button
-								className="border border-amber-500 text-amber-500 rounded-md active:scale-90 transition-all hover:bg-amber-500 hover:text-black"
-								onClick={SearchStudent}
-							>
-								<i className="pi pi-search px-3 py-2 w-full"></i>
-							</button>
+						<header className="w-full">
+							<form action="" onSubmit={SearchStudent} className="w-full flex gap-2">
+								<input
+									type="text"
+									className="p-2 w-full rounded-md outline-none"
+									placeholder="CA-24/25-xx"
+									ref={inputSearch}
+								/>
+								<button
+									className="border border-amber-500 text-amber-500 rounded-md active:scale-90 transition-all hover:bg-amber-500 hover:text-black"
+									type="submit"
+								>
+									<i className="pi pi-search px-3 py-2 w-full"></i>
+								</button>
+							</form>
 						</header>
 						<div className="relative">
 							{searchLoading && (

@@ -82,6 +82,9 @@ export async function GET(req: Request) {
 					picture: {
 						$first: "$picture",
 					},
+					admissionDate:{
+						$first: "$admissionDate",
+					}
 				},
 			},
 			{ $sort: { _id: -1 } },

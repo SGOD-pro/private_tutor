@@ -15,6 +15,9 @@ import { StudentDetailsInterface } from "../page";
 import Select from "./Select";
 import Image from "next/image";
 import Icon from "./Icon";
+
+import { Calendar } from 'primereact/calendar';
+import { Nullable } from "primereact/ts-helpers";
 interface selectedSubjectsInterface {
 	name: string;
 	code: string;
@@ -34,7 +37,6 @@ function AddStudent({
 	subject: any[];
 	cols: number;
 }) {
-	console.log("rerendering add-student");
 	const [selectedSubjects, setSelectedSubjects] = useState<
 		selectedSubjectsInterface[] | null
 	>(null);
@@ -129,6 +131,14 @@ function AddStudent({
 			});
 			return false;
 		}
+		if (!values.admissionDate) {
+			show({
+				summary: "Validation Error",
+				type: "warn",
+				detail: "Admission Date is required.",
+			});
+			return false;
+		}
 		if (!values.name.trim()) {
 			show({
 				summary: "Validation Error",
@@ -193,6 +203,27 @@ function AddStudent({
 		}
 
 		return true;
+	}
+
+	function resetValues(){
+		setValues({
+			admissionNo: "",
+			picture: null,
+			subjects: [],
+			name: "",
+			clg: false,
+			stream: "",
+			fees: 0,
+			institutionName: "",
+			phoneNo: [],
+			admissionDate:new Date(),
+		});
+		setPhoneNo([]);
+		setPhoneNoText("");
+		setPhoneNoLen(0);
+		setStudyIn({ name: "School", code: "School" });
+		setImageSrc(null);
+		setSelectedSubjects(null);
 	}
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const subjects = useCallback(
@@ -282,24 +313,7 @@ function AddStudent({
 						dispatch(pushStudent(response.data.data));
 						dispatch(pushStudentByBatch(response.data.data));
 					}
-					setValues({
-						admissionNo: "",
-						picture: null,
-						subjects: [],
-						name: "",
-						clg: false,
-						stream: "",
-						fees: 0,
-						institutionName: "",
-						phoneNo: [],
-					});
-					setPhoneNo([]);
-					setPhoneNoText("");
-					setPhoneNoLen(0);
-					setStudyIn({ name: "School", code: "School" });
-					setImageSrc(null);
-					setSelectedSubjects(null);
-					setSelectedSubjects(null);
+					resetValues();
 					if (!response.data.success) {
 						show({
 							summary: update ? "Updated" : "Added",
@@ -326,7 +340,7 @@ function AddStudent({
 
 						if (match) {
 							const lastNumber = parseInt(match[0], 10);
-							const incrementedNumber = (lastNumber + 1).toString(); // Convert the incremented number to a string
+							const incrementedNumber = (lastNumber + 1).toString(); 
 							const updatedString = adno.replace(regex, incrementedNumber);
 							console.log(updatedString);
 							setValues((prev) => ({ ...prev, admissionNo: updatedString }));
@@ -364,7 +378,9 @@ function AddStudent({
 					Admission Date
 				</label>
 				<div className="flex-grow flex-shrink basis-full sm:basis-44">
-					{/* <Calendar value={date} onChange={(e) => setValues(prev=>{!...prev,admissionDate:e.value})} /> */}
+					
+				<Calendar value={values.admissionDate} onChange={(e) => setValues(prev => ({ ...prev, admissionDate: e.value }))} className="flex-grow flex-shrink basis-full sm:basis-44"/>
+
 				</div>
 			</div>
 			<InputFields name={"name"} value={values.name} setValue={setValues} />
@@ -450,7 +466,7 @@ function AddStudent({
 					htmlFor="phone-no"
 					className="flex-grow flex-shrink basis-full sm:basis-24 capitalize mr-2"
 				>
-					Phone number
+					Contact
 				</label>
 				<div className="flex flex-grow flex-shrink basis-full sm:basis-44 rounded-md bg-[#393E46] transition-all items-center px-1 border border-transparent peer">
 					{phoneNoLen > 0 && (
@@ -467,7 +483,7 @@ function AddStudent({
 						onChange={(e) => {
 							setPhoneNoText(e.target.value);
 						}}
-						className="flex-grow w-14 flex-shrink basis-full outline-none sm:basis-36 rounded-md px-1 py-2 bg-transparent peer"
+						className="flex-grow w-14 flex-shrink basis-full outline-none sm:basis-44 rounded-md px-1 py-2 bg-transparent peer"
 						placeholder="Enter phone numbers"
 						readOnly={phoneNoLen === 2}
 						id="phone-no"
@@ -526,23 +542,7 @@ function AddStudent({
 						className={`px-3 py-1 text-lg rounded-md active:scale-90 transition-all shadow-md shadow-black active:shadow-none bg-gradient-to-l to-red-400 from-red-700 mr-3 disabled:bg-gray-800 disabled:opacity-75`}
 						disabled={disable}
 						onClick={() => {
-							setValues({
-								admissionNo: "",
-								picture: null,
-								subjects: [],
-								name: "",
-								clg: false,
-								stream: "",
-								institutionName: "",
-								fees: 0,
-								phoneNo: [],
-							});
-							setSelectedSubjects(null);
-							setImageSrc("");
-							setPhoneNo([]);
-							setPhoneNoText("");
-							setPhoneNoLen(0);
-							setStudyIn({ name: "School", code: "School" });
+							resetValues();
 							localStorage.clear();
 							setUpdate(false);
 							updateAddNo();

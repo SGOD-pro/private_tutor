@@ -38,6 +38,11 @@ function PaymentForm({ data }: { data: Student | null }) {
 	const PayFee = useCallback((e: React.FocusEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (!values?._id) {
+			Toast({
+				summary: "Paid",
+				type: "success",
+				detail: "returned",
+			});
 			return;
 		}
 		setLoading(true);
@@ -167,7 +172,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 										id="card-number-input"
 										className="block w-full rounded-lg border   p-2.5 pe-10 text-sm  focus:border-primary-500 focus:ring-primary-500 border-gray-600  bg-gray-700  text-white  placeholder:text-gray-400  focus:border-primary-500  focus:ring-primary-500"
 										value={
-											values?.month ? calculateNextMonthDate(values.month) : ""
+											!values?.firstPaid ?values?.month ? calculateNextMonthDate(values.month) : "":extractDate(values.month)
 										}
 										required
 										readOnly

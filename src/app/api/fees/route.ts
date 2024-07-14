@@ -19,7 +19,7 @@ export async function GET(req: Request) {
 			{ $match: { admissionNo: id } },
 			{
 				$project: {
-					createdAt: 1,
+					admissionDate: 1,
 				},
 			},
 		]);
@@ -38,21 +38,21 @@ export async function GET(req: Request) {
 				$group: {
 					_id: null,
 					dates: {
-						$push: "$createdAt",
+						$push: "$admissionDate",
 					},
 				},
 			},
 			{ $project: { _id: 0, dates: 1 } }
 		]);
 		
-		console.log(admissionAt[0].createdAt);
+		console.log(admissionAt[0].admissionDate);
 		console.log( lastFees.length > 0 ? lastFees[0].dates : undefined);
 		return Response.json(
 			{
 				message: "New student",
 				success: true,
 				data: {
-					admissionDate: admissionAt[0].createdAt,
+					admissionDate: admissionAt[0].admissionDate,
 					feesPaidDetails: lastFees.length > 0 ? lastFees[0].dates : undefined,
 				},
 			},
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
 			{ $sort: { paidMonth: -1 } },
 			{ $limit: 1 },
 		]);
-		let month = std.createdAt;
+		let month = std.admissionDate;
 		if (exists.length > 0) {
 			const latestPaidMonth = getNextMonth(exists[0].paidMonth);
 			month = latestPaidMonth;
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
 		
 		return Response.json(
 			{
-				message: noOfMonths===1?`${getMonthName(paidMonth)}} Paid successfully`: "Paid successfully"
+				message: noOfMonths===1?`${getMonthName(paidMonth)}} Payment successfully`: "Payment successfully"
 			},
 
 			{ status: 201 }
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
 		console.log(error);
 
 		return Response.json(
-			{ message: error.message || "Connot set fees record", success: false },
+			{ message: error.message || "Payment unsuccessful", success: false },
 			{ status: 500 }
 		);
 	}

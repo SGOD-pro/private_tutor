@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
 		const stream = data.get("stream");
 		const subjects = jsonData["subject[]"];
 		const institutionName = jsonData["institutionName"];
+		const admissionDate = jsonData["admissionDate"];	
 		let fees = 0;
 		fees = parseFloat(jsonData["fees"] || 0);
 
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
 			institutionName,
 			stream,
 			fees,
+			admissionDate
 		});
 		const response = {
 			...student.toJSON(),

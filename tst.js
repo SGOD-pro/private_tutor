@@ -1,1 +1,7 @@
-console.log(new Date("2024-07-08T08:30:00.000+00:00")<new Date("2024-07-08T08:34:16.788+00:00"));
+var a=9
+var b=9
+
+var bina=parseInt(a, 2
+    
+)
+console.log(bina)

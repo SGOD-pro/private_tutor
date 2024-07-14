@@ -29,8 +29,7 @@ export interface StudentSchemaInterface extends Document {
 	stream: string;
 	fees: number;
 	_id?: string;
-    createdAt: Date;
-    updatedAt: Date;
+	admissionDate:Date;
 }
 
 const StudentSchema: Schema<StudentSchemaInterface> = new Schema(
@@ -80,8 +79,11 @@ const StudentSchema: Schema<StudentSchemaInterface> = new Schema(
 			required: [true, "Fees is required"],
 			default:0
 		},
+		admissionDate:{
+			type:Date,
+			dufault:new Date()
+		}
 	},
-	{ timestamps: true }
 );
 StudentSchema.pre("save", function (next) {
 	if (!this.isModified("batches")) {
