@@ -1,19 +1,27 @@
 import { NextResponse, NextRequest } from "next/server";
 import ConnectDB from "@/db";
 import assignmentModel from "@/models/Assignment";
+import formDataToJson from "@/utils/FormData";
+import uploadImage from "@/utils/UploadColudinary";
 
 export async function POST(req: NextRequest) {
 	await ConnectDB();
 	try {
-		const { title, explanation, batch, subbmissionDate } = await req.json();
-		const created = await assignmentModel.create(
-			{
-				title,
-				explanation,
-				batch,
-				subbmissionDate,
-			}
-		);
+		const data = await req.formData();
+
+		const file = data.get("fileUrl");
+		const jsonData = formDataToJson(data);
+		let photoUrl;
+		if (file) {
+			photoUrl = await uploadImage(file);
+			console.log(photoUrl);
+		}
+		const created = await assignmentModel.create({
+			fileURL: photoUrl,
+			explanation: jsonData["explanation"],
+			batch: jsonData["batch"],
+			submissionDate: new Date(jsonData["submissionDate"]),
+		});
 		console.log(created);
 		if (!created) {
 			return NextResponse.json(
@@ -41,9 +49,7 @@ export async function GET() {
 					createdAt: -1,
 				},
 			},
-			{
-				$limit: 15,
-			},
+
 			{
 				$lookup: {
 					foreignField: "_id",
@@ -128,11 +134,10 @@ export async function GET() {
 					batch: { $concat: ["$days", " (", "$batchTime", ")"] },
 					subject: "$batch.subject",
 					batchId: "$batch._id",
-					explanation:1
+					explanation: 1,
 				},
 			},
-		]
-		);
+		]);
 		return Response.json(
 			{ message: "Fetched all assignments", success: true, data: assignment },
 			{ status: 200 }

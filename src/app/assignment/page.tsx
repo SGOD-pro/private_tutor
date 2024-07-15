@@ -21,7 +21,6 @@ function Assignment() {
 
 		// Check if the DOMContentLoaded event has already been fired
 		if (document.readyState === "loading") {
-			// Add event listener for DOMContentLoaded
 			document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
 		} else {
 			// DOMContentLoaded has already fired, so call the handler immediately

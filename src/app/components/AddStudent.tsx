@@ -4,9 +4,9 @@ import InputFields from "./InputFields";
 import { useSelector, useDispatch } from "react-redux";
 import { pushStudent, updateStudent } from "@/store/slices/Students";
 import { AppDispatch } from "@/store/store";
+import { ToastInterface } from "@/store/slices/Toast";
 import { showToast } from "@/store/slices/Toast";
 import axios from "axios";
-import { ToastInterface } from "@/store/slices/Toast";
 import {
 	pushStudentByBatch,
 	updateStudentsToBatch,
@@ -17,7 +17,6 @@ import Image from "next/image";
 import Icon from "./Icon";
 
 import { Calendar } from 'primereact/calendar';
-import { Nullable } from "primereact/ts-helpers";
 interface selectedSubjectsInterface {
 	name: string;
 	code: string;
