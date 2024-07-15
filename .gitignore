@@ -1,36 +1,104 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Node modules
+node_modules/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+# Log files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# vercel
-.vercel
+# Next.js build output
+.next/
+out/
 
-# typescript
+# Static exports
+out/
+
+# Build files
+/build
+
+# Serverless function build output
+.vercel/
+now.json
+now
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# npm v6
+package-lock.json
+
+# yarn v1
+yarn.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# dotenv environment variables file
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# next.js local settings file
+.next/
+
+# next.js output folder
+out/
+
+# SvelteKit
+.svelte-kit
+
+# SvelteKit build
+.build/
+
+# Misc
+*.log
+.pnp/
+.pnp.js
+
+# Testing
+coverage/
+
+# TypeScript cache
 *.tsbuildinfo
-next-env.d.ts
+
+# Optional Stylelint cache
+.stylelintcache
+
+# IDEs and editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary files
+tmp/
+temp/
