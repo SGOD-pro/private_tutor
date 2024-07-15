@@ -4,7 +4,13 @@ import Editor from "../components/Editor";
 import AddAssignment from "./AddAssignment";
 import Loading from "../components/Loading";
 import Link from "next/link";
-
+export interface AddAssignmentInterface{
+	_id?: string;
+	content: string;
+	file:string;
+	subbmissionDate:Date;
+	batchid:string;
+}
 function Assignment() {
 	const [loading, setLoading] = useState(true);
 
