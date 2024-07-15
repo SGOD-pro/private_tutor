@@ -38,7 +38,7 @@ export async function GET(req: Request) {
 				$group: {
 					_id: null,
 					dates: {
-						$push: "$admissionDate",
+						$push: "$createdAt",
 					},
 				},
 			},
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 		if (typeof Months === "string") {
 			noOfMonths=parseInt(Months)
 		}
-		console.log(noOfMonths);
+		console.log(Months);
 		
 		if (!_id) {
 			return Response.json({ message: "Cannot get id" }, { status: 403 });
@@ -106,6 +106,7 @@ export async function POST(req: Request) {
 			paidFeesArray.push({ studentId: std._id, paidMonth: month })
 			month=getNextMonth(month)
 		}
+console.log(paidFeesArray);
 
 		const paidFees = await feesModel.insertMany(paidFeesArray)
 

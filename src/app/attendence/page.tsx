@@ -39,8 +39,30 @@ function Attendance() {
 			return;
 		}
 		const batch = filterBatches(batches);
+		if (!batch) {
+			return;
+		}
 		setBatch(batch);
-		console.log();
+		if (subjects && Array.isArray(subjects)) {
+			for (let i = 0; i < subjects.length; i++) {
+				const element = subjects[i];
+				if (element.name === batch.name) {
+					console.log(element);
+					setSelectedSubject(element);
+					break;
+				}
+			}
+			for (let i = 0; i < batches.length; i++) {
+				const element = batches[i];
+				if (element._id === batch.code) {
+					setBatch({
+						name: `${element.days} (${element.time})`,
+						code: element._id,
+					});
+					break;
+				}
+			}
+		}
 	}, [batches]);
 
 	const [batchValues, setBatchValues] = useState<SelectInterface[]>([]);
@@ -193,67 +215,93 @@ function Attendance() {
 		setSearch("");
 	};
 	const [nav, setNav] = useState(false);
+	const navFunc = (e: MouseEvent) => {
+		const container = document.getElementById("filter-container");
+		console.log(container);
+
+		if (
+			(e.target as HTMLElement).id !== "show-nav-icon" &&
+			!container?.contains(e.target as HTMLElement)
+		) {
+			setNav(false);
+		}
+	};
+	useEffect(() => {
+		document.addEventListener("click", navFunc);
+
+		return () => {
+			document.removeEventListener("click", navFunc);
+		};
+	}, []);
+
 	return (
 		<>
 			<div className="h-full  sm:rounded-l-[20px] md:rounded-l-[3.2rem] rounded-lg overflow-hidden bg-[#1F2937] z-0">
 				<div className="h-full overflow-hidden custom-scrollbar relative z-0 text-sm">
-					<div className="icon text-right py-2 pr-5 lg:hidden z-[100] relative">
-						<i
-							className="pi pi-align-right text-2xl cursor-pointer z-50"
-							onClick={() => {
-								setNav((prev) => !prev);
-							}}
-						></i>
-					</div>
-					<header
-						className={`lg:flex flex-col lg:flex-row items-center justify-between  px-4 py-1 absolute lg:relative bg-[#101317] lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-50 lg:w-full transition-all ease-out ${
-							nav ? "translate-x-0" : "translate-x-full"
-						} lg:translate-x-0 lg:left-0 `}
-					>
-						<h2 className="text-3xl font-semibold my-10 lg:my-0">Attendance</h2>
-						<div className="text-right mt-3 flex gap-2 flex-col lg:flex-row lg:items-center">
-							<div className="font-normal flex justify-end">
-								<div className="flex items-center gap-2 relative w-full lg:w-72 ">
-									<input
-										type="text"
-										value={search}
-										onChange={onSearchChange}
-										className="w-full px-3 bg-[#393E46] py-2 pr-8 rounded-lg focus:outline outline-[3px] outline-teal-700/70"
-										placeholder="Search by name.."
+					<header className={`flex w-full items-center justify-between px-5 `}>
+						<h2 className="text-2xl font-semibold">Attendence</h2>
+						<div className="flex items-center">
+							<div className="icon text-right relative">
+								<button
+									className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
+										disable ||
+										(values.length === 0 &&
+											"grayscale-[50%] cursor-not-allowed")
+									}`}
+									disabled={disable}
+									onClick={submit}
+								>
+									{disable ? (
+										<i className="pi pi-spin pi-spinner ml-2"></i>
+									) : (
+										"Save"
+									)}
+								</button>
+								<i
+									className="pi pi-align-right text-2xl cursor-pointer lg:hidden ml-3 z-[100]"
+									onClick={() => {
+										setNav(true);
+									}}
+									id="show-nav-icon"
+								></i>
+							</div>
+							<div
+								className={`lg:flex flex-col lg:flex-row items-center justify-between  px-4 py-1 absolute lg:relative bg-[#101317] lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-50 lg:w-full transition-all ease-out ${
+									nav ? "translate-x-0" : "translate-x-full"
+								} lg:translate-x-0 lg:left-0 rounded-l-3xl`}
+								id="filter-container"
+							>
+								<div className="text-right mt-14 lg:mt-0 flex gap-2 flex-col lg:flex-row lg:items-center ">
+									<div className="font-normal flex justify-end">
+										<div className="flex items-center gap-2 relative w-full lg:w-72 ">
+											<input
+												type="text"
+												value={search}
+												onChange={onSearchChange}
+												className="w-full px-3 bg-[#393E46] py-2 pr-8 rounded-lg focus:outline outline-[3px] outline-teal-700/70"
+												placeholder="Search by name.."
+											/>
+											<i className="pi pi-search absolute right-2"></i>
+										</div>
+									</div>
+
+									<Select
+										value={selectedSubject}
+										handleChange={setSubject}
+										options={subjects}
+										placeholder="Subjects"
 									/>
-									<i className="pi pi-search absolute right-2"></i>
+									<Select
+										value={batch}
+										handleChange={changeBatch}
+										options={batchValues}
+										placeholder="Batches"
+									/>
 								</div>
 							</div>
-
-							<Select
-								value={selectedSubject}
-								handleChange={setSubject}
-								options={subjects}
-								placeholder="Subjects"
-							/>
-							<Select
-								value={batch}
-								handleChange={changeBatch}
-								options={batchValues}
-								placeholder="Batches"
-							/>
-
-							<button
-								className={`px-3 py-1 text-lg rounded-md bg-[#393E46] ${
-									disable ||
-									(values.length === 0 && "grayscale-[50%] cursor-not-allowed")
-								}`}
-								disabled={disable}
-								onClick={submit}
-							>
-								{disable ? (
-									<i className="pi pi-spin pi-spinner ml-2"></i>
-								) : (
-									"Save"
-								)}
-							</button>
 						</div>
 					</header>
+
 					<div className="overflow-auto w-full h-full">
 						{loading ? (
 							<div

@@ -69,21 +69,28 @@ export function monthsDifference(
 	date1: Date | string,
 	date2: Date | string
 ): number {
-	const startDate = date1 < date2 ? new Date(date1) : new Date(date2);
-	const endDate = date1 < date2 ? new Date(date2) : new Date(date1);
+	const startDate = new Date(date1 < date2 ? date1 : date2);
+	const endDate = new Date(date1 < date2 ? date2 : date1);
 
 	const startYear = startDate.getFullYear();
 	const startMonth = startDate.getMonth();
+	const startDay = startDate.getDate();
 	const endYear = endDate.getFullYear();
 	const endMonth = endDate.getMonth();
+	const endDay = endDate.getDate();
 
-	const yearDiff = endYear - startYear;
-	const monthDiff = endMonth - startMonth;
+	let yearDiff = endYear - startYear;
+	let monthDiff = endMonth - startMonth;
+
+	if (endDay < startDay) {
+		monthDiff -= 1;
+	}
 
 	const totalMonths = yearDiff * 12 + monthDiff;
 
-	return totalMonths;
+	return totalMonths<0?0:totalMonths;
 }
+
 
 export function getFeesMonthNames(dateObj: Date | string, numMonths: number) {
 	const startDate = extractDate(dateObj);

@@ -1,4 +1,4 @@
-export const filterBatches = (data:any[]) => {
+export const filterBatches = (data:any[]):{code:string,name:string}|null => {
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const currentDay = daysOfWeek[new Date().getDay()];
     const currentTime = new Date();

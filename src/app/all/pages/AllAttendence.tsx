@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import React, { useState, useEffect, useCallback } from "react";
 import Popover from "@/app/components/Popover";
 import axios from "axios";
@@ -12,7 +12,6 @@ import InputFields from "@/app/components/InputFields";
 import QueryTable from "@/app/components/QueryTable";
 import Loading from "@/app/components/Loading";
 import Link from "next/link";
-
 
 interface BatchesInterface {
 	batchName: string;
@@ -32,7 +31,6 @@ interface Studnets {
 	presents: number;
 }
 function AllAttendence() {
-	
 	const [show, setShow] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState<ShowAttendenceInterface[]>([]);
@@ -64,54 +62,55 @@ function AllAttendence() {
 	);
 
 	//First filter Specific date
-	const [filter, setFilter] = useState(0);
-	const [showF1, setShowF1] = useState(false);
 	const [date, setDate] = useState<Nullable<Date>>(null);
 
 	//Second filter between range
-	const [showF2, setShowF2] = useState(false);
 	const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
 
 	const [oldData, setOldData] = useState<ShowAttendenceInterface[]>([]);
-	useEffect(() => {
-		let url = `/api/attendence/get-all-attendence`;
-		if (date) {
-			url = `/api/attendence/get-all-attendence?startDate=${date}`;
-			if (oldData.length == 0) {
-				setOldData(data);
+	const filterByDate = useCallback(() => {
+		{
+			let url = `/api/attendence/get-all-attendence`;
+			if (date) {
+				url = `/api/attendence/get-all-attendence?startDate=${date}`;
+				if (oldData.length == 0) {
+					setOldData(data);
+				}
+			} else if (dates) {
+				url = `/api/attendence/get-all-attendence?startDate=${dates[0]}&endDate=${dates[1]}`;
+				if (oldData.length == 0) {
+					setOldData(data);
+				}
+			} else if (data.length > 0) {
+				setData(oldData);
+				setOldData([]);
+				return;
 			}
-		} else if (dates) {
-			url = `/api/attendence/get-all-attendence?startDate=${dates[0]}&endDate=${dates[1]}`;
-			if (oldData.length == 0) {
-				setOldData(data);
-			}
-		} else if (data.length > 0) {
-			setData(oldData);
-			setOldData([]);
-			return;
-		}
-		setShowF1(false);
-		setShowF2(false);
-		setShowF3(false);
-		setLoading(true);
-		axios
-			.get(url)
-			.then((response) => {
-				setData(response.data.data);
-				setDate(null);
-				setDates(null);
-			})
-			.catch((error) => {
-				Tshow({
-					summary: "Cannot fetch",
-					detail: error.response.data.message || error.message,
-					type: "error",
+			setShowF3(false);
+			setLoading(true);
+			axios
+				.get(url)
+				.then((response) => {
+					setData(response.data.data);
+					setDate(null);
+					setDates(null);
+				})
+				.catch((error) => {
+					Tshow({
+						summary: "Cannot fetch",
+						detail: error.response.data.message || error.message,
+						type: "error",
+					});
+				})
+				.finally(() => {
+					setLoading(false);
 				});
-			})
-			.finally(() => {
-				setLoading(false);
-			});
-	}, [filter]);
+		}
+	}, [date, dates]);
+	useEffect(() => {
+		filterByDate();
+	}, []);
+
 	const [students, setStudents] = useState<Studnets[]>([]);
 	const [cardLoading, setCardLoading] = useState(true);
 	const showStudents = ({ id, batchId }: { id: string; batchId: string }) => {
@@ -187,11 +186,6 @@ function AllAttendence() {
 	}, [byStudent]);
 
 	useEffect(() => {
-		setShowF1(false);
-		setShowF2(false);
-	}, [show]);
-
-	useEffect(() => {
 		setByStudent({
 			admissionNo: "CA-24/25-",
 			name: "",
@@ -201,7 +195,6 @@ function AllAttendence() {
 
 	return (
 		<>
-			{/* {Show student} */}
 			<Popover show={show} setShow={setShow}>
 				<div className="h-[30vw] min-h-96 w-full overflow-auto custom-scrollbar mt-3 relative rounded-lg">
 					<Loading loading={cardLoading}>
@@ -248,65 +241,7 @@ function AllAttendence() {
 					</Loading>
 				</div>
 			</Popover>
-			<Popover show={showF1} setShow={setShowF1}>
-				<form
-					action=""
-					className="sm:w-[35vw]"
-					onSubmit={(e: React.FormEvent) => {
-						e.preventDefault();
-						setFilter((prev) => prev + 1);
-					}}
-				>
-					<div className="flex-auto">
-						<label htmlFor="buttondisplay" className="font-bold block mb-2">
-							Select date
-						</label>
-						<Calendar
-							id="buttondisplay"
-							value={date}
-							onChange={(e) => setDate(e.value)}
-							className="w-full"
-							placeholder="Select yout specific date"
-						/>
-					</div>
-					<div className="text-right">
-						<button className="rounded-md px-3 py-1 text-lg shadow-md shadow-black active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 mt-2 bg-gradient-to-r">
-							Apply
-						</button>
-					</div>
-				</form>
-			</Popover>
-			<Popover show={showF2} setShow={setShowF2}>
-				<form
-					action=""
-					className="sm:w-[35vw]"
-					onSubmit={(e: React.FormEvent) => {
-						e.preventDefault();
-						setFilter((prev) => prev + 1);
-					}}
-				>
-					<div className="card flex justify-content-center flex-auto flex-wrap">
-						<label htmlFor="range" className="font-bold block mb-2">
-							From - To
-						</label>
-						<Calendar
-							value={dates}
-							onChange={(e) => setDates(e.value)}
-							selectionMode="range"
-							readOnlyInput
-							hideOnRangeSelection
-							id="range"
-							className="w-full"
-							placeholder="Select the range"
-						/>
-					</div>
-					<div className="text-right">
-						<button className="rounded-md px-3 py-1 text-lg shadow-md shadow-black active:scale-95 transition-all active:shadow-none to-emerald-400 from-emerald-700 mt-2 bg-gradient-to-r">
-							Apply
-						</button>
-					</div>
-				</form>
-			</Popover>
+
 			<Popover setShow={setShowF3} show={showF3}>
 				<header className="w-[50vw] border-b border-b-slate-700">
 					<form
@@ -355,7 +290,7 @@ function AllAttendence() {
 					</Loading>
 				</div>
 			</Popover>
-			<header className="flex justify-between items-center relative px-4 py-1 md:px-1 md:py-0">
+			<header className="flex justify-between items-start relative px-4 py-1 md:px-1 md:py-1 border-b">
 				<h2 className="font-semibold text-xl sm:text-3xl ">All attendence</h2>
 				<i
 					className="pi md:hidden block pi-filter text-lg hover:bg-slate-500/60 p-3 px-4 transition-all cursor-pointer rounded-md"
@@ -378,42 +313,47 @@ function AllAttendence() {
 						onClick={() => {
 							setDate(null);
 							setDates(null);
-							setFilter((prev) => prev + 1);
 						}}
 					></i>
-					<button
-						className="rounded-md w-full md:max-w-fit bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all"
-						onClick={() => {
-							setShowF1(true);
-							setShowF2(false);
-							setShowF3(false);
-						}}
-					>
-						Pin Pont
-					</button>
-					<button
-						className="rounded-md w-full md:max-w-fit bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all"
-						onClick={() => {
-							setShowF2(true);
-							setShowF1(false);
-							setShowF3(false);
-						}}
-					>
-						Time <span className="bg-[#F6961D] p-1 rounded">Warp</span>
-					</button>
+					<div className="flex-auto">
+						<Calendar
+							id="buttondisplay"
+							value={date}
+							onChange={(e) => {
+								setDate(e.value);
+								filterByDate();
+							}}
+							className="w-full"
+							placeholder="Select yout specific date"
+						/>
+					</div>
+
+					<div className="card flex justify-content-center flex-auto flex-wrap">
+						<Calendar
+							value={dates}
+							onChange={(e) => {
+								setDates(e.value);
+								filterByDate();
+							}}
+							selectionMode="range"
+							readOnlyInput
+							hideOnRangeSelection
+							id="range"
+							className="w-full"
+							placeholder="Select the range"
+						/>
+					</div>
 					<button
 						className="rounded-md w-full md:max-w-fit bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all"
 						onClick={() => {
 							setShowF3(true);
-							setShowF2(false);
-							setShowF1(false);
 						}}
 					>
 						Applicant ID
 					</button>
 				</div>
 			</header>
-			<div className="w-full rounded-md h-[calc(100%-3rem)] overflow-auto custom-scrollbar relative">
+			<div className="w-full rounded-md h-[calc(100%-3rem)] overflow-auto custom-scrollbar relative mt-1">
 				<Loading loading={loading}>
 					<div className="">
 						{data.map((item: ShowAttendenceInterface, index: number) => (
@@ -422,7 +362,7 @@ function AllAttendence() {
 									{item.date}
 								</h2>
 								{item.batches.map((batch: BatchesInterface) => (
-									<div className="col-12 w-full" key={batch.batchName.length}>
+									<div className="col-12 w-full" key={index}>
 										<div className="flex flex-column xl:flex-row xl:items-start p-2 gap-2 border-t-1 surface-border">
 											<div className="flex flex-column sm:flex-row justify-content-between  items-center flex-1 gap-1 justify-between border border-slate-400/50 p-2 px-4 rounded-md">
 												<div className="flex flex-column  items-center sm:items-start">

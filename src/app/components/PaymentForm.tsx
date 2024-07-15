@@ -37,6 +37,8 @@ function PaymentForm({ data }: { data: Student | null }) {
 	const [months, setMonths] = useState<string>("");
 	const PayFee = useCallback((e: React.FocusEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		console.log(values);
+		
 		if (!values?._id) {
 			Toast({
 				summary: "Paid",
@@ -46,6 +48,8 @@ function PaymentForm({ data }: { data: Student | null }) {
 			return;
 		}
 		setLoading(true);
+		console.log(value);
+		
 		axios
 			.post(`/api/fees?id=${values?._id}&months=${value}`)
 			.then((response) => {
@@ -66,7 +70,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 				setValues(null);
 				setLoading(false);
 			});
-	}, []);
+	}, [values,value]);
 	useEffect(() => {
 		setValue(1);
 	}, [values?.admissionNo]);
@@ -108,7 +112,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 										type="text"
 										id="full_name"
 										className="block w-full rounded-lg border   p-2.5 text-sm  focus:border-primary-500 focus:ring-primary-500  border-gray-600  bg-gray-700  text-white  placeholder:text-gray-400  focus:border-primary-500  focus:ring-primary-500"
-										value={values?.name}
+										value={values?.name||""}
 										required
 										readOnly
 										disabled
@@ -126,7 +130,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 										type="text"
 										id="card-number-input"
 										className="block w-full rounded-lg border   p-2.5 pe-10 text-sm  focus:border-primary-500 focus:ring-primary-500 border-gray-600  bg-gray-700  text-white  placeholder:text-gray-400  focus:border-primary-500  focus:ring-primary-500"
-										value={values?.admissionNo}
+										value={values?.admissionNo||""}
 										disabled
 										required
 										readOnly
@@ -244,7 +248,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 									<dt className="text-base font-bold text-white">Total</dt>
 									<dd className="text-base font-bold text-white">
 										<i className="pi pi-indian-rupee"></i>{" "}
-										{values?.fees && values?.fees * value}
+										{values?.fees && values.fees * value}
 									</dd>
 								</dl>
 							</div>

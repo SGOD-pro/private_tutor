@@ -379,7 +379,7 @@ function AddStudent({
 				</label>
 				<div className="flex-grow flex-shrink basis-full sm:basis-44">
 					
-				<Calendar value={values.admissionDate} onChange={(e) => setValues(prev => ({ ...prev, admissionDate: e.value }))} className="flex-grow flex-shrink basis-full sm:basis-44"/>
+				<Calendar value={values.admissionDate} onChange={(e) => setValues(prev => ({ ...prev, admissionDate: e.value }))} className="w-full" dateFormat="dd/mm/yy"/>
 
 				</div>
 			</div>
