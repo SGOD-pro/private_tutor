@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 				{ success: false, message: "cannot get batch" },
 				{ status: 404 }
 			);
-		}
+		}console.log(id);
 
 		const users = await userModel.aggregate([
 			{ $match: { batches: new mongoose.Types.ObjectId(id)} },
@@ -44,6 +44,7 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
+console.log(users);
 
 		return Response.json({
 			success: true,

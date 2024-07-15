@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState, useCallback } from "react";
 import "./checkbox.css";
 import { showToast } from "@/store/slices/Toast";
@@ -10,13 +9,13 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "../components/Select";
 import Link from "next/link";
-
+import { filterBatches } from "@/utils/currentBatchFilter";
 interface ComponentProps {
 	id: string;
 }
-interface SelectInterface{
-	name:string;
-	code:string
+interface SelectInterface {
+	name: string;
+	code: string;
 }
 function Attendance() {
 	const [disable, setDisable] = useState(false);
@@ -25,7 +24,7 @@ function Attendance() {
 	const [search, setSearch] = useState<string>("");
 	const [values, setValues] = useState<any[]>([]);
 	const [searchData, setSearchData] = useState<any[]>([]);
-	const [batch, setBatch] = useState<SelectInterface|null>(null);
+	const [batch, setBatch] = useState<SelectInterface | null>(null);
 
 	const appDispatch: AppDispatch = useDispatch();
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
@@ -35,10 +34,19 @@ function Attendance() {
 	}));
 
 	const batches = useSelector((state: any) => state.Batches.allBatches);
+	useEffect(() => {
+		if (!Array.isArray(batches) || batches.length === 0) {
+			return;
+		}
+		const batch = filterBatches(batches);
+		setBatch(batch);
+		console.log();
+	}, [batches]);
 
 	const [batchValues, setBatchValues] = useState<SelectInterface[]>([]);
 
-	const [selectedSubject, setSelectedSubject] = useState<SelectInterface|null>(null);
+	const [selectedSubject, setSelectedSubject] =
+		useState<SelectInterface | null>(null);
 	const setSubject = (e: any) => {
 		const selectedSubject = e.value;
 		setSelectedSubject(selectedSubject);
@@ -88,83 +96,38 @@ function Attendance() {
 		);
 	};
 
-	useEffect(() => {
+	const fetchRecords = useCallback(async () => {
 		if (!batch) {
+			console.log("not fetching");
+
 			return;
 		}
-		setLoading(true);
-		axios
-			.get(`/api/attendence?id=${batch.code}`)
-			.then((response) => {
-				setValues(response.data.data);
-				setSearchData(response.data.data);
-			})
-			.catch((error) => {
-				show({
-					summary: "Attendance",
-					detail: error.response?.data?.message || "Error fetching attendance!",
-					type: "error",
-				});
-			})
-			.finally(() => {
-				setLoading(false);
+		console.log("fetching");
+
+		try {
+			const [studentRecords, attendenceRecord] = await Promise.all([
+				axios.get(`/api/attendence?id=${batch.code}`),
+				axios.get(`/api/attendence/assign-attendence?id=${batch.code}`),
+			]);
+			console.log(studentRecords, attendenceRecord);
+			setValues(studentRecords.data.data);
+			setSearchData(studentRecords.data.data);
+			setIds(attendenceRecord.data.data?.studentsId || []);
+			setLoading(false);
+		} catch (error: any) {
+			show({
+				summary: "Attendance",
+				detail: error.response?.data?.message || "Error fetching attendance!",
+				type: "error",
 			});
-		axios
-			.get(`/api/attendence/assign-attendence?id=${batch.code}`)
-			.then((response) => {
-				setIds(response.data.data?.studentsId || []);
-				show({
-					summary: "Attendance",
-					detail: response.data.message,
-					type: "success",
-				});
-			})
-			.catch((error) => {
-				show({
-					summary: "Attendance",
-					detail: error.response?.data?.message || "Error fetching record!",
-					type: "error",
-				});
-			});
+		}
 	}, [batch]);
+
 	useEffect(() => {
-		axios
-			.get(`/api/attendence/get-batch`)
-			.then((response) => {
-				console.log(response.data.data);
-				if (subjects && Array.isArray(subjects)) {
-					for (let i = 0; i < subjects.length; i++) {
-						const element = subjects[i];
-						if (element.name === response.data.data?.subject) {
-							console.log(element);
-							setSelectedSubject(element);
-							break;
-						}
-					}
-					for (let i = 0; i < batches.length; i++) {
-						const element = batches[i];
-						if (element._id === response.data.data?._id) {
-							setBatch({
-								name: `${element.days} (${element.time})`,
-								code: element._id,
-							});
-							console.log({
-								name: `${element.days} (${element.time})`,
-								code: element._id,
-							});
-							break;
-						}
-					}
-				}
-			})
-			.catch((error) => {
-				show({
-					summary: "Attendance",
-					detail: error.response?.data?.message || "Error fetching attendance!",
-					type: "error",
-				});
-			});
-	}, []);
+		setLoading(true);
+		fetchRecords();
+	}, [batch]);
+
 	useEffect(() => {
 		if (!selectedSubject) {
 			return;

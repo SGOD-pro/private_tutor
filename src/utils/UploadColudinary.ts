@@ -15,8 +15,6 @@ const uploadImage = async (file: any) => {
 			await writeFileAsync(filePath, Buffer.from(buffer));
 
 			const uploadedFile: any = await cloudinaryUTIL(filePath);
-			console.log(uploadedFile);
-
 			if (filePath) {
 				await unlinkAsync(filePath);
 			}
