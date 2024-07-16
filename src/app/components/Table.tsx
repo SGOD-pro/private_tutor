@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 
-import { StudentDetailsInterface } from "../page";
 type DeleteFunction = (id: string) => Promise<boolean>;
 type EditFunction = (data: any) => void;
 
@@ -18,14 +17,12 @@ interface TableProps {
 	values: any;
 }
 
-export default function BasicDemo({
+function BasicDemo({
 	deleteFunction,
 	editFunction,
 	columns,
 	values,
 }: TableProps) {
-	const [loading, setLoading] = useState(false);
-
 	const ButtonTemplate = ({
 		data,
 		deleteFunction,
@@ -96,3 +93,4 @@ export default function BasicDemo({
 		</div>
 	);
 }
+export default  memo(BasicDemo)

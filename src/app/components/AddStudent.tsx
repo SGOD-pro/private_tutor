@@ -93,10 +93,8 @@ function AddStudent({
 		);
 	};
 	const lastAdmission = useSelector((state: any) => state.Students.allStudents);
-	const [adno, setAdno] = useState(0);
-
 	const updateAddNo = useCallback(() => {
-		const lastStudent = lastAdmission[0];
+		const lastStudent = lastAdmission[0]||undefined;
 		const lastDigit = lastStudent?.admissionNo?.split("-");
 		const newAddNo = `CA-${new Date().getFullYear() % 100}/${
 			(new Date().getFullYear() % 100) + 1

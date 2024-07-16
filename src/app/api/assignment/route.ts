@@ -61,7 +61,7 @@ export async function GET() {
 			{
 				$addFields: {
 					subbmissionDate: {
-						$toDate: "$subbmissionDate",
+						$toDate: "$submissionDate",
 					},
 					batch: {
 						$arrayElemAt: ["$batch", 0],
@@ -81,14 +81,14 @@ export async function GET() {
 			},
 			{
 				$addFields: {
-					subbmissionDate: {
+					submissionDate: {
 						$concat: [
 							{
 								$substr: [
 									{
 										$dateToString: {
 											format: "%d/%m/%Y",
-											date: "$subbmissionDate",
+											date: "$submissionDate",
 										},
 									},
 									0,
@@ -100,7 +100,7 @@ export async function GET() {
 									{
 										$dateToString: {
 											format: "%d/%m/%Y",
-											date: "$subbmissionDate",
+											date: "$submissionDate",
 										},
 									},
 									8,
@@ -129,7 +129,7 @@ export async function GET() {
 			},
 			{
 				$project: {
-					title: 1,
+					fileURL: 1,
 					subbmissionDate: 1,
 					batch: { $concat: ["$days", " (", "$batchTime", ")"] },
 					subject: "$batch.subject",

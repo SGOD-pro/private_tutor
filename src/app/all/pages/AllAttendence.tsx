@@ -61,13 +61,10 @@ function AllAttendence() {
 		[appDispatch]
 	);
 
-	//First filter Specific date
 	const [date, setDate] = useState<Nullable<Date>>(null);
-
-	//Second filter between range
 	const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
-
 	const [oldData, setOldData] = useState<ShowAttendenceInterface[]>([]);
+	
 	const filterByDate = useCallback(() => {
 		{
 			let url = `/api/attendence/get-all-attendence`;
@@ -290,6 +287,8 @@ function AllAttendence() {
 					</Loading>
 				</div>
 			</Popover>
+
+
 			<header className="flex justify-between items-start relative px-4 py-1 md:px-1 md:py-1 border-b">
 				<h2 className="font-semibold text-xl sm:text-3xl ">All attendence</h2>
 				<i
@@ -324,7 +323,7 @@ function AllAttendence() {
 								filterByDate();
 							}}
 							className="w-full"
-							placeholder="Select yout specific date"
+							placeholder="Specific Date"
 						/>
 					</div>
 
@@ -340,7 +339,7 @@ function AllAttendence() {
 							hideOnRangeSelection
 							id="range"
 							className="w-full"
-							placeholder="Select the range"
+							placeholder="Select Range"
 						/>
 					</div>
 					<button
@@ -353,6 +352,7 @@ function AllAttendence() {
 					</button>
 				</div>
 			</header>
+
 			<div className="w-full rounded-md h-[calc(100%-3rem)] overflow-auto custom-scrollbar relative mt-1">
 				<Loading loading={loading}>
 					<div className="">

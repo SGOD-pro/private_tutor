@@ -17,7 +17,7 @@ function Select({ value, handleChange, options,placeholder
 			options={options}
 			optionLabel="name"
 			placeholder={`${placeholder}`}
-			className="w-full bg-[#393E46] p-0 text-sm"
+			className=" bg-[#393E46] text-xs w-full"
 		/>
 	);
 }

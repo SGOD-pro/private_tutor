@@ -90,7 +90,7 @@ const SelectCom: React.FC<SelectComProps> = ({ batchId, subDate }) => {
 	maxDate.setFullYear(year);
 	return (
 		<div className="flex gap-3 w-full flex-wrap">
-			<div className="basis-44">
+			<div className="card flex justify-content-center grow">
 				<Select
 					options={subjects}
 					handleChange={handleSubjectChange}
@@ -98,7 +98,7 @@ const SelectCom: React.FC<SelectComProps> = ({ batchId, subDate }) => {
 					placeholder="Subject"
 				/>
 			</div>
-			<div className="basis-44">
+			<div className="card flex justify-content-center grow">
 				<Select
 					options={batchValues}
 					handleChange={handleBatchChange}
@@ -106,7 +106,7 @@ const SelectCom: React.FC<SelectComProps> = ({ batchId, subDate }) => {
 					placeholder="Select Batch"
 				/>
 			</div>
-			<div className="card flex justify-content-center basis-44">
+			<div className="card flex justify-content-center grow">
 				<Calendar
 					value={date}
 					onChange={(e) => {
@@ -117,6 +117,7 @@ const SelectCom: React.FC<SelectComProps> = ({ batchId, subDate }) => {
 					maxDate={maxDate}
 					readOnlyInput
 					placeholder="Subbmission date"
+					className="w-full"
 				/>
 			</div>
 		</div>

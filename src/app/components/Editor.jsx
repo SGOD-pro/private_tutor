@@ -89,7 +89,9 @@ export default function App() {
           }}
         />
         <div className="flex gap-3 justify-end items-stretch mt-2">
+          <div className="w-1/2 min-w-96">
           <SelectCom batchId={batchId} subDate={subDate}/>
+          </div>
           <button className='font-semibold border border-emerald-500 text-emerald-500 hover:bg-slate-200/10 rounded-xl shadow shadow-black'>
             {!loading ?
 
