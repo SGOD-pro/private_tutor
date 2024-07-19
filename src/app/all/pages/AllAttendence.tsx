@@ -67,24 +67,13 @@ function AllAttendence() {
 	//Second filter between range
 	const [dates, setDates] = useState<Nullable<(Date | null)[]>>(null);
 
-	const [oldData, setOldData] = useState<ShowAttendenceInterface[]>([]);
 	const filterByDate = useCallback(() => {
 		{
 			let url = `/api/attendence/get-all-attendence`;
 			if (date) {
 				url = `/api/attendence/get-all-attendence?startDate=${date}`;
-				if (oldData.length == 0) {
-					setOldData(data);
-				}
-			} else if (dates) {
+			} else if (dates?.length === 2) {
 				url = `/api/attendence/get-all-attendence?startDate=${dates[0]}&endDate=${dates[1]}`;
-				if (oldData.length == 0) {
-					setOldData(data);
-				}
-			} else if (data.length > 0) {
-				setData(oldData);
-				setOldData([]);
-				return;
 			}
 			setShowF3(false);
 			setLoading(true);
@@ -92,8 +81,6 @@ function AllAttendence() {
 				.get(url)
 				.then((response) => {
 					setData(response.data.data);
-					setDate(null);
-					setDates(null);
 				})
 				.catch((error) => {
 					Tshow({
@@ -107,9 +94,6 @@ function AllAttendence() {
 				});
 		}
 	}, [date, dates]);
-	useEffect(() => {
-		filterByDate();
-	}, []);
 
 	const [students, setStudents] = useState<Studnets[]>([]);
 	const [cardLoading, setCardLoading] = useState(true);
@@ -134,18 +118,20 @@ function AllAttendence() {
 				setCardLoading(false);
 			});
 	};
-	const [showFilter, setShowFilter] = useState(false);
-	const filterOptions = (e: any) => {
-		if (e.target.id !== "filterOptions") {
-			setShowFilter(false);
-		}
-	};
-	useEffect(() => {
-		document.addEventListener("click", filterOptions);
-		return () => {
-			document.removeEventListener("click", filterOptions);
-		};
-	}, []);
+	const [showNav, setShowNav] = useState(false);
+	// const filterOptions = (e: any) => {
+	// 	console.log(e.target.id);
+
+	// 	if (e.target.id !== "nav") {
+	// 		setShowNav(false);
+	// 	}
+	// };
+	// useEffect(() => {
+	// 	document.addEventListener("click", filterOptions);
+	// 	return () => {
+	// 		document.removeEventListener("click", filterOptions);
+	// 	};
+	// }, []);
 
 	//Third filter by name and admission no
 	const [showF3, setShowF3] = useState(false);
@@ -243,11 +229,11 @@ function AllAttendence() {
 			</Popover>
 
 			<Popover setShow={setShowF3} show={showF3}>
-				<header className="w-[50vw] border-b border-b-slate-700">
+				<header className="border-b border-b-slate-700">
 					<form
 						action=""
 						className="flex gap-4 items-end justify-between"
-						onSubmit={(e: React.FormEvent) => {
+						onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
 							e.preventDefault();
 							filterByStudent();
 						}}
@@ -290,50 +276,47 @@ function AllAttendence() {
 					</Loading>
 				</div>
 			</Popover>
-			<header className="flex justify-between items-start relative px-4 py-1 md:px-1 md:py-1 border-b">
-				<h2 className="font-semibold text-xl sm:text-3xl ">All attendence</h2>
+			<header className="flex justify-between items-center relative px-4 py-1 md:px-1 md:py-1 border-b">
+				<h2 className="font-bold text-3xl">Attendence</h2>
 				<i
-					className="pi md:hidden block pi-filter text-lg hover:bg-slate-500/60 p-3 px-4 transition-all cursor-pointer rounded-md"
-					id="filterOptions"
+					className="pi pi-align-justify block lg:hidden"
 					onClick={() => {
-						setShowFilter((prev) => !prev);
+						setShowNav(true);
 					}}
+					id="nav"
 				></i>
 				<div
-					className={`${
-						showFilter
-							? "visible opacity-100 translate-y-full"
-							: "invisible opacity-0 translate-y-[90%]"
-					} transition-all absolute bottom-0 right-10 xl:right-10 sm:right-0 flex flex-col md:flex-row lg:gap-6 md:gap-3 bg-slate-900 md:bg-transparent p-4 md:p-0 rounded-lg md:visible md:opacity-100 md:translate-y-0 md:relative items-center z-50`}
+					className={`lg:flex flex-col lg:flex-row items-center justify-between  px-4 py-6 fixed lg:static bg-slate-900 lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-0 lg:w-fit transition-all ease-out ${
+						showNav ? "translate-x-0" : "translate-x-full"
+					} lg:translate-x-0 lg:left-0 rounded-l-3xl lg:py-0 gap-2`}
 				>
-					<i
-						className={`${
-							date || dates ? "block" : "hidden"
-						} pi pi-filter-slash p-2 w-full mb-1 sm:w-fit sm:mb-0 text-center  bg-orange-500/70 rounded-md cursor-pointer hover:bg-orange-500/90 transition-all`}
+					<span
+						className="pi pi-times border rounded mb-4 p-3 lg:hidden block"
 						onClick={() => {
-							setDate(null);
-							setDates(null);
+							setShowNav(false);
 						}}
-					></i>
-					<div className="flex-auto">
+					></span>
+
+					<form
+						className="flex gap-2 items-stretch lg:flex-row flex-col"
+						onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+							e.preventDefault();
+							filterByDate();
+						}}
+					>
 						<Calendar
 							id="buttondisplay"
 							value={date}
 							onChange={(e) => {
 								setDate(e.value);
-								filterByDate();
 							}}
 							className="w-full"
 							placeholder="Select yout specific date"
 						/>
-					</div>
-
-					<div className="card flex justify-content-center flex-auto flex-wrap">
 						<Calendar
 							value={dates}
 							onChange={(e) => {
 								setDates(e.value);
-								filterByDate();
 							}}
 							selectionMode="range"
 							readOnlyInput
@@ -342,12 +325,29 @@ function AllAttendence() {
 							className="w-full"
 							placeholder="Select the range"
 						/>
-					</div>
+						<span
+							className="rounded-md text-center transition-all border border-rose-500 text-rose-5000 active:scale-95 hover:bg-rose-500 hover:text-white"
+							id=""
+							onClick={() => {
+								setDate(null);
+								setDates(null);
+							}}
+						>
+							<span className="pi pi-times p-3"></span>
+						</span>
+						<button
+							className="rounded-md transition-all border border-emerald-500 text-emerald-5000 active:scale-95 hover:bg-emerald-500 hover:text-white"
+							id=""
+						>
+							<span className="pi pi-search p-3"></span>
+						</button>
+					</form>
 					<button
-						className="rounded-md w-full md:max-w-fit bg-slate-600/70 mb-1 px-3 py-1 text-lg font-mono hover:bg-slate-600/90 transition-all"
+						className="rounded-md w-full md:max-w-fit bg-slate-600/70 px-2 text-lg font-mono hover:bg-slate-600/90 transition-all lg:mt-0 mt-2 py-2 lg:py-0"
 						onClick={() => {
 							setShowF3(true);
 						}}
+						type="button"
 					>
 						Applicant ID
 					</button>

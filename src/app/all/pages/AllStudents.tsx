@@ -84,11 +84,6 @@ function AllStudents() {
 				if (skip === 0 && data.length === 0) {
 					setData(response.data.data);
 					setFilteredValue(response.data.data);
-					Tshow({
-						type: "success",
-						summary: "Fetched",
-						detail: response.data.message,
-					});
 					dispatch(setAllStudentsByBatch(response.data.data));
 				} else {
 					setData((prev) => [...prev, ...response.data.data]);
