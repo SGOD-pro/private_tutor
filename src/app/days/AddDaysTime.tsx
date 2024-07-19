@@ -28,7 +28,7 @@ function AddDaysTime({
 }) {
 	const [disable, setDisable] = useState(false);
 	const dispatch = useDispatch();
-	const days = ["Sun", "Mon", "Tue", "Wed", "Thrus", "Fri", "Sat"];
+	const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const subjects = AllSubjects.map((subject: any) => ({
 		name: subject.subject,
@@ -89,8 +89,6 @@ function AddDaysTime({
 					endTime: null,
 					days: [],
 				});
-				console.log(response.data.data);
-
 				show({
 						type: "success",
 						summary: "Added",
@@ -103,7 +101,6 @@ function AddDaysTime({
 				}	
 			})
 			.catch((error) => {
-				console.log(error.response.status);
 				show({
 						type: error.response.status>400?"error":"warn",
 						summary: error.response.status>400?"Error":"Warning",

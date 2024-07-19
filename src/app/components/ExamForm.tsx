@@ -128,7 +128,7 @@ function ExamForm() {
 			</div>
 			<div className="flex flex-wrap w-full my-3">
 				<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
-					Date & Time
+					Batch
 				</label>
 				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
 					<Select
@@ -139,6 +139,20 @@ function ExamForm() {
 					/>
 				</div>
 			</div>
+			<div className="flex flex-wrap w-full my-3">
+				<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
+					Mode
+				</label>
+				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
+					<Select
+						options={batchValues}
+						handleChange={setBatch}
+						value={values.batch}
+						placeholder={"Select mode"}
+					/>
+				</div>
+			</div>
+
 			<div className="flex flex-wrap w-full my-3">
 				<label htmlFor="caption" className="flex-grow flex-shrink basis-24">
 					Date

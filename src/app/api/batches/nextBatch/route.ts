@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
 		const currentTime = new Date();
 		
 		const newTime=extractTime(currentTime.toISOString())
+		console.log(newTime);
 		
 		const nextBatch = await batcheModel.aggregate([
 			{

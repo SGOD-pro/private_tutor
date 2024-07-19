@@ -7,6 +7,8 @@ import { AppDispatch } from "@/store/store";
 import { ToastInterface } from "@/store/slices/Toast";
 import { showToast } from "@/store/slices/Toast";
 import { Nullable } from "primereact/ts-helpers";
+import { pushAssignment } from "@/store/slices/Assignments";
+
 function AddAssignment() {
 	const batchid = useRef<string | null>(null);
 	const subDate = useRef<Nullable<Date>>(new Date());
@@ -53,6 +55,8 @@ function AddAssignment() {
 				}
 			)
 			.then((response) => {
+				pushAssignment(response.data.data);
+
 				show({
 					summary: "Added successfuly",
 					type: "success",

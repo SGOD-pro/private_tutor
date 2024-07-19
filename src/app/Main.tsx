@@ -8,6 +8,7 @@ import { setSubject } from "@/store/slices/Subjects";
 import Navbar from "./components/Navbar";
 import ToastComponent from "./components/ToastComponent";
 import axios from "axios";
+import Offline from "./components/Offline";
 
 function Main({ children }: { children: React.ReactNode }) {
 	const subjects = useSelector((state: any) => state.Subjects.allSubjects);
@@ -47,10 +48,30 @@ function Main({ children }: { children: React.ReactNode }) {
 			document.removeEventListener("click", showNavFunc);
 		};
 	}, []);
+	const [isOnline, setIsOnline] = useState(true);
 
+	useEffect(() => {
+	  if (typeof window !== 'undefined') {
+		setIsOnline(navigator.onLine);
+  
+		const handleOnline = () => setIsOnline(true);
+		const handleOffline = () => setIsOnline(false);
+  
+		window.addEventListener('online', handleOnline);
+		window.addEventListener('offline', handleOffline);
+  
+		return () => {
+		  window.removeEventListener('online', handleOnline);
+		  window.removeEventListener('offline', handleOffline);
+		};
+	  }
+	}, []);
 	return (
 		<>
 			<main className=" flex bg-[#00ADB5] w-screen h-screen overflow-auto">
+				{!isOnline&&<div className="absolute left-0 top-0  w-full h-full z-[1000]">
+					<Offline />
+				</div>}
 				<Navbar show={showNav} setShow={setShowNav} />
 				<ToastComponent />
 				<div

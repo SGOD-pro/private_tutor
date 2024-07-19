@@ -24,7 +24,7 @@ export type StudentDetailsInterface = {
 	stream: string;
 	fees: number;
 	phoneNo: string[] | null;
-	admissionDate?:Date|null
+	admissionDate?: Date | null;
 	_id?: string;
 };
 
@@ -90,10 +90,15 @@ export default function Home() {
 		try {
 			const response = await axios.get(`/api/students/deleteStudent?id=${id}`);
 			dispatch(popStudent(id));
-			
+
 			return response.data.success;
-		} catch (error:any) {
-			console.error("Error occurred while deleting:", error);show({summary:"Not deleted",type:"error",detail:error.response?.data?.message||"Server error while deleting"});
+		} catch (error: any) {
+			console.error("Error occurred while deleting:", error);
+			show({
+				summary: "Not deleted",
+				type: "error",
+				detail: error.response?.data?.message || "Server error while deleting",
+			});
 			return false;
 		}
 	};
@@ -108,7 +113,7 @@ export default function Home() {
 		stream: "",
 		fees: 0,
 		phoneNo: [],
-		admissionDate:new Date(),
+		admissionDate: new Date(),
 	});
 
 	const [update, setUpdate] = useState(false);
@@ -128,9 +133,9 @@ export default function Home() {
 			: [];
 		setSubject(subjectList);
 		console.log(data);
-		let date=new Date()
+		let date = new Date();
 		if (data.admissionDate) {
-			date=new Date(data.admissionDate)
+			date = new Date(data.admissionDate);
 		}
 		setValues({
 			institutionName: data.institutionName,
@@ -142,7 +147,7 @@ export default function Home() {
 			stream: data.stream,
 			phoneNo: data.phoneNo,
 			fees: data.fees,
-			admissionDate:date
+			admissionDate: date,
 		});
 		if (data._id) localStorage.setItem("_id", data._id);
 		setUpdate(true);
@@ -155,7 +160,6 @@ export default function Home() {
 				<span className="animate-ping absolute h-full w-full rounded-full bg-sky-400 opacity-75"></span>
 			</div>
 			<div className=" flex flex-col gap-2">
-
 				<section className="md:max-h-1/2 md:min-h-[45vh]  min-h-[50vh] rounded-lg sm:rounded-tl-[20px] md:rounded-tl-[44px] border border-slate-400/70 p-3 md:p-3 md:pl-8 md:overflow-auto relative transition-all">
 					<Loading loading={loading}>
 						<AddStudent
@@ -170,7 +174,7 @@ export default function Home() {
 					</Loading>
 				</section>
 
-				<section className="md:h-[43vh] max-h-[70vh] sm:rounded-bl-[20px] rounded-lg md:rounded-bl-[44px] border border-slate-400/70 overflow-hidden relative  transition-all">
+				<section className="md:h-[40vh] max-h-[70vh] sm:rounded-bl-[20px] rounded-lg md:rounded-bl-[44px] border border-slate-400/70 overflow-hidden relative  transition-all">
 					<div className="flex items-center justify-between bg-[#393E46] w-full p-2 sticky top-0 z-10 ">
 						<h2 className="text-xl capitalize font-semibold ">
 							recent students
@@ -182,7 +186,7 @@ export default function Home() {
 							All student
 						</Link>
 					</div>
-					<div className="max-h-[calc(100%-0rem)] md:min-h-[42.5vh] min-h[48vh] lg:min-h-[52vh] overflow-auto md:pb-36 custom-scrollbar bg-[#1F2937]">
+					<div className="max-h-[calc(100%-0rem)] md:min-h-[40vh] min-h[46vh] lg:min-h-[50vh] overflow-auto md:pb-28 custom-scrollbar bg-[#1F2937]">
 						<Loading loading={loading}>
 							<Table
 								columns={columns}
@@ -193,9 +197,8 @@ export default function Home() {
 						</Loading>
 					</div>
 				</section>
-
 			</div>
-			<aside className="hidden lg:flex min-w-56 flex-col gap-2 relative rounded-lg overflow-hidden">
+			<aside className="hidden lg:flex min-w-56 flex-col gap-2 relative rounded-lg  h-full">
 				<Loading loading={loading}>
 					<div className=" w-full relative border border-slate-400/60 rounded-lg">
 						<SimpleCard />

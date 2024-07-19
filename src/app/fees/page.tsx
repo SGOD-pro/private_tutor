@@ -190,9 +190,9 @@ function Fees() {
 						}}
 					></i>
 					<div
-						className={`z-20 absolute sm:static bottom-0 left-0 translate-y-full bg-stone-900 w-full sm:w-fit rounded-b-3xl sm:rounded-none shadow-black shadow-md ease-out ${
+						className={`z-20 absolute sm:static bottom-0 left-0 translate-y-full backdrop-blur-md w-full sm:w-fit rounded-b-3xl sm:rounded-none shadow-black shadow-md ease-out ${
 							showNav ? "h-28" : "h-0"
-						} sm:h-fit sm:translate-y-0 sm:bg-transparent overflow-hidden transition-all`}
+						} sm:h-fit sm:translate-y-0 sm:backdrop-blur-none sm:bg-transparent bg-[#101317] overflow-hidden transition-all`}
 					>
 						<div className="flex items-center gap-2  flex-col sm:flex-row min-w-72 m-auto p-3 sm:p-0">
 							<div className="flex gap-2 items-center w-full sm:w-fit">

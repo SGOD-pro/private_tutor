@@ -3,6 +3,8 @@ import ConnectDB from "@/db";
 import assignmentModel from "@/models/Assignment";
 import formDataToJson from "@/utils/FormData";
 import uploadImage from "@/utils/UploadColudinary";
+import { extractDate } from "@/utils/DateTime";
+import Batches from "@/models/Batches";
 
 export async function POST(req: NextRequest) {
 	await ConnectDB();
@@ -29,9 +31,18 @@ export async function POST(req: NextRequest) {
 				{ status: 409 }
 			);
 		}
+		const subject= await Batches.findById(created._id);
+		const responseData={
+			fileURL:created.fileURL,
+			explanation:created.explanation,
+			issue:created.cratedAt,
+			submissionDate:created.submissionDate,
+			subject:subject?._id,
+			_id:created._id,
+		}
 		return NextResponse.json({
 			message: "Added assignment",
-			data: created,
+			data: responseData,
 			success: true,
 		});
 	} catch (error: any) {
@@ -49,95 +60,54 @@ export async function GET() {
 					createdAt: -1,
 				},
 			},
-
-			{
-				$lookup: {
-					foreignField: "_id",
-					localField: "batch",
-					from: "batches",
-					as: "batch",
-				},
-			},
-			{
-				$addFields: {
-					subbmissionDate: {
-						$toDate: "$submissionDate",
-					},
-					batch: {
-						$arrayElemAt: ["$batch", 0],
-					},
-				},
-			},
-			{
-				$addFields: {
-					days: {
-						$reduce: {
-							input: "$batch.days",
-							initialValue: "",
-							in: { $concat: ["$$value", ", ", "$$this"] },
-						},
-					},
-				},
-			},
 			{
 				$addFields: {
 					submissionDate: {
-						$concat: [
-							{
-								$substr: [
-									{
-										$dateToString: {
-											format: "%d/%m/%Y",
-											date: "$submissionDate",
-										},
-									},
-									0,
-									6,
-								],
-							},
-							{
-								$substr: [
-									{
-										$dateToString: {
-											format: "%d/%m/%Y",
-											date: "$submissionDate",
-										},
-									},
-									8,
-									2,
-								],
-							},
-						],
-					},
-					days: {
-						$cond: {
-							if: { $or: [{ $eq: ["$days", ""] }, { $eq: ["$days", null] }] },
-							then: "",
-							else: {
-								$substrCP: [
-									"$days",
-									2,
-									{ $subtract: [{ $strLenCP: "$days" }, 1] },
-								],
-							},
+						$dateToString: {
+							format: "%d-%m-%Y",
+							date: "$submissionDate",
 						},
 					},
-					batchTime: {
-						$concat: ["$batch.startTime", " - ", "$batch.endTime"],
+					issue: {
+						$dateToString: {
+							format: "%d-%m-%Y",
+							date: "$createdAt",
+						},
 					},
+				},
+			},
+			{
+				$lookup: {
+					from: "batches",
+					localField: "batch",
+					foreignField: "_id",
+					as: "subject",
+					pipeline: [
+						{
+							$project: {
+								subject: 1,
+							},
+						},
+					],
+				},
+			},
+			{
+				$addFields: {
+					subject: { $arrayElemAt: ["$subject", 0] },
 				},
 			},
 			{
 				$project: {
 					fileURL: 1,
-					subbmissionDate: 1,
-					batch: { $concat: ["$days", " (", "$batchTime", ")"] },
-					subject: "$batch.subject",
-					batchId: "$batch._id",
 					explanation: 1,
+					issue: 1,
+					submissionDate: 1,
+					subject: "$subject.subject",
 				},
 			},
 		]);
+		console.log(assignment);
+
 		return Response.json(
 			{ message: "Fetched all assignments", success: true, data: assignment },
 			{ status: 200 }

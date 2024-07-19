@@ -5,7 +5,7 @@ import SelectCom from '../assignment/SelectCom'
 import axios from 'axios';
 import { showToast } from "@/store/slices/Toast";
 import { useDispatch } from 'react-redux';
-
+import {pushAssignment} from "@/store/slices/Assignments"
 export default function App() {
   const editorRef = useRef(null);
   const batchId = useRef(null);
@@ -41,6 +41,7 @@ export default function App() {
           "Content-Type": "multipart/form-data",
         },
       }).then((response) => {
+        pushAssignment(response.data.data);
         show({
           summary: "Added successfuly",
           type: "success",

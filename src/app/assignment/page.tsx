@@ -4,12 +4,13 @@ import Editor from "../components/Editor";
 import AddAssignment from "./AddAssignment";
 import Loading from "../components/Loading";
 import Link from "next/link";
-export interface AddAssignmentInterface{
-	_id?: string;
-	content: string;
-	file:string;
-	subbmissionDate:Date;
-	batchid:string;
+export interface AddAssignmentInterface {
+	fileURL: string | null;
+	explanation: string | null;
+	_id: string;
+	subject: string;
+	submissionDate: Date;
+	issue: Date;
 }
 function Assignment() {
 	const [loading, setLoading] = useState(true);
@@ -18,16 +19,12 @@ function Assignment() {
 		const handleDOMContentLoaded = () => {
 			setLoading(false);
 		};
-
-		// Check if the DOMContentLoaded event has already been fired
 		if (document.readyState === "loading") {
 			document.addEventListener("DOMContentLoaded", handleDOMContentLoaded);
 		} else {
-			// DOMContentLoaded has already fired, so call the handler immediately
 			handleDOMContentLoaded();
 		}
 
-		// Cleanup event listener
 		return () => {
 			document.removeEventListener("DOMContentLoaded", handleDOMContentLoaded);
 		};
@@ -41,10 +38,13 @@ function Assignment() {
 		<div className="h-full w-full  overflow-x-hidden overflow-y-auto custom-scrollbar">
 			<header className="sticky left-0">
 				<div className="flex items-center justify-between border-b-slate-500/60 border-b mb-2 p-1">
-					<h2 className="text-3xl font-semibold">
-						Assignments
-					</h2>
-					<Link href='/all/show-assignments' className="text-emerald-400 hover:underline">Show Assignments</Link>
+					<h2 className="text-3xl font-semibold">Assignments</h2>
+					<Link
+						href="/all/show-assignments"
+						className="text-emerald-400 hover:underline"
+					>
+						Show Assignments
+					</Link>
 				</div>
 				<div className="md:m-auto bg-slate-800 w-56 rounded-lg p-2">
 					<div

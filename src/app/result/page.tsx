@@ -2,30 +2,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Popover from "../components/Popover";
 import ExamForm from "../components/ExamForm";
+import Table from "../components/Table";
 
 function Result() {
 	const [show, setShow] = useState(false);
-	const showNavFunc = useCallback((e: MouseEvent) => {
-		const form = document.getElementById("ExamForm");
-		if (!form) {
-			return;
-		}
-		const target = e.target as Node | null;
-		if (
-			target instanceof HTMLElement &&
-			(target.id !== "add-exam") &&
-			!(form.contains(target))
-		) {
-			setShow(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		document.addEventListener("click", showNavFunc);
-		return () => {
-			document.removeEventListener("click", showNavFunc);
-		};
-	}, []);
 
 	return (
 		<div>
@@ -47,6 +27,12 @@ function Result() {
 					<i className="pi pi-plus-circle p-3 hover:bg-slate-400/20 pointer-events-none"></i>
 				</button>
 			</header>
+			<main className="">
+				<Table
+					columns={[{ field: "subject", header: "Subject" }]}
+					values={[]}
+				/>
+			</main>
 		</div>
 	);
 }

@@ -5,7 +5,7 @@ import axios from 'axios';
 
 
 const SimpleCard = () => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thrus", "Fri", "Sat"];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const [batchCard, setBatchCard] = useState({
         name: "",
         time: ""
@@ -26,11 +26,12 @@ const SimpleCard = () => {
     }, [])
 
     return (
-        <div className={` w-full ${batchCard.name!==""?'h-36':'h-full'} p-2`} key={batchCard.name} >
+        <div className={` w-full ${batchCard.name!==""?'h-24':'h-full'} p-2`} key={batchCard.name} >
         {batchCard.name!==""?
-            <Card title={batchCard.name} className='h-full'>
+            <div className='h-full rounded p-2 bg-[#1F2937] w-full'>
+                <h2 className='text-xl font-bold'>{batchCard.name}</h2>
                 <p className=' no-underline'>Time: {batchCard.time}</p>
-            </Card>
+            </div>
             :
             <h2 className="text-xl">No more Batches for today</h2>
         }

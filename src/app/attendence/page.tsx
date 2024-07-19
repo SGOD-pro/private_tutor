@@ -19,7 +19,7 @@ interface SelectInterface {
 }
 function Attendance() {
 	const [disable, setDisable] = useState(false);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [ids, setIds] = useState<string[]>([]);
 	const [search, setSearch] = useState<string>("");
 	const [values, setValues] = useState<any[]>([]);
@@ -39,6 +39,7 @@ function Attendance() {
 			return;
 		}
 		const batch = filterBatches(batches);
+		
 		if (!batch) {
 			return;
 		}
@@ -47,7 +48,6 @@ function Attendance() {
 			for (let i = 0; i < subjects.length; i++) {
 				const element = subjects[i];
 				if (element.name === batch.name) {
-					console.log(element);
 					setSelectedSubject(element);
 					break;
 				}
@@ -125,18 +125,20 @@ function Attendance() {
 			return;
 		}
 		console.log("fetching");
+		setLoading(true);
 
 		try {
 			const [studentRecords, attendenceRecord] = await Promise.all([
 				axios.get(`/api/attendence?id=${batch.code}`),
 				axios.get(`/api/attendence/assign-attendence?id=${batch.code}`),
 			]);
-			console.log(studentRecords, attendenceRecord);
 			setValues(studentRecords.data.data);
 			setSearchData(studentRecords.data.data);
 			setIds(attendenceRecord.data.data?.studentsId || []);
 			setLoading(false);
 		} catch (error: any) {
+			setLoading(false);
+
 			show({
 				summary: "Attendance",
 				detail: error.response?.data?.message || "Error fetching attendance!",
@@ -146,7 +148,6 @@ function Attendance() {
 	}, [batch]);
 
 	useEffect(() => {
-		setLoading(true);
 		fetchRecords();
 	}, [batch]);
 
@@ -217,8 +218,6 @@ function Attendance() {
 	const [nav, setNav] = useState(false);
 	const navFunc = (e: MouseEvent) => {
 		const container = document.getElementById("filter-container");
-		console.log(container);
-
 		if (
 			(e.target as HTMLElement).id !== "show-nav-icon" &&
 			!container?.contains(e.target as HTMLElement)
@@ -321,9 +320,9 @@ function Attendance() {
 				</div>
 				<Link
 					href="/all/attendence"
-					className="fixed bottom-20 right-16 bg-lime-800 rounded-full "
+					className="fixed bottom-10 right-8 lg:bottom-20 lg:right-16 bg-lime-700 rounded-full "
 				>
-					<i className="pi pi-history text-2xl px-5 py-4"></i>
+					<i className="pi pi-history text-xl lg:text-2xl  px-4 py-3 lg:px-5 lg:py-4"></i>
 				</Link>
 			</div>
 		</>
