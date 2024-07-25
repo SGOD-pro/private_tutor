@@ -169,7 +169,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 										htmlFor="card-number-input"
 										className="mb-2 block text-sm font-medium text-white capitalize"
 									>
-										{!values?.firstPaid ? "last paid" : "admission date"}
+										Assign Date
 									</label>
 									<input
 										type="text"
@@ -179,8 +179,6 @@ function PaymentForm({ data }: { data: Student | null }) {
 											!values?.firstPaid ?values?.month ? calculateNextMonthDate(values.month) : "":extractDate(values.month)
 										}
 										required
-										readOnly
-										disabled
 									/>
 								</div>
 							</div>

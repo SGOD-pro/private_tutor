@@ -13,6 +13,7 @@ interface ExamProps {
 	caption: string;
 	batch: { name: string; code: string } | null;
 	date: Date | null;
+	mode?: boolean;
 }
 function ExamForm() {
 	const [values, setValues] = useState<ExamProps>({
@@ -20,22 +21,20 @@ function ExamForm() {
 		caption: "",
 		batch: null,
 		date: null,
+		mode: true,
 	});
 	const addDispatch: AppDispatch = useDispatch();
-	const show = useCallback(
-		({ summary, detail, type }: ToastInterface) => {
-			addDispatch(
-				showToast({
-					severity: type,
-					summary,
-					detail,
-					visible: true,
-				})
-			);
-		},
-	  [],
-	)
-	
+	const show = useCallback(({ summary, detail, type }: ToastInterface) => {
+		addDispatch(
+			showToast({
+				severity: type,
+				summary,
+				detail,
+				visible: true,
+			})
+		);
+	}, []);
+
 	const AllSubjects = useSelector((state: any) => state.Subjects.allSubjects);
 	const subjects = AllSubjects.map((subject: any) => ({
 		name: subject.subject,
@@ -45,7 +44,11 @@ function ExamForm() {
 	const batches = useSelector((state: any) => state.Batches.allBatches);
 
 	const [batchValues, setBatchValues] = useState([]);
-
+	const [modeValues, setModeValues] = useState([
+		{ name: "Online", code: true },
+		{ name: "Offline", code: false },
+	]);
+	const [mode, setMode] = useState();
 	const [disable, setDisable] = useState(false);
 
 	const [selectedSubject, setSelectedSubject] = useState(null);
@@ -71,19 +74,19 @@ function ExamForm() {
 			.post(`/api/exam/set-exam`, data)
 			.then((response) => {
 				console.log(response);
-				
+
 				show({
 					summary: "Added",
 					type: "success",
 					detail: response.data.message,
 				});
-				setSelectedSubject(null)
+				setSelectedSubject(null);
 				setValues({
 					title: "",
 					caption: "",
 					batch: null,
 					date: null,
-				})
+				});
 			})
 			.catch((err) => {
 				show({
@@ -146,8 +149,10 @@ function ExamForm() {
 				<div className="card flex justify-content-center flex-grow flex-shrink basis-44 rounded-md text-xs">
 					<Select
 						options={batchValues}
-						handleChange={setBatch}
-						value={values.batch}
+						handleChange={(e)=>{setMode(e.value);if (e.value.code) {
+							setValues((prev)=>{...prev,mode:e.value.code})
+						}}}
+						value={mode}
 						placeholder={"Select mode"}
 					/>
 				</div>

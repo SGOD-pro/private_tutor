@@ -283,7 +283,7 @@ function AllAttendence() {
 					id="nav"
 				></i>
 				<div
-					className={`lg:flex flex-col lg:flex-row items-center justify-between  px-4 py-6 fixed lg:static bg-slate-900 lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-0 lg:w-fit transition-all ease-out ${
+					className={`lg:flex flex-col lg:flex-row items-stretch justify-between  px-4 py-6 fixed lg:static bg-slate-900 lg:bg-transparent  w-1/2 min-w-72 h-full lg:h-fit right-0 top-0 z-0 lg:w-fit transition-all ease-out ${
 						showNav ? "translate-x-0" : "translate-x-full"
 					} lg:translate-x-0 lg:left-0 rounded-l-3xl lg:py-0 gap-2`}
 				>
