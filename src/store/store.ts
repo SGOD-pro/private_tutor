@@ -4,12 +4,14 @@ import Subjects from "./slices/Subjects";
 import Batches from "./slices/SubjectBatch";
 import Assignments from "./slices/Assignments";
 import BatchStudents from "./slices/BatchStudents";
+import Exams from "./slices/Exams";
 import Toast from "./slices/Toast";
 
 const store = configureStore({
 	reducer: {
 		Students,
 		Subjects,
+		Exams,
 		Batches,
 		Assignments,
 		BatchStudents,

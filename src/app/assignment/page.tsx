@@ -38,15 +38,15 @@ function Assignment() {
 		<div className="h-full w-full  overflow-x-hidden overflow-y-auto custom-scrollbar">
 			<header className="sticky left-0">
 				<div className="flex items-center justify-between border-b-slate-500/60 border-b mb-2 p-1">
-					<h2 className="text-3xl font-semibold">Assignments</h2>
+					<h2 className="text-2xl sm:text-3xl font-semibold">Assignments</h2>
 					<Link
 						href="/all/show-assignments"
-						className="text-emerald-400 hover:underline"
+						className="text-emerald-400 underline text-xs sm:text-base"
 					>
 						Show Assignments
 					</Link>
 				</div>
-				<div className="md:m-auto bg-slate-800 w-56 rounded-lg p-2">
+				<div className="md:m-auto bg-slate-800 sm:w-56 sm:mx-0 mx-1 rounded-lg p-2">
 					<div
 						className="flex items-center justify-around p-1 relative rounded-md cursor-pointer overflow-hidden"
 						onClick={menubar}
@@ -82,7 +82,7 @@ function Assignment() {
 							!menu ? "-translate-x-1/2" : "translate-x-0"
 						} transition-all h-full flex`}
 					>
-						<aside className="w-1/2 h-full">
+						<aside className="w-1/2 h-full min-h-96">
 							<Editor />
 						</aside>
 						<aside className="w-1/2 h-full">

@@ -4,15 +4,15 @@ import React from "react";
 function Offline() {
 	return (
 		<div className="bg-black text-white">
-			<div className="flex h-screen">
+			<div className="flex h-screen w-screen">
 				<div className="m-auto text-center">
-					<div>
+					<div className="p-4">
 						<svg
-							width="450"
-							height="338"
+						
 							viewBox="0 0 450 338"
 							fill="none"
 							xmlns="http://www.w3.org/2000/svg"
+							className="w-ful h-full object-contain"
 						>
 							<g clipPath="url(#clip0)">
 								<path

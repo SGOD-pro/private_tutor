@@ -198,7 +198,7 @@ export default function Home() {
 					</div>
 				</section>
 			</div>
-			<aside className="hidden lg:flex min-w-56 flex-col gap-2 relative rounded-lg  h-full">
+			<aside className="hidden lg:flex min-w-56 flex-col gap-2 relative rounded-lg  h-full overflow-auto custom-scrollbar">
 				<Loading loading={loading}>
 					<div className=" w-full relative border border-slate-400/60 rounded-lg">
 						<SimpleCard />

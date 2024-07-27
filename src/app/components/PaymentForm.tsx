@@ -14,6 +14,7 @@ import {
 	getFeesMonthNames,
 	monthsDifference,
 } from "@/utils/DateTime";
+import { Calendar } from "primereact/calendar";
 
 function PaymentForm({ data }: { data: Student | null }) {
 	const [values, setValues] = useState(data);
@@ -95,9 +96,9 @@ function PaymentForm({ data }: { data: Student | null }) {
 					<h2 className="text-xl font-semibold text-white sm:text-2xl">
 						Payment
 					</h2>
-					<div className="mt-2 sm:mt-3">
+					<div className="mt-2 sm:mt-3 w-full">
 						<form
-							className="w-full rounded-lg border p-3 shadow-sm  border-gray-700  bg-gray-800 sm:p-4 lg:max-w-xl lg:p-5"
+							className="w-full rounded-lg border p-3 shadow-sm  border-gray-700  bg-gray-800 sm:p-4 lg:p-5"
 							onSubmit={PayFee}
 						>
 							<div className="mb-6 grid grid-cols-2 gap-4">
@@ -171,7 +172,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 									>
 										Assign Date
 									</label>
-									<input
+									{/* <input
 										type="text"
 										id="card-number-input"
 										className="block w-full rounded-lg border   p-2.5 pe-10 text-sm  focus:border-primary-500 focus:ring-primary-500 border-gray-600  bg-gray-700  text-white  placeholder:text-gray-400  focus:border-primary-500  focus:ring-primary-500"
@@ -179,7 +180,8 @@ function PaymentForm({ data }: { data: Student | null }) {
 											!values?.firstPaid ?values?.month ? calculateNextMonthDate(values.month) : "":extractDate(values.month)
 										}
 										required
-									/>
+									/> */}
+									<Calendar className="w-full" disabled={!values || values?.fees === 0}/>
 								</div>
 							</div>
 

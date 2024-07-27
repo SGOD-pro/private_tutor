@@ -1,11 +1,11 @@
 "use client"
-import React, { useRef,useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import SelectCom from '../assignment/SelectCom'
 import axios from 'axios';
 import { showToast } from "@/store/slices/Toast";
 import { useDispatch } from 'react-redux';
-import {pushAssignment} from "@/store/slices/Assignments"
+import { pushAssignment } from "@/store/slices/Assignments"
 export default function App() {
   const editorRef = useRef(null);
   const batchId = useRef(null);
@@ -24,12 +24,12 @@ export default function App() {
   };
   const submitForm = (e) => {
     e.preventDefault();
-    if (!editorRef.current || !batchId.current||!subDate.current) {
+    if (!editorRef.current || !batchId.current || !subDate.current) {
       show({
-				summary: "Validation Error",
-				type: "warn",
-				detail: "Cannot get proper crediantial details",
-			});
+        summary: "Validation Error",
+        type: "warn",
+        detail: "Cannot get proper crediantial details",
+      });
       return;
     }
     console.log(editorRef.current.getContent(), batchId.current);
@@ -59,7 +59,7 @@ export default function App() {
   }
   return (
     <>
-      <form action="" className='w-full h-full flex flex-col my-2' onSubmit={submitForm}>
+      <form action="" className='w-full h-[97%] flex flex-col my-2 ' onSubmit={submitForm}>
         <Editor
           apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
           onInit={(evt, editor) => editorRef.current = editor}
@@ -89,17 +89,17 @@ export default function App() {
             content_css: 'dark',
           }}
         />
-        <div className="flex gap-3 justify-end items-stretch mt-2">
-          <div className="w-1/2 min-w-96">
-          <SelectCom batchId={batchId} subDate={subDate}/>
+        <div className="flex gap-1 sm:gap-3 justify-end items-end mt-2  mr-3">
+          <div className="sm:w-1/2 sm:min-w-96 overflow-auto custom-scrollbar">
+            <SelectCom batchId={batchId} subDate={subDate} />
           </div>
-          <button className='font-semibold border border-emerald-500 text-emerald-500 hover:bg-slate-200/10 rounded-xl shadow shadow-black'>
+          <button className='font-semibold border border-emerald-500 text-emerald-500 hover:bg-slate-200/10 rounded shadow shadow-black mb-1 sm:mb-0'>
             {!loading ?
-
-              <i className="pi pi-cloud-upload px-3 py-1"></i> :
-              <i className="pi pi-spin pi-spinner px-3 py-1"></i>
+              <i className="pi pi-cloud-upload p-3"></i> :
+              <i className="pi pi-spin pi-spinner p-3"></i>
             }
-          </button>	</div>
+          </button>
+        </div>
       </form>
     </>
   );

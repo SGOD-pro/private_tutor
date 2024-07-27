@@ -34,7 +34,7 @@ function Popover({
 				show
 					? "scale-100 visible opacity-100"
 					: " scale-50 invisible opacity-0 shadow-none"
-			} z-50 bg-zinc-950/80 backdrop-blur shadow-black shadow-lg sm:min-w-96 min-w-[90vw] max-h-[95vh] overflow-y-auto overflow-x-hidden custom-scrollbar`}
+			} z-50 bg-zinc-950/80 backdrop-blur shadow-black shadow-lg sm:min-w-96 w-[90vw] sm:w-1/2 max-h-[95vh] overflow-y-auto verflow-x-auto sm:overflow-x-hidden custom-scrollbar`}
 			id="popover"
 		>
 			<div className="text-right sticky top-0 z-50">

@@ -237,7 +237,7 @@ function Attendance() {
 		<>
 			<div className="h-full  sm:rounded-l-[20px] md:rounded-l-[3.2rem] rounded-lg overflow-hidden bg-[#1F2937] z-0">
 				<div className="h-full overflow-hidden custom-scrollbar relative z-0 text-sm">
-					<header className={`flex w-full items-center justify-between px-5 `}>
+					<header className={`flex w-full items-center justify-between px-5 py-2 border-b border-slate-600/60`}>
 						<h2 className="text-2xl font-semibold">Attendence</h2>
 						<div className="flex items-center">
 							<div className="icon text-right relative">

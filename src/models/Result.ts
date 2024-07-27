@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, ObjectId } from "mongoose";
 
 interface Marks extends Document {
 	studentId: ObjectId;
-	marks: ObjectId;
+	marks: number;
 }
 interface Result extends Document {
 	examId: ObjectId;
