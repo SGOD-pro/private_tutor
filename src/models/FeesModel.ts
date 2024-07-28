@@ -4,16 +4,13 @@ interface FeesInterface extends Document {
 	studentId: ObjectId;
 	paidMonth: Date;
 	createdAt: Date;
-	updatedAt: Date;
 }
 
-const feesSchama: Schema<FeesInterface> = new Schema(
-	{
-		studentId: Schema.Types.ObjectId,
-		paidMonth: Date,
-	},
-	{ timestamps: true }
-);
+const feesSchama: Schema<FeesInterface> = new Schema({
+	studentId: Schema.Types.ObjectId,
+	paidMonth: Date,
+	createdAt: Date,
+});
 
 const feesModel =
 	(mongoose.models.fees as mongoose.Model<FeesInterface>) ||

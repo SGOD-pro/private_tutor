@@ -23,7 +23,7 @@ export async function GET(req: Request) {
 				},
 			},
 		]);
-		if (admissionAt.length===0) {
+		if (admissionAt.length === 0) {
 			return Response.json(
 				{
 					message: "Cann't find student",
@@ -42,11 +42,11 @@ export async function GET(req: Request) {
 					},
 				},
 			},
-			{ $project: { _id: 0, dates: 1 } }
+			{ $project: { _id: 0, dates: 1 } },
 		]);
-		
+
 		console.log(admissionAt[0].admissionDate);
-		console.log( lastFees.length > 0 ? lastFees[0].dates : undefined);
+		console.log(lastFees.length > 0 ? lastFees[0].dates : undefined);
 		return Response.json(
 			{
 				message: "New student",
@@ -58,10 +58,9 @@ export async function GET(req: Request) {
 			},
 			{ status: 200 }
 		);
-		
 	} catch (error: any) {
 		console.log(error);
-		
+
 		return Response.json(
 			{
 				message: error.message || "Connot get the fees record",
@@ -77,13 +76,8 @@ export async function POST(req: Request) {
 	try {
 		const url = new URL(req.url);
 		const _id = url.searchParams.get("id");
-		let noOfMonths =1
-		const Months = url.searchParams.get("months");
-		if (typeof Months === "string") {
-			noOfMonths=parseInt(Months)
-		}
-		console.log(Months);
-		
+		const { months, date } = await req.json();
+		console.log({ months, date });
 		if (!_id) {
 			return Response.json({ message: "Cannot get id" }, { status: 403 });
 		}
@@ -101,20 +95,27 @@ export async function POST(req: Request) {
 			const latestPaidMonth = getNextMonth(exists[0].paidMonth);
 			month = latestPaidMonth;
 		}
-		let paidFeesArray=[]
-		for (let i = 0; i < noOfMonths; i++) {
-			paidFeesArray.push({ studentId: std._id, paidMonth: month })
-			month=getNextMonth(month)
+		let paidFeesArray = [];
+		for (let i = 0; i < months; i++) {
+			paidFeesArray.push({
+				studentId: std._id,
+				paidMonth: month,
+				createdAt: date,
+			});
+			month = getNextMonth(month);
 		}
-console.log(paidFeesArray);
+		console.log(paidFeesArray);
 
-		const paidFees = await feesModel.insertMany(paidFeesArray)
+		const paidFees = await feesModel.insertMany(paidFeesArray);
 
-		const paidMonth = new Date(paidFees[noOfMonths-1].paidMonth.getTime());
-		
+		const paidMonth = new Date(paidFees[months - 1].paidMonth.getTime());
+
 		return Response.json(
 			{
-				message: noOfMonths===1?`${getMonthName(paidMonth)}} Payment successfully`: "Payment successfully"
+				message:
+					months === 1
+						? `${getMonthName(paidMonth)} Payment successfully`
+						: "Payment successfully",
 			},
 
 			{ status: 201 }

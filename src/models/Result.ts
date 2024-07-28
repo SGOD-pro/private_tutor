@@ -6,13 +6,14 @@ interface Marks extends Document {
 }
 interface Result extends Document {
 	examId: ObjectId;
-	result: Result[];
+	result: Marks[];
 }
 
 const resutlSchema: Schema<Result> = new Schema({
 	examId: {
 		type: Schema.Types.ObjectId,
 		ref: "exams",
+		unique: true,
 	},
 	result: [],
 });

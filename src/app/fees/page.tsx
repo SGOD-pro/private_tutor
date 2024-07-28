@@ -199,7 +199,7 @@ function Fees() {
 								<input
 									type="text"
 									className="rounded-md bg-[#393E46] outline-none px-3 py-2"
-									placeholder="AdmissionNo | ContactNo"
+									placeholder="AdmissionNo"
 									ref={studentSearchBox}
 								/>
 								<button

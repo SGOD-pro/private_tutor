@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface ExamsInterface {
 	date: string;
-	_id?: string;
+	_id: string;
 	batch_name: string;
 	subject: string;
 }

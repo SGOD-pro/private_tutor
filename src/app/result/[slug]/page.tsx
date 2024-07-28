@@ -1,13 +1,13 @@
 "use client";
 import axios from "axios";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import React, { useEffect } from "react";
-
-interface Student {
-	student_id: string;
-	marks: number;
-}
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store/store";
+import { showToast, ToastInterface } from "@/store/slices/Toast";
+import { title } from "process";
 interface StudentData {
 	_id: string;
 	name: string;
@@ -18,18 +18,31 @@ interface Value {
 	subject: string;
 	_id: string;
 	date: string;
-  marks:number;
+	marks: number;
 	students: StudentData[];
 }
-function page({ params }: { params: { slug: string } }) {
+
+function SetResult({ params }: { params: { slug: string } }) {
 	const { slug } = params;
 	const [error, setError] = React.useState(false);
+	const [studentsMarks, setStudentsMarks] = React.useState<{
+		[key: string]: number;
+	}>({});
 	useEffect(() => {
 		axios
 			.get(`/api/exam/students?id=${slug}`)
 			.then((response) => {
-				console.log(response.data.data);
+				console.log(response.data);
 				setValues(response.data.data);
+				const s: any = {};
+				response.data.data.students.map((item: StudentData) => {
+					s[item._id] = 0;
+				});
+				if (response.data.exists) {
+					setStudentsMarks(response.data.marks?.result);
+				} else {
+					setStudentsMarks(s);
+				}
 			})
 			.catch((error) => {
 				console.log(error);
@@ -42,35 +55,84 @@ function page({ params }: { params: { slug: string } }) {
 		}
 	}, [error]);
 
-	const [students, setStudents] = React.useState<Student[]>([]);
 	const [values, setValues] = React.useState<Value>();
+	const addDispatch: AppDispatch = useDispatch();
 
+	const show = React.useCallback(
+		({ summary, detail, type }: ToastInterface) => {
+			addDispatch(
+				showToast({
+					severity: type,
+					summary,
+					detail,
+					visible: true,
+				})
+			);
+		},
+		[]
+	);
 	const handleAddStudent = () => {
-		const studentInputs =
-			document.querySelectorAll<HTMLInputElement>("table input");
-		const newStudents: Student[] = [];
-
-		studentInputs.forEach((studentInput, index) => {
-			const marksInput = studentInput.value;
-			const id = studentInput.id;
-			if (studentInput && marksInput) {
-				newStudents.push({
-					student_id: id,
-					marks: Number(marksInput),
-				});
+		console.log(studentsMarks);
+		const data = [];
+		for (const key in studentsMarks) {
+			if (Object.prototype.hasOwnProperty.call(studentsMarks, key)) {
+				if (values?.marks && studentsMarks[key] > values.marks) {
+					show({
+						summary: "Invalid Marks",
+						detail: "Full marks is " + values.marks,
+						type: "warn",
+					});
+					return;
+				}
+				data.push({ studentId: key, marks: studentsMarks[key] });
 			}
-		});
-
-		setStudents([...students, ...newStudents]);
+		}
+		console.log(data, values?._id);
+		if (!values?._id) {
+			return;
+		}
+		axios
+			.post(`/api/exam/set-marks?id=${values?._id}`, data)
+			.then((response) => {
+				console.log(response.data);
+			})
+			.catch((err) => {
+				console.log(err);
+				show({
+					summary: "Invalid Marks",
+					detail: err.response.data.message || "Internal error occurred",
+					type: "error",
+				});
+			});
+	};
+	const handleInputChange = (id: string, value: number) => {
+		setStudentsMarks((prev) => ({
+			...prev,
+			[id]: value,
+		}));
 	};
 	return (
 		<>
 			<header className="flex items-center justify-between px-4 border-b border-slate-300/50 mb-3 h-14">
 				<h2 className="text-3xl font-semibold">{values?.subject}</h2>
-        <div className="flex gap-3 items-center">
-          <button className="border border-emerald-400 text-emerald-400 rounded-md hover:bg-slate-200/10"><i className="pi pi-save p-3"></i></button>
-				<p className="hidden sm:block opacity-75">Assign Date:- {values?.date}</p>
-        </div>
+				<div className="flex gap-3 items-end">
+					<Link
+						className="border border-slate-500 text-slate-500 rounded-md hover:bg-slate-200/10"
+						href={"/result"}
+					>
+						<i className="pi pi-arrow-left p-3"></i>
+					</Link>
+					<button
+						className="border border-emerald-400 text-emerald-400 rounded-md hover:bg-slate-200/10"
+						onClick={handleAddStudent}
+					>
+						<i className="pi pi-save p-3"></i>
+					</button>
+
+					<p className="hidden sm:block opacity-45 tracking-tight">
+						Assign Date:- {values?.date}
+					</p>
+				</div>
 			</header>
 			<main className="max-h-[calc(100vh-6.5rem)] relative border rounded-3xl sm:p-4 p-2 overflow-auto custom-scrollbar">
 				<div className="h-full overflow-auto">
@@ -101,7 +163,20 @@ function page({ params }: { params: { slug: string } }) {
 									</td>
 									<td className="whitespace-nowrap p-3">
 										<div className="text-right my-2">
-											<input type="number" placeholder={values?.marks+""} id={item._id} className="bg-[#393E46] px-3 py-2 rounded-md outline-none focus:outline focus:outline-[#00ADB5]/60" max={values?.marks+""}/>
+											<input
+												type="number"
+												placeholder={values?.marks + ""}
+												id={item._id}
+												className="bg-[#393E46] px-3 py-2 rounded-md outline-none focus:outline focus:outline-[#00ADB5]/60"
+												max={values?.marks + ""}
+												value={studentsMarks[item._id]}
+												onChange={(e) =>
+													handleInputChange(
+														item._id,
+														parseFloat(e.target.value)
+													)
+												}
+											/>
 										</div>
 									</td>
 								</tr>
@@ -114,4 +189,4 @@ function page({ params }: { params: { slug: string } }) {
 	);
 }
 
-export default page;
+export default SetResult;

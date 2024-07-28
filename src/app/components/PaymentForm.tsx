@@ -15,6 +15,7 @@ import {
 	monthsDifference,
 } from "@/utils/DateTime";
 import { Calendar } from "primereact/calendar";
+import { Nullable } from "primereact/ts-helpers";
 
 function PaymentForm({ data }: { data: Student | null }) {
 	const [values, setValues] = useState(data);
@@ -36,42 +37,56 @@ function PaymentForm({ data }: { data: Student | null }) {
 		);
 	}, []);
 	const [months, setMonths] = useState<string>("");
-	const PayFee = useCallback((e: React.FocusEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		console.log(values);
-		
-		if (!values?._id) {
-			Toast({
-				summary: "Paid",
-				type: "success",
-				detail: "returned",
-			});
-			return;
-		}
-		setLoading(true);
-		console.log(value);
-		
-		axios
-			.post(`/api/fees?id=${values?._id}&months=${value}`)
-			.then((response) => {
+	const [date, setDate] = useState<Nullable<Date>>(new Date());
+	const PayFee = useCallback(
+		(e: React.FocusEvent<HTMLFormElement>) => {
+			e.preventDefault();
+			console.log(values);
+
+			if (!values?._id) {
 				Toast({
 					summary: "Paid",
-					type: "success",
-					detail: response.data.message,
+					type: "warn",
+					detail: "returned",
 				});
-			})
-			.catch((error) => {
-				Toast({
-					summary: "Not paid",
-					type: "error",
-					detail: error.response.data.message,
+				return;
+			}
+			setLoading(true);
+			if (!date) {
+				return;
+			}
+			let newDate = new Date(date);
+			newDate.setHours(newDate.getHours() + 5);
+
+			// Add 30 minutes (30 * 60 * 1000 milliseconds)
+			newDate.setMinutes(newDate.getMinutes() + 30);
+			axios
+				.post(`/api/fees?id=${values?._id}`, {
+					months: value ? value : 1,
+					date:newDate,
+				})
+				.then((response) => {
+					Toast({
+						summary: "Paid",
+						type: "success",
+						detail: response.data.message,
+					});
+				})
+				.catch((error) => {
+					Toast({
+						summary: "Not paid",
+						type: "error",
+						detail: error.response.data.message,
+					});
+				})
+				.finally(() => {
+					setValues(null);
+					setLoading(false);
+					setDate(new Date());
 				});
-			})
-			.finally(() => {
-				setValues(null);
-				setLoading(false);
-			});
-	}, [values,value]);
+		},
+		[values, value, date]
+	);
 	useEffect(() => {
 		setValue(1);
 	}, [values?.admissionNo]);
@@ -81,14 +96,14 @@ function PaymentForm({ data }: { data: Student | null }) {
 		}
 		setMonths(getFeesMonthNames(values.month, value));
 	}, [values?.month, value]);
-	const calculateNextMonthDate = useCallback((value: Date | string) => {
-		if (value) {
-			const nextMonth = new Date(value);
-			nextMonth.setMonth(nextMonth.getMonth() - 1);
-			return extractDate(nextMonth);
-		}
-		return "";
-	}, []);
+	// const calculateNextMonthDate = useCallback((value: Date | string) => {
+	// 	if (value) {
+	// 		const nextMonth = new Date(value);
+	// 		nextMonth.setMonth(nextMonth.getMonth() - 1);
+	// 		return extractDate(nextMonth);
+	// 	}
+	// 	return "";
+	// }, []);
 	return (
 		<section className=" antialiased bg-gray-900 md:py-3 mt-4 rounded-lg relative overflow-hidden">
 			<div className="mx-auto max-w-screen-xl px-4 2xl:px-0">
@@ -113,7 +128,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 										type="text"
 										id="full_name"
 										className="block w-full rounded-lg border   p-2.5 text-sm  focus:border-primary-500 focus:ring-primary-500  border-gray-600  bg-gray-700  text-white  placeholder:text-gray-400  focus:border-primary-500  focus:ring-primary-500"
-										value={values?.name||""}
+										value={values?.name || ""}
 										required
 										readOnly
 										disabled
@@ -131,7 +146,7 @@ function PaymentForm({ data }: { data: Student | null }) {
 										type="text"
 										id="card-number-input"
 										className="block w-full rounded-lg border   p-2.5 pe-10 text-sm  focus:border-primary-500 focus:ring-primary-500 border-gray-600  bg-gray-700  text-white  placeholder:text-gray-400  focus:border-primary-500  focus:ring-primary-500"
-										value={values?.admissionNo||""}
+										value={values?.admissionNo || ""}
 										disabled
 										required
 										readOnly
@@ -172,16 +187,13 @@ function PaymentForm({ data }: { data: Student | null }) {
 									>
 										Assign Date
 									</label>
-									{/* <input
-										type="text"
-										id="card-number-input"
-										className="block w-full rounded-lg border   p-2.5 pe-10 text-sm  focus:border-primary-500 focus:ring-primary-500 border-gray-600  bg-gray-700  text-white  placeholder:text-gray-400  focus:border-primary-500  focus:ring-primary-500"
-										value={
-											!values?.firstPaid ?values?.month ? calculateNextMonthDate(values.month) : "":extractDate(values.month)
-										}
-										required
-									/> */}
-									<Calendar className="w-full" disabled={!values || values?.fees === 0}/>
+									<Calendar
+										className="w-full"
+										disabled={!values || values?.fees === 0}
+										value={date}
+										onChange={(e) => setDate(e.value)}
+										dateFormat="dd-mm-yy"
+									/>
 								</div>
 							</div>
 

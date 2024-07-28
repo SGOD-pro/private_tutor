@@ -42,10 +42,10 @@ function BasicDemo({
 		};
 
 		return (
-			<div className=" flex gap-2">
+			<div className=" flex gap-1">
 				{deleteFunction && (
 					<button
-						className="bg-gradient-to-tl to-red-400 from-red-600 rounded-lg p-3 grid place-items-center"
+						className="bg-gradient-to-tl to-rose-400 from-rose-600 shadow-rose-800/90 shadow-lg hover:shadow-none hover:scale-95 transition-all rounded-r-sm rounded-l-xl p-3 grid place-items-center"
 						onClick={handleDelete}
 						disabled={loading}
 					>
@@ -58,7 +58,7 @@ function BasicDemo({
 				)}
 				{editFunction && (
 					<button
-						className="bg-gradient-to-tl to-emerald-400 from-emerald-600 rounded-lg p-3 grid place-items-center"
+						className="bg-gradient-to-tl to-emerald-400 from-emerald-600 shadow-emerald-800/90 shadow-lg hover:shadow-none hover:scale-95 transition-all rounded-l-sm rounded-r-xl p-3 grid place-items-center"
 						onClick={() => editFunction(data)}
 					>
 						<i className="pi pi-pen-to-square"></i>

@@ -106,8 +106,6 @@ export async function GET() {
 				},
 			},
 		]);
-		console.log(assignment);
-
 		return Response.json(
 			{ message: "Fetched all assignments", success: true, data: assignment },
 			{ status: 200 }

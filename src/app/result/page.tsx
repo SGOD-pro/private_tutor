@@ -29,11 +29,12 @@ function Result() {
 			})
 			.catch((error) => {
 				console.log(error);
-			}).finally(()=>{
-				setLoading(false)
+			})
+			.finally(() => {
+				setLoading(false);
 			});
 	}, []);
-
+	const deleteExam = (id: string) => {};
 	return (
 		<div>
 			<Popover show={show} setShow={setShow}>
@@ -77,7 +78,7 @@ function Result() {
 							<Loading loading={loading}>
 								{allExams?.map((item, index) => (
 									<tr key={index} className="p-3">
-										<td className="whitespace-nowrap p-3" >
+										<td className="whitespace-nowrap p-3">
 											<div className=" font-medium text-green-500">
 												{item.subject}
 											</div>
@@ -87,16 +88,24 @@ function Result() {
 												{item.batch_name}
 											</div>
 										</td>
-										<td className="whitespace-nowrap p-3" >
+										<td className="whitespace-nowrap p-3">
 											<div className="">{item.date}</div>
 										</td>
 										<td className="whitespace-nowrap p-3">
 											<div className="text-right my-2 space-x-2">
-												<Link href={`/result/${item._id}`} className="bg-cyan-600 rounded-sm rounded-tr-xl rounded-bl-xl p-3 shadow-lg shadow-cyan-900/80 transition-all active:shadow-none hover:scale-95">
+												<Link
+													href={`/result/${item._id}`}
+													className="bg-cyan-600 rounded-sm rounded-tr-xl rounded-bl-xl p-3 shadow-lg shadow-cyan-900/80 transition-all active:shadow-none hover:scale-95"
+												>
 													{" "}
 													<div className="pi pi-link"></div>
 												</Link>
-												<button className="bg-rose-600 rounded-sm rounded-tl-xl rounded-br-xl p-3 shadow-lg shadow-rose-900/80 transition-all active:shadow-none hover:scale-90">
+												<button
+													className="bg-rose-600 rounded-sm rounded-tl-xl rounded-br-xl p-3 shadow-lg shadow-rose-900/80 transition-all active:shadow-none hover:scale-90"
+													onClick={() => {
+														deleteExam(item._id);
+													}}
+												>
 													{" "}
 													<div className="pi pi-trash "></div>
 												</button>

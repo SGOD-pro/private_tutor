@@ -2,7 +2,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import DOMPurify from 'dompurify';
-
+import "./style.css";
 function SlugAssignment({ params }) {
   const { slug } = params;
   const [value, setValue] = useState(`<h1 className=" text-3xl capitalize font-semibold mx-auto"> not found</h1>`);
@@ -21,7 +21,9 @@ function SlugAssignment({ params }) {
   return (
     <>
       {/* Use DOMPurify directly */}
-      <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }} />
+      <main className="assignment overflow-auto">
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }} />
+      </main>
     </>
   );
 }
